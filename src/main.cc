@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "command_line.h"
-#include "file_path.h"
+#include "base/command_line.h"
+#include "base/file_path.h"
 
 int main(int argc, const char* argv[]) {
   CommandLine cl(argc, argv);

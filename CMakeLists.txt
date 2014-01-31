@@ -7,10 +7,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions("-std=c++0x")
 
 set(base_SRC_FILES
-  src/command_line.cc
-  src/file_path.cc
-  src/string_util.cc
-  src/string_util_constants.cc
+  src/base/command_line.cc
+  src/base/file_path.cc
+  src/base/string_util.cc
+  src/base/string_util_constants.cc
 )
 
 ## GTest
@@ -23,7 +23,7 @@ enable_testing(true)
 include_directories(${gtest_SOURCE_DIR}/include)
 
 add_executable(unit-tests
-  src/command_line_unittest.cc
+  src/base/command_line_unittest.cc
   ${base_SRC_FILES}
 )
 
@@ -32,6 +32,8 @@ target_link_libraries(unit-tests gtest gtest_main)
 add_test(unit-tests unit-tests)
 
 ## ghost
+
+include_directories(src/base/)
 
 add_executable(ghost
   src/main.cc
