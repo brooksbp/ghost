@@ -12,6 +12,8 @@ add_executable(ghost
   src/main.cc
   src/command_line.cc
   src/file_path.cc
+  src/string_util.cc
+  src/string_util_constants.cc
 )
 
 qt5_use_modules(ghost Widgets)
