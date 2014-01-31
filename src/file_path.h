@@ -7,6 +7,8 @@
 
 #include "build_config.h"
 
+namespace base {
+
 // An abstraction to isolate users from the differences between native
 // pathnames on different platforms.
 class FilePath {
@@ -40,6 +42,8 @@ class FilePath {
  private:
   StringType path_;
 };
+
+}  // namespace base
 
 // Macros for string literal initialization of FilePath::CharType[], and for
 // using a FilePath::CharType[] in a printf-style format string.

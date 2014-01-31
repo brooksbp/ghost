@@ -2,11 +2,17 @@
 
 #include "file_path.h"
 
+namespace base {
+
 typedef FilePath::StringType StringType;
+
+namespace {
 
 const char* kCommonDoubleExtensionSuffixes[] = { "gz", "z", "bz2" };
 
 const FilePath::CharType kStringTerminator = FILE_PATH_LITERAL('\0');
+
+}  // namespace
 
 FilePath::FilePath() {
 }
@@ -22,3 +28,5 @@ FilePath::FilePath(const StringType& path) : path_(path) {
 
 FilePath::~FilePath() {
 }
+
+}  // namespace base

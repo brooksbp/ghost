@@ -8,7 +8,10 @@
 #include <vector>
 
 #include "build_config.h"
-#include "file_path.h"
+
+namespace base {
+class FilePath;
+}
 
 class CommandLine {
  public:
@@ -45,15 +48,15 @@ class CommandLine {
   StringType GetArgumentsString() const;
   
   // Get and Set the program part of the command line string (the first item).
-  FilePath GetProgram() const;
-  void SetProgram(const FilePath& program);
+  base::FilePath GetProgram() const;
+  void SetProgram(const base::FilePath& program);
 
   // Append a switch [with optional value] to the command line.
   // Note: Switches will precede arguments regardless of appending order.
 #if 0
   void AppendSwitch(const std::string& switch_string);
   void AppendSwitchPath(const std::string& switch_string,
-                        const FilePath& path);
+                        const base::FilePath& path);
 #endif
   void AppendSwitchNative(const std::string& switch_string,
                           const StringType& value);
@@ -68,7 +71,7 @@ class CommandLine {
   // AppendArg is primarily for ASCII; non-ASCII input is interpreted as UTF-8.
   // Note: Switches will precede arguments regardless of appending order.
   void AppendArg(const std::string& value);
-  void AppendArgPath(const FilePath& value);
+  void AppendArgPath(const base::FilePath& value);
   void AppendArgNative(const StringType& value);
   
  private:

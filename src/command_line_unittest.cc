@@ -1,6 +1,10 @@
 #include "command_line.h"
+#include "file_path.h"
 #include "macros.h"
+
 #include <gtest/gtest.h>
+
+using base::FilePath;
 
 TEST(CommandLineTest, CommandLineConstructor) {
   const CommandLine::CharType* argv[] = {

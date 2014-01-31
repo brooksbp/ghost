@@ -1,11 +1,13 @@
 // base/command_line.cc
 
+#include "command_line.h"
+
 #include "file_path.h"
 #include "string_util.h"
 #include "build_config.h"
 #include "macros.h"
 
-#include "command_line.h"
+using base::FilePath;
 
 
 CommandLine* CommandLine::current_process_commandline_ = NULL;
