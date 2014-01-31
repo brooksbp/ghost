@@ -8,6 +8,10 @@ add_definitions("-std=c++0x")
 
 find_package(Qt5Widgets REQUIRED)
 
-add_executable(ghost src/main.cc)
+add_executable(ghost
+  src/main.cc
+  src/command_line.cc
+  src/file_path.cc
+)
 
 qt5_use_modules(ghost Widgets)
