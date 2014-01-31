@@ -28,8 +28,14 @@ class CommandLine {
 
   // A constructor for CommandLines that only carry switches and arguments.
   enum NoProgram { NO_PROGRAM };
+  explicit CommandLine(NoProgram no_program);
 
+  // Construct a new command line with |program| as argv[0].
+  explicit CommandLine(const base::FilePath& program);
+
+  // Construct a new command line from an argument list.
   CommandLine(int argc, const CharType* const* argv);
+  explicit CommandLine(const StringVector& argv);
 
   ~CommandLine();
 
@@ -46,25 +52,39 @@ class CommandLine {
   // CAUTION! This should be avoided on POSIX because quoting behavior is
   // unclear.
   StringType GetArgumentsString() const;
+
+  // Returns the original command line string as a vector of strings.
+  const StringVector& argv() const { return argv_; }
   
   // Get and Set the program part of the command line string (the first item).
   base::FilePath GetProgram() const;
   void SetProgram(const base::FilePath& program);
 
+  // Returns true if this command line contains the given switch.
+  // (Switch names are case-insensitive).
+  bool HasSwitch(const std::string& switch_string) const;
+
+  // Returns the value associated with the given switch. If the switch has no
+  // value or isn't present, this method returns the empty string.
+  std::string GetSwitchValueASCII(const std::string& switch_string) const;
+  base::FilePath GetSwitchValuePath(const std::string& switch_string) const;
+  StringType GetSwitchValueNative(const std::string& switch_string) const;
+
+  // Get a copy of all switches, along with their values.
+  const SwitchMap& GetSwitches() const { return switches_; }
+  
   // Append a switch [with optional value] to the command line.
   // Note: Switches will precede arguments regardless of appending order.
-#if 0
   void AppendSwitch(const std::string& switch_string);
   void AppendSwitchPath(const std::string& switch_string,
                         const base::FilePath& path);
-#endif
   void AppendSwitchNative(const std::string& switch_string,
                           const StringType& value);
-#if 0
   void AppendSwitchASCII(const std::string& switch_string,
                          const std::string& value);
-#endif
 
+  // Get the remaining arguments to the command.
+  StringVector GetArgs() const;
 
   // Append an argument to the command line. Note that the argument is quoted
   // properly such that it is interpreted as one argument to the target command.

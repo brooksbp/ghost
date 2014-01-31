@@ -2,6 +2,8 @@
 
 #include "command_line.h"
 
+#include <algorithm>
+
 #include "file_path.h"
 #include "string_util.h"
 #include "build_config.h"
@@ -12,6 +14,7 @@ using base::FilePath;
 
 CommandLine* CommandLine::current_process_commandline_ = NULL;
 
+namespace {
 const CommandLine::CharType kSwitchTerminator[] = FILE_PATH_LITERAL("--");
 const CommandLine::CharType kSwitchValueSeparator[] = FILE_PATH_LITERAL("=");
 
@@ -78,12 +81,17 @@ void AppendSwitchesAndArguments(CommandLine& command_line,
   }
 }
 
-FilePath CommandLine::GetProgram() const {
-  return FilePath(argv_[0]);
+}  // namespace
+
+CommandLine::CommandLine(NoProgram no_program)
+    : argv_(1),
+      begin_args_(1) {
 }
 
-void CommandLine::SetProgram(const FilePath& program) {
-  TrimWhitespace(program.value(), TRIM_ALL, &argv_[0]);
+CommandLine::CommandLine(const FilePath& program)
+    : argv_(1),
+      begin_args_(1) {
+  SetProgram(program);
 }
 
 CommandLine::CommandLine(int argc, const CommandLine::CharType* const* argv)
@@ -92,7 +100,53 @@ CommandLine::CommandLine(int argc, const CommandLine::CharType* const* argv)
   InitFromArgv(argc, argv);
 }
 
+CommandLine::CommandLine(const StringVector& argv)
+    : argv_(1),
+      begin_args_(1) {
+  InitFromArgv(argv);
+}
+
 CommandLine::~CommandLine() {
+}
+
+FilePath CommandLine::GetProgram() const {
+  return FilePath(argv_[0]);
+}
+
+void CommandLine::SetProgram(const FilePath& program) {
+  TrimWhitespace(program.value(), TRIM_ALL, &argv_[0]);
+}
+
+bool CommandLine::HasSwitch(const std::string& switch_string) const {
+  return switches_.find(switch_string) != switches_.end();
+}
+
+std::string CommandLine::GetSwitchValueASCII(
+    const std::string& switch_string) const {
+  StringType value = GetSwitchValueNative(switch_string);
+#if 0
+  if (!IsStringASCII(value)) {
+    // FIXME: DLOG(WARNING) << "Value of switch(" << switch_string << ") must be ASCII.";
+    return std::string();
+  }
+#endif
+#if defined(OS_WIN)
+  return WideToASCII(value);
+#else
+  return value;
+#endif
+}
+
+FilePath CommandLine::GetSwitchValuePath(
+    const std::string& switch_string) const {
+  return FilePath(GetSwitchValueNative(switch_string));
+}
+
+CommandLine::StringType CommandLine::GetSwitchValueNative(
+    const std::string& switch_string) const {
+  SwitchMap::const_iterator result =
+      switches_.find(switch_string);
+  return result == switches_.end() ? StringType() : result->second;
 }
 
 void CommandLine::InitFromArgv(int argc,
@@ -153,6 +207,15 @@ CommandLine::StringType CommandLine::GetArgumentsString() const {
   return params;
 }
 
+void CommandLine::AppendSwitch(const std::string& switch_string) {
+  AppendSwitchNative(switch_string, StringType());
+}
+
+void CommandLine::AppendSwitchPath(const std::string& switch_string,
+                                   const FilePath& path) {
+  AppendSwitchNative(switch_string, path.value());
+}
+
 void CommandLine::AppendSwitchNative(const std::string& switch_string,
                                      const CommandLine::StringType& value) {
 #if defined(OS_WIN)
@@ -171,6 +234,26 @@ void CommandLine::AppendSwitchNative(const std::string& switch_string,
     combined_switch_string += kSwitchValueSeparator + value;
   // Append the switch and update the switches/arguments divider |begin_args_|.
   argv_.insert(argv_.begin() + begin_args_++, combined_switch_string);
+}
+
+void CommandLine::AppendSwitchASCII(const std::string& switch_string,
+                                    const std::string& value_string) {
+#if defined(OS_WIN)
+  AppendSwitchNative(switch_string, base::ASCIIToWide(value_string));
+#elif defined(OS_POSIX)
+  AppendSwitchNative(switch_string, value_string);
+#endif
+}
+
+CommandLine::StringVector CommandLine::GetArgs() const {
+  // Gather all arguments after the last switch (may include kSwitchTerminator).
+  StringVector args(argv_.begin() + begin_args_, argv_.end());
+  // Erase only the first kSwitchTerminator (maybe "--" is a legitimate page?)
+  StringVector::iterator switch_terminator =
+      std::find(args.begin(), args.end(), kSwitchTerminator);
+  if (switch_terminator != args.end())
+    args.erase(switch_terminator);
+  return args;
 }
 
 void CommandLine::AppendArg(const std::string& value) {

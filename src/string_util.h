@@ -35,4 +35,21 @@ TrimPositions TrimWhitespace(const std::string& input,
                              TrimPositions postiions,
                              std::string* output);
 
+#if 0
+// Returns true if the specified string matches the criteria. How can a wide
+// string be 8-bit or UTF8? It contains only characters that are < 256 (in the
+// first case) or characters that use only 8-bits and whos 8-bit
+// representation looks like a UTF-8 string (the second case).
+//
+// Note that IsStringUTF8 checks not only if the input is structurally
+// valid but also if it doesn't contain any non-character codepoint
+// (e.g. U+FFFE). It's done on purpose because all the existing callers want
+// to have the maximum 'discriminating' power from other encodings. If
+// there's a use case for just checking the structural validity, we have to
+// add a new function for that.
+bool IsStringUTF8(const std::string& str);
+bool IsStringUTF8(const base::StringPiece& str);
+bool IsStringUTF8(const std::string& str);
+#endif
+
 #endif  // BASE_STRINGS_STRING_UTIL_H_
