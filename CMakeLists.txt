@@ -6,14 +6,37 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions("-std=c++0x")
 
-find_package(Qt5Widgets REQUIRED)
-
-add_executable(ghost
-  src/main.cc
+set(base_SRC_FILES
   src/command_line.cc
   src/file_path.cc
   src/string_util.cc
   src/string_util_constants.cc
 )
 
+## GTest
+
+set(gtest_SOURCE_DIR third_party/gtest-1.7.0)
+
+add_subdirectory(third_party/gtest-1.7.0)
+enable_testing(true)
+
+include_directories(${gtest_SOURCE_DIR}/include)
+
+add_executable(unit-tests
+  src/command_line_unittest.cc
+  ${base_SRC_FILES}
+)
+
+target_link_libraries(unit-tests gtest gtest_main)
+
+add_test(unit-tests unit-tests)
+
+## ghost
+
+add_executable(ghost
+  src/main.cc
+  ${base_SRC_FILES}
+)
+
+find_package(Qt5Widgets REQUIRED)
 qt5_use_modules(ghost Widgets)
