@@ -9,6 +9,14 @@ before_script:
   - cmake ..
 
 before_install:
+  - wget https://raw.github.com/brooksbp/cmake-64bit-binary/master/ccmake
+  - wget https://raw.github.com/brooksbp/cmake-64bit-binary/master/cmake
+  - wget https://raw.github.com/brooksbp/cmake-64bit-binary/master/cpack
+  - wget https://raw.github.com/brooksbp/cmake-64bit-binary/master/ctest
+  - mv ccmake /usr/bin/
+  - mv cmake /usr/bin/
+  - mv cpack /usr/bin/
+  - mv ctest /usr/bin/
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   - sudo apt-get update -qq
   - sudo apt-get install -qq qt5-qmake qtbase5-dev qtdeclarative5-dev libsqlite3-dev
