@@ -9,6 +9,7 @@ add_definitions("-std=c++0x")
 set(base_SRC_FILES
   src/base/command_line.cc
   src/base/file_path.cc
+  src/base/file_path_constants.cc
   src/base/string_util.cc
   src/base/string_util_constants.cc
 )

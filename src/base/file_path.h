@@ -5,7 +5,18 @@
 
 #include <string>
 
+#include "compiler_specific.h"
 #include "build_config.h"
+#include "macros.h"
+
+// Windows-style drive letter support and pathname separator characters can be
+// enabled and disabled independently, to aid in testing.  These #defines are
+// here so that the same setting can be used in both the implementation and
+// in the unit test.
+#if defined(OS_WIN)
+#define FILE_PATH_USES_DRIVE_LETTERS
+#define FILE_PATH_USES_WIN_SEPARATORS
+#endif  // OS_WIN
 
 namespace base {
 
@@ -26,20 +37,101 @@ class FilePath {
 
   typedef StringType::value_type CharType;
 
+  // Null-terminated array of separators used to separate components in
+  // hierarchical paths.  Each character in this array is a valid separator,
+  // but kSeparators[0] is treated as the canonical separator and will be used
+  // when composing pathnames.
+  static const CharType kSeparators[];
 
+  // arraysize(kSeparators).
+  static const size_t kSeparatorsLength;
+
+  // A special path component meaning "this directory."
+  static const CharType kCurrentDirectory[];
+
+  // A special path component meaning "the parent directory."
+  static const CharType kParentDirectory[];
+  
+  // The character used to identify a file extension.
+  static const CharType kExtensionSeparator;
+  
   FilePath();
   FilePath(const FilePath& that);
   explicit FilePath(const StringType& path);
   ~FilePath();
-
 
   const StringType& value() const { return path_; }
 
   bool empty() const { return path_.empty(); }
 
   void clear() { path_.clear(); }
+
+  // Returns true if |character| is in kSeparators.
+  static bool IsSeparator(CharType character);
+  
+  // Returns a FilePath corresponding to the directory containing the path
+  // named by this object, stripping away the file component.  If this object
+  // only contains one component, returns a FilePath identifying
+  // kCurrentDirectory.  If this object already refers to the root directory,
+  // returns a FilePath identifying the root directory.
+  FilePath DirName() const WARN_UNUSED_RESULT;
+
+  // Returns a FilePath corresponding to the last path component of this
+  // object, either a file or a directory.  If this object already refers to
+  // the root directory, returns a FilePath identifying the root directory;
+  // this is the only situation in which BaseName will return an absolute path.
+  FilePath BaseName() const WARN_UNUSED_RESULT;
+
+  // Returns ".jpg" for path "C:\pics\jojo.jpg", or an empty string if
+  // the file has no extension.  If non-empty, Extension() will always start
+  // with precisely one ".".  The following code should always work regardless
+  // of the value of path.  For common double-extensions like .tar.gz and
+  // .user.js, this method returns the combined extension.  For a single
+  // component, use FinalExtension().
+  // new_path = path.RemoveExtension.value().append(path.Extension());
+  // ASSERT(new_path == path.value());
+  // NOTE: this is different from the original file_util implementation which
+  // returned the extension without a leading "." ("jpg" instead of ".jpg")
+  StringType Extension() const;
+
+
+  // Returns true if the file path matches the specified extension. The test is
+  // case insensitive. Don't forget the leading period if appropriate.
+  bool MatchesExtension(const StringType& extension) const;
+
+
+  // Returns a copy of this FilePath that does not end with a trailing
+  // separator.
+  FilePath StripTrailingSeparators() const WARN_UNUSED_RESULT;
+
+
+  // Compare two strings in the same way the file system does.
+  // Note that these always ignore case, even on file systems that are case-
+  // sensitive. If case-sensitive comparison is ever needed, add corresponding
+  // methods here.
+  // The methods are written as a static method so that they can also be used
+  // on parts of a file path, e.g., just the extension.
+  // CompareIgnoreCase() returns -1, 0, or 1 for less-than, equal-to and
+  // greater-than respectively.
+  static int CompareIgnoreCase(const StringType& string1,
+                               const StringType& string2);
+  static bool CompareEqualIgnoreCase(const StringType& string1,
+                                     const StringType& string2) {
+    return CompareIgnoreCase(string1, string2) == 0;
+  }
+  static bool CompareLessIgnoreCase(const StringType& string1,
+                                    const StringType& string2) {
+    return CompareIgnoreCase(string1, string2) < 0;
+  }
   
  private:
+  // Remove trailing separators from this object.  If the path is absolute, it
+  // will never be stripped any more than to refer to the absolute root
+  // directory, so "////" will become "/", not "".  A leading pair of
+  // separators is never stripped, to support alternate roots.  This is used to
+  // support UNC paths on Windows.
+  void StripTrailingSeparatorsInternal();
+  
   StringType path_;
 };
 

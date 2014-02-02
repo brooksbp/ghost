@@ -8,6 +8,20 @@
 // HACK
 typedef wchar_t char16;
 
+
+namespace base {
+
+
+// ASCII-specific tolower.  The standard library's tolower is locale sensitive,
+// so we don't want to use it here.
+template <class Char> inline Char ToLowerASCII(Char c) {
+  return (c >= 'A' && c <= 'Z') ? (c + ('a' - 'A')) : c;
+}
+
+
+}  // namespace base
+
+
 // Contains the set of characters representing whitespace in the corresponding
 // encoding. Null-terminated.
 extern const wchar_t kWhitespaceWide[];
@@ -51,5 +65,11 @@ bool IsStringUTF8(const std::string& str);
 bool IsStringUTF8(const base::StringPiece& str);
 bool IsStringUTF8(const std::string& str);
 #endif
+
+bool LowerCaseEqualsASCII(const std::string& a, const char* b);
+bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
+                          std::string::const_iterator a_end,
+                          const char* b);
+
 
 #endif  // BASE_STRINGS_STRING_UTIL_H_

@@ -49,3 +49,26 @@ TrimPositions TrimWhitespace(const std::string& input,
                              std::string* output) {
   return TrimWhitespaceASCII(input, positions, output);
 }
+
+
+template<typename Iter>
+static inline bool DoLowerCaseEqualsASCII(Iter a_begin,
+                                          Iter a_end,
+                                          const char* b) {
+  for (Iter it = a_begin; it != a_end; ++it, ++b) {
+    if (!*b || base::ToLowerASCII(*it) != *b)
+      return false;
+  }
+  return *b == 0;
+}
+
+bool LowerCaseEqualsASCII(const std::string& a, const char* b) {
+  return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
+}
+
+bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
+                          std::string::const_iterator a_end,
+                          const char* b) {
+  return DoLowerCaseEqualsASCII(a_begin, a_end, b);
+}
+
