@@ -1,4 +1,5 @@
 build/
+test-data/
 
 # Compiled Object files
 *.slo

@@ -34,12 +34,15 @@ add_test(unit-tests unit-tests)
 
 ## ghost
 
-include_directories(src/base/)
+include_directories(src/)
 
 add_executable(ghost
   src/main.cc
+  src/track.cc
   ${base_SRC_FILES}
 )
+
+target_link_libraries(ghost id3)
 
 find_package(Qt5Widgets REQUIRED)
 qt5_use_modules(ghost Widgets)
