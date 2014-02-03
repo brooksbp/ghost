@@ -35,12 +35,19 @@ add_test(unit-tests unit-tests)
 ## ghost
 
 include_directories(src/)
+include_directories(/usr/include/gstreamer-1.0)
+include_directories(/usr/include/glib-2.0)
+include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
 
 add_executable(ghost
   src/main.cc
   src/track.cc
   ${base_SRC_FILES}
 )
+
+target_link_libraries(ghost ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(ghost gstreamer-1.0)
+target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
 
 target_link_libraries(ghost id3)
 

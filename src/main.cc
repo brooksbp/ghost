@@ -6,9 +6,13 @@
 //#define _XOPEN_SOURCE 600
 #include <ftw.h>
 
+#include <gst/gst.h>
+#include <glib.h>
+
 #include <iostream>
 #include <vector>
 
+// TODO: pull the Track finding and management into a Library class
 static std::vector<Track*> tracks;
 
 static int func(const char* pathname, const struct stat* sbuf, int type,
@@ -21,16 +25,42 @@ static int func(const char* pathname, const struct stat* sbuf, int type,
 }
 
 
+static gboolean bus_call(GstBus* bus, GstMessage* msg, gpointer data) {
+  GMainLoop* loop = (GMainLoop*) data;
+
+  switch (GST_MESSAGE_TYPE(msg)) {
+    case GST_MESSAGE_EOS:
+      g_main_loop_quit(loop);
+      break;
+    case GST_MESSAGE_ERROR: {
+      gchar* debug;
+      GError* error;
+
+      gst_message_parse_error(msg, &error, &debug);
+      g_free(debug);
+
+      g_printerr("Error: %s\n", error->message);
+      g_error_free(error);
+
+      g_main_loop_quit(loop);
+      break;
+    }
+    default:
+      break;
+  }
+  
+  return TRUE;
+}
+
+
 int main(int argc, const char* argv[]) {
   CommandLine cl(argc, argv);
 
-  if (!cl.HasSwitch("dir")) {
-    std::cout << "usage: " << argv[0] << " --dir=<music-directory>" << std::endl;
-    return 0;
+  base::FilePath dir("../test-data/");
+  if (cl.HasSwitch("dir")) {
+    dir = cl.GetSwitchValuePath("dir");
   }
-  base::FilePath dir = cl.GetSwitchValuePath("dir");
-  std::cout << "dir=" << dir.value() << std::endl;
-
+ 
   // Find files in |dir|.
   nftw(dir.value().c_str(), func, 100, FTW_DEPTH | FTW_PHYS);
 
@@ -45,4 +75,41 @@ int main(int argc, const char* argv[]) {
       std::cout << "Track: " << title << std::endl;
     }
   }
+
+
+  int zero = 0;
+  gst_init(&zero, NULL);
+
+  GMainLoop* loop = g_main_loop_new(NULL, FALSE);
+
+  GstElement* pipeline = gst_pipeline_new("audio-player");
+  GstElement* source   = gst_element_factory_make("filesrc", "file-source");
+  GstElement* decoder  = gst_element_factory_make("mad", "mp3-decoder");
+  GstElement* sink     = gst_element_factory_make("autoaudiosink", "audio-output");
+
+  if (!pipeline || !source || !decoder || !sink) {
+    std::cout << "element failed" << std::endl;
+    return 0;
+  }
+
+  std::cout << "location = " << tracks[3]->file_path_.value().c_str() << std::endl;
+  g_object_set(G_OBJECT(source), "location", tracks[3]->file_path_.value().c_str(), NULL);
+
+  GstBus* bus = gst_pipeline_get_bus(GST_PIPELINE(pipeline));
+  guint bus_watch_id = gst_bus_add_watch(bus, bus_call, loop);
+  gst_object_unref(bus);
+
+  gst_bin_add_many(GST_BIN(pipeline), source, decoder, sink, NULL);
+
+  gst_element_link_many(source, decoder, sink, NULL);
+
+  gst_element_set_state(pipeline, GST_STATE_PLAYING);
+
+  g_main_loop_run(loop);
+
+  gst_element_set_state(pipeline, GST_STATE_NULL);
+  gst_object_unref(GST_OBJECT(pipeline));
+  g_source_remove(bus_watch_id);
+  g_main_loop_unref(loop);
+  
 }
