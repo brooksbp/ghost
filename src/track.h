@@ -9,6 +9,8 @@ class Track {
   Track(const base::FilePath& that);
   ~Track();
 
+  void BuildTag(void);
+  
   base::FilePath file_path_;
   ID3_Tag tag_;
 };

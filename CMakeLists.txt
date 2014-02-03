@@ -42,6 +42,7 @@ include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
 add_executable(ghost
   src/main.cc
   src/track.cc
+  src/library.cc
   ${base_SRC_FILES}
 )
 
