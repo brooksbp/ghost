@@ -4,8 +4,9 @@
 #include "track.h"
 #include "library.h"
 #include "audio_manager.h"
+#include "main_window.h"
 
-#include <QtWidgets>
+#include <QtWidgets/QApplication>
 
 #include <iostream>
 
@@ -17,19 +18,18 @@ int main(int argc, const char* argv[]) {
   if (cl.HasSwitch("dir")) {
     dir = cl.GetSwitchValuePath("dir");
   }
-
-  QApplication app(argc, NULL);
-  QWidget window;
-  window.setWindowTitle("Ghost");
-  window.show();
   
   Library library(dir);
   library.PrintTracks();
   
   AudioManager audio_manager;
-
-  std::cout << "location = " << library.GetATrack()->file_path_.value().c_str() << std::endl;
   audio_manager.PlayMp3File(library.GetATrack()->file_path_.value().c_str());
+
+  QApplication app(argc, NULL);
+
+  MainWindow main_window;
+  main_window.SetAudioManager(&audio_manager);
+  main_window.show();
   
   return app.exec();  
 }

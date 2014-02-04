@@ -15,7 +15,6 @@ AudioManager::AudioManager() {
 
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), NULL);
-
 }
 
 AudioManager::~AudioManager() {
@@ -27,6 +26,17 @@ AudioManager::~AudioManager() {
 void AudioManager::PlayMp3File(const char* file) {
   g_object_set(G_OBJECT(source_), "location", file, NULL);
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
+  paused_ = 0;
+}
+
+void AudioManager::TogglePause(void) {
+  if (paused_) {
+    gst_element_set_state(pipeline_, GST_STATE_PLAYING);
+    paused_ = 0;
+  } else {
+    gst_element_set_state(pipeline_, GST_STATE_PAUSED);
+    paused_ = 1;
+  }  
 }
 
 gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,

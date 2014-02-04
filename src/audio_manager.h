@@ -12,6 +12,7 @@ class AudioManager {
   ~AudioManager();
 
   void PlayMp3File(const char* file);
+  void TogglePause(void);
   
  private:
   static gboolean GstBusCallback(GstBus* bus, GstMessage* msg, gpointer data);
@@ -23,6 +24,8 @@ class AudioManager {
   GstElement* source_;
   GstElement* decoder_;
   GstElement* sink_;
+
+  int paused_;
 };
 
 #endif  // AUDIO_MANAGER_H_
