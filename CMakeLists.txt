@@ -43,6 +43,7 @@ add_executable(ghost
   src/main.cc
   src/track.cc
   src/library.cc
+  src/audio_manager.cc
   ${base_SRC_FILES}
 )
 
