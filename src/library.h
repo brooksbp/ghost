@@ -9,7 +9,8 @@ class Library {
   Library(const base::FilePath& root_path);
   ~Library();
 
-  Track* GetATrack(void);
+  Track* GetTrack(int index);
+  int GetNumTracks(void);
 
   void PrintTracks(void);
   

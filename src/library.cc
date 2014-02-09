@@ -27,8 +27,15 @@ Library::~Library() {
   // TODO: should tracks_ be scoped_ptrs?
 }
 
-Track* Library::GetATrack(void) {
-  return tracks_[1];
+Track* Library::GetTrack(int index) {
+  if (index >= 0 && index < tracks_.size()) {
+    return tracks_[index];
+  }
+  return NULL;
+}
+
+int Library::GetNumTracks(void) {
+  return tracks_.size();
 }
 
 void Library::PrintTracks(void) {

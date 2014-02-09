@@ -24,6 +24,7 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::PlayMp3File(const char* file) {
+  gst_element_set_state(pipeline_, GST_STATE_READY);
   g_object_set(G_OBJECT(source_), "location", file, NULL);
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
   paused_ = 0;
