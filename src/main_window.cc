@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   // Slider
   slider_ = new QSlider(Qt::Horizontal, 0);
+  slider_->setMaximum(1000);
+  slider_->setMinimum(0);
   
   central_layout_->addWidget(slider_);
 
@@ -36,6 +38,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
 void MainWindow::Initialize(Library* library) {
     library_ = library;
+}
+
+void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
+  // if (moving) return;
+  while (pos >= 1000000) { pos /= 1000; }
+  while (len >= 1000000) { len /= 1000; }
+  uint64_t r = (pos * 1000) / len;
+  if (r <= 1000) {
+    slider_->setValue(r);
+  }
 }
 
 void MainWindow::handleDoubleClick(const QModelIndex& index) {

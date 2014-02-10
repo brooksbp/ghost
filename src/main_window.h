@@ -11,6 +11,7 @@
 #include <QtCore/QAbstractTableModel>
 
 #include "library.h"
+#include "base/basictypes.h"
 
 namespace Ui {
 
@@ -28,6 +29,8 @@ class MainWindow : public QMainWindow {
 
   void Initialize(Library* library);
 
+  void PlaybackProgress(uint64_t pos, uint64_t len);
+                                   
  private slots:
   void handleDoubleClick(const QModelIndex& index);
   

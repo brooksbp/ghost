@@ -6,6 +6,9 @@
 #include <gst/gst.h>
 #include <glib.h>
 
+#include "timer.h"
+#include "base/basictypes.h"
+
 // Abstract all of Gstreamer and audio control here..
 
 class AudioManager {
@@ -14,9 +17,9 @@ class AudioManager {
   ~AudioManager();
 
   void PlayMp3File(const char* file);
-  void TogglePause(void);
 
   std::function<void()> eosCallback;
+  std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
   
  private:
   static gboolean GstBusCallback(GstBus* bus, GstMessage* msg, gpointer data);
@@ -29,7 +32,15 @@ class AudioManager {
   GstElement* decoder_;
   GstElement* sink_;
 
-  int paused_;
+  int playing_;
+
+  // Stream position in nanoseconds.
+  int64_t pos_;
+  // Stream duration in nanoseconds.
+  int64_t len_;
+  
+  Timer* track_poller_;
+  void TrackPoller();
 };
 
 #endif  // AUDIO_MANAGER_H_

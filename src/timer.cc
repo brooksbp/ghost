@@ -46,6 +46,5 @@ Timer::~Timer() {
 
 void Timer::handler(int sig, siginfo_t* si, void* uc) {
   Timer* this_ = static_cast<Timer*>(si->si_value.sival_ptr);
-  qDebug() << "popped";
   this_->callback_();
 }

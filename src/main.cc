@@ -36,14 +36,17 @@ int main(int argc, const char* argv[]) {
     dir = cl.GetSwitchValuePath("dir");
   }
 
+  app = new QApplication(argc, NULL);  
+
   AudioManager audio_manager;
   Library library(dir, &audio_manager);
 
-  audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);
-
-  app = new QApplication(argc, NULL);
-
   MainWindow main_window;
+
+  audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);
+  audio_manager.PlaybackProgressCallback =
+      [&] (int64_t one, int64_t two) { main_window.PlaybackProgress(one, two); };
+  
   main_window.Initialize(&library);
   main_window.show();
 

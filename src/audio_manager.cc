@@ -15,6 +15,9 @@ AudioManager::AudioManager() {
 
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
+
+  track_poller_ = new Timer(0, 100000000 /* 100 ms */, true,
+                            std::bind(&AudioManager::TrackPoller, this));
 }
 
 AudioManager::~AudioManager() {
@@ -25,19 +28,22 @@ AudioManager::~AudioManager() {
 
 void AudioManager::PlayMp3File(const char* file) {
   gst_element_set_state(pipeline_, GST_STATE_READY);
+
   g_object_set(G_OBJECT(source_), "location", file, NULL);
+
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
-  paused_ = 0;
+  playing_ = 1;
+  track_poller_->Start();
 }
 
-void AudioManager::TogglePause(void) {
-  if (paused_) {
-    gst_element_set_state(pipeline_, GST_STATE_PLAYING);
-    paused_ = 0;
+void AudioManager::TrackPoller() {
+  if (playing_) {
+    gst_element_query_position(pipeline_, GST_FORMAT_TIME, &pos_);
+    gst_element_query_duration(pipeline_, GST_FORMAT_TIME, &len_);
+    PlaybackProgressCallback(pos_, len_);
   } else {
-    gst_element_set_state(pipeline_, GST_STATE_PAUSED);
-    paused_ = 1;
-  }  
+    track_poller_->Stop();
+  }
 }
 
 gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
@@ -46,7 +52,9 @@ gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
   
   switch (GST_MESSAGE_TYPE(msg)) {
     case GST_MESSAGE_EOS:
-      // End-of-stream.  Only received in the PLAYING state.
+      this_->playing_ = 0;
+      this_->track_poller_->Stop();
+
       this_->eosCallback();
       break;
     case GST_MESSAGE_ERROR: {
