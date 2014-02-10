@@ -12,6 +12,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   slider_ = new QSlider(Qt::Horizontal, 0);
   slider_->setMaximum(1000);
   slider_->setMinimum(0);
+  slider_engaged_ = false;
+
+  connect(slider_, SIGNAL(sliderPressed()), this, SLOT(handleSliderPressed()));
+  connect(slider_, SIGNAL(sliderMoved(int)), this, SLOT(handleSliderMoved(int)));
+  connect(slider_, SIGNAL(sliderReleased()), this, SLOT(handleSliderReleased()));
   
   central_layout_->addWidget(slider_);
 
@@ -41,14 +46,29 @@ void MainWindow::Initialize(Library* library) {
 }
 
 void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
-  // if (moving) return;
+  if (slider_engaged_)
+    return;
+
+  // Normalize playback position
   while (pos >= 1000000) { pos /= 1000; }
   while (len >= 1000000) { len /= 1000; }
   uint64_t r = (pos * 1000) / len;
+  
   if (r <= 1000) {
     slider_->setValue(r);
   }
 }
+
+void MainWindow::handleSliderPressed() {
+  slider_engaged_ = true;
+}
+void MainWindow::handleSliderMoved(int value) {
+  // assert(slider_engaged_);
+}
+void MainWindow::handleSliderReleased() {
+  slider_engaged_ = false;
+}
+
 
 void MainWindow::handleDoubleClick(const QModelIndex& index) {
   library_->Play(index.row());

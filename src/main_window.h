@@ -33,12 +33,17 @@ class MainWindow : public QMainWindow {
                                    
  private slots:
   void handleDoubleClick(const QModelIndex& index);
+
+  void handleSliderPressed();
+  void handleSliderMoved(int value);
+  void handleSliderReleased();
   
  private:
   QWidget* central_;
   QGridLayout* central_layout_;
 
   QSlider* slider_;
+  bool slider_engaged_;
   
   QTableView* table_view_;
   TableModel* table_model_;
