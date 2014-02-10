@@ -14,7 +14,7 @@ AudioManager::AudioManager() {
   gst_element_link_many(source_, decoder_, sink_, NULL);
 
   gst_bus_add_signal_watch(bus_);
-  g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), NULL);
+  g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
 }
 
 AudioManager::~AudioManager() {
@@ -42,8 +42,12 @@ void AudioManager::TogglePause(void) {
 
 gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
                                       gpointer data) {
+  AudioManager* this_ = static_cast<AudioManager*>(data);
+  
   switch (GST_MESSAGE_TYPE(msg)) {
     case GST_MESSAGE_EOS:
+      // End-of-stream.  Only received in the PLAYING state.
+      this_->eosCallback();
       break;
     case GST_MESSAGE_ERROR: {
       gchar* debug;

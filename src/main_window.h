@@ -9,7 +9,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QAbstractTableModel>
 
-#include "audio_manager.h"
 #include "library.h"
 
 namespace Ui {
@@ -26,7 +25,7 @@ class MainWindow : public QMainWindow {
  public:
   explicit MainWindow(QWidget* parent = 0);
 
-  void Initialize(AudioManager* audio_manager, Library* library);
+  void Initialize(Library* library);
 
  private slots:
   void handleDoubleClick(const QModelIndex& index);
@@ -37,8 +36,7 @@ class MainWindow : public QMainWindow {
   
   QTableView* table_view_;
   TableModel* table_model_;
-  
-  AudioManager* audio_manager_;
+
   Library* library_;
 };
 

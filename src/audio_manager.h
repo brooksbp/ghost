@@ -1,6 +1,8 @@
 #ifndef AUDIO_MANAGER_H_
 #define AUDIO_MANAGER_H_
 
+#include <functional>
+
 #include <gst/gst.h>
 #include <glib.h>
 
@@ -13,6 +15,8 @@ class AudioManager {
 
   void PlayMp3File(const char* file);
   void TogglePause(void);
+
+  std::function<void()> eosCallback;
   
  private:
   static gboolean GstBusCallback(GstBus* bus, GstMessage* msg, gpointer data);

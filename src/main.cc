@@ -8,7 +8,7 @@
 
 #include <QtWidgets/QApplication>
 
-#include <iostream>
+#include <functional>
 
 
 int main(int argc, const char* argv[]) {
@@ -18,14 +18,16 @@ int main(int argc, const char* argv[]) {
   if (cl.HasSwitch("dir")) {
     dir = cl.GetSwitchValuePath("dir");
   }
-  
-  Library library(dir);
-  AudioManager audio_manager;
 
+  AudioManager audio_manager;
+  Library library(dir, &audio_manager);
+
+  audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);
+  
   QApplication app(argc, NULL);
 
   MainWindow main_window;
-  main_window.Initialize(&audio_manager, &library);
+  main_window.Initialize(&library);
   main_window.show();
   
   return app.exec();  

@@ -1,3 +1,5 @@
+#include <QtCore/QDebug>
+
 #include "library.h"
 
 #include <ftw.h>
@@ -18,7 +20,9 @@ static int LibraryNftwCallback(const char* pathname, const struct stat* sbuf,
   return 0;
 }
 
-Library::Library(const base::FilePath& root_path) : root_path_(root_path) {
+Library::Library(const base::FilePath& root_path, AudioManager* audio_manager)
+    : root_path_(root_path),
+      audio_manager_(audio_manager) {
   // Visit all files in root_path_.
   nftw(root_path_.value().c_str(), LibraryNftwCallback, 100, FTW_DEPTH | FTW_PHYS);
 }
@@ -36,6 +40,29 @@ Track* Library::GetTrack(int index) {
 
 int Library::GetNumTracks(void) {
   return tracks_.size();
+}
+
+void Library::Play(int index) {
+  Track* track = GetTrack(index);
+  if (track) {
+    current_index_ = index;
+    audio_manager_->PlayMp3File(track->file_path_.value().c_str());
+  }
+}
+
+void Library::EndOfStream(void) {
+#if 0 // FIXME
+  // Play the next index.
+  if (current_index_ + 1 == tracks_.size())
+    current_index_ = 0;
+  else
+    current_index_ += 1;
+
+  Track* track = GetTrack(current_index_);
+  if (track) {
+    audio_manager_->PlayMp3File(track->file_path_.value().c_str());
+  }
+#endif
 }
 
 void Library::PrintTracks(void) {

@@ -17,7 +17,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   table_view_->setModel(table_model_);
 
-  connect(table_view_, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(handleDoubleClick(const QModelIndex&)));
+  connect(table_view_, SIGNAL(doubleClicked(const QModelIndex&)),
+          this, SLOT(handleDoubleClick(const QModelIndex&)));
   
   table_view_->show();
 
@@ -26,16 +27,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   resize(800, 400);
 }
 
-void MainWindow::Initialize(AudioManager* audio_manager, Library* library) {
-    audio_manager_ = audio_manager;
+void MainWindow::Initialize(Library* library) {
     library_ = library;
 }
 
 void MainWindow::handleDoubleClick(const QModelIndex& index) {
-  Track* track = library_->GetTrack(index.row());
-  if (track) {
-    audio_manager_->PlayMp3File(track->file_path_.value().c_str());
-  }
+  library_->Play(index.row());
 }
 
 
