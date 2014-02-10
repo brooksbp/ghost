@@ -24,6 +24,9 @@ class Timer {
   std::function<void()> callback_;
   
   static void handler(int sig, siginfo_t* si, void* uc);
+
+  timer_t timerid_;
+  struct itimerspec its_;
 };
 
 #endif  // TIMER_H_

@@ -10,10 +10,8 @@ Timer::Timer(int sec, int nsec, bool is_repeating, std::function<void()> callbac
 }
 
 void Timer::Start() {
-  struct itimerspec its;
   struct sigaction sa;
   struct sigevent sev;
-  timer_t timerid;
 
   // Establish handler for notification signal.
   sa.sa_flags = SA_SIGINFO;
@@ -24,17 +22,23 @@ void Timer::Start() {
   sev.sigev_notify = SIGEV_SIGNAL;
   sev.sigev_signo = SIGRTMAX;
   sev.sigev_value.sival_ptr = this;
-  timer_create(CLOCK_REALTIME, &sev, &timerid);
+  timer_create(CLOCK_REALTIME, &sev, &timerid_);
 
-  its.it_value.tv_sec = sec_;
-  its.it_value.tv_nsec = nsec_;
-  its.it_interval.tv_sec = (is_repeating_) ? its.it_value.tv_sec : 0;
-  its.it_interval.tv_nsec = (is_repeating_) ? its.it_value.tv_nsec : 0;
+  its_.it_value.tv_sec = sec_;
+  its_.it_value.tv_nsec = nsec_;
+  its_.it_interval.tv_sec = (is_repeating_) ? sec_ : 0;
+  its_.it_interval.tv_nsec = (is_repeating_) ? nsec_ : 0;
 
-  timer_settime(timerid, 0, &its, NULL);
+  timer_settime(timerid_, 0, &its_, NULL);
 }
 
 void Timer::Stop() {
+  its_.it_value.tv_sec = 0;
+  its_.it_value.tv_nsec = 0;
+  its_.it_interval.tv_sec = 0;
+  its_.it_interval.tv_nsec = 0;
+
+  timer_settime(timerid_, 0, &its_, NULL);
 }
 
 Timer::~Timer() {
