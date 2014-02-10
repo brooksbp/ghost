@@ -45,8 +45,11 @@ add_executable(ghost
   src/library.cc
   src/audio_manager.cc
   src/main_window.cc
+  src/timer.cc
   ${base_SRC_FILES}
 )
+
+target_link_libraries(ghost rt)
 
 target_link_libraries(ghost ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(ghost gstreamer-1.0)
