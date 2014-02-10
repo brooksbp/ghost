@@ -5,6 +5,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QSlider>
 
 #include <QtCore/QDebug>
 #include <QtCore/QAbstractTableModel>
@@ -33,6 +34,8 @@ class MainWindow : public QMainWindow {
  private:
   QWidget* central_;
   QGridLayout* central_layout_;
+
+  QSlider* slider_;
   
   QTableView* table_view_;
   TableModel* table_model_;

@@ -8,6 +8,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   central_layout_ = new QGridLayout(central_);
   setCentralWidget(central_);
 
+  // Slider
+  slider_ = new QSlider(Qt::Horizontal, 0);
+  
+  central_layout_->addWidget(slider_);
+
+  // TableView
   table_view_ = new QTableView();
   table_model_ = new TableModel(0, library_);
 
@@ -23,7 +29,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   table_view_->show();
 
   central_layout_->addWidget(table_view_);
-  
+
+
   resize(800, 400);
 }
 
