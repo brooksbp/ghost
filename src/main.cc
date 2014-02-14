@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <X11/Xlib.h>
+
 QApplication* app;
 
 void sig_handler(int s) {
@@ -36,6 +38,8 @@ int main(int argc, const char* argv[]) {
     dir = cl.GetSwitchValuePath("dir");
   }
 
+  XInitThreads();
+  
   app = new QApplication(argc, NULL);  
 
   AudioManager audio_manager;

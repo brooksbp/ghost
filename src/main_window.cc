@@ -55,18 +55,21 @@ void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
   uint64_t r = (pos * 1000) / len;
   
   if (r <= 1000) {
+    qDebug() << "setting slider value " << r;
     slider_->setValue(r);
   }
 }
 
 void MainWindow::handleSliderPressed() {
   slider_engaged_ = true;
+  qDebug() << "slider engaged";
 }
 void MainWindow::handleSliderMoved(int value) {
-  // assert(slider_engaged_);
+  qDebug() << "slide moved";
 }
 void MainWindow::handleSliderReleased() {
   slider_engaged_ = false;
+  qDebug() << "slider disengaged";
 }
 
 

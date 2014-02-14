@@ -6,6 +6,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions("-std=c++0x")
 
+set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
+
 set(base_SRC_FILES
   src/base/command_line.cc
   src/base/file_path.cc
@@ -50,6 +52,7 @@ add_executable(ghost
 )
 
 target_link_libraries(ghost rt)
+target_link_libraries(ghost X11)
 
 target_link_libraries(ghost ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(ghost gstreamer-1.0)
