@@ -58,7 +58,7 @@ target_link_libraries(ghost ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(ghost gstreamer-1.0)
 target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
 
-target_link_libraries(ghost id3)
+#target_link_libraries(ghost id3)
 
 find_package(Qt5Widgets REQUIRED)
 qt5_use_modules(ghost Widgets)

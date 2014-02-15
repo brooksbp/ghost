@@ -66,6 +66,7 @@ void Library::EndOfStream(void) {
 }
 
 void Library::PrintTracks(void) {
+#if 0
   for (std::vector<Track*>::iterator it = tracks_.begin(); it != tracks_.end();
        ++it) {
     Track* track = *it;
@@ -76,4 +77,5 @@ void Library::PrintTracks(void) {
       std::cout << "Track: " << title << std::endl;
     }
   }
+#endif
 }
