@@ -146,6 +146,14 @@ string16 UTF8ToUTF16(const StringPiece& utf8) {
   UTF8ToUTF16(utf8.data(), utf8.length(), &ret);
   return ret;
 }
+#else
+string16 UTF8ToUTF16(const std::string& utf8) {
+  string16 ret;
+  // Ignore success flag of this call, it will do the best it can for
+  // invalid input, which is what we want here.
+  UTF8ToUTF16(utf8.data(), utf8.length(), &ret);
+  return ret;
+}
 #endif
 
 bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output) {
@@ -170,6 +178,10 @@ bool UTFToUTF16(const char* src, size_t src_len, string16* output) {
 
 #if 0
 string16 UTF8ToUTF16(const StringPiece& utf8) {
+  return UTF8ToWide(utf8);
+}
+#else
+string16 UTF8ToUTF16(const std::string& utf8) {
   return UTF8ToWide(utf8);
 }
 #endif
