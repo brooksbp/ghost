@@ -15,30 +15,40 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#if defined(OS_POSIX)
 #include <X11/Xlib.h>
+#endif
 
 QApplication* app;
 
+#if defined(OS_POSIX)
 void sig_handler(int s) {
   qDebug() << "exiting..";
   app->quit();
 }
+#endif
 
 int main(int argc, const char* argv[]) {
+#if defined(OS_POSIX)
   struct sigaction sa;
   sa.sa_handler = sig_handler;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
   sigaction(SIGINT, &sa, NULL);
-  
-  CommandLine cl(argc, argv);
+#endif
+
+  // Initialize the commandline singleton from the environment.
+  CommandLine::Init(0, NULL);
+  CommandLine* cl = CommandLine::ForCurrentProcess();
 
   base::FilePath dir("../test-data/");
-  if (cl.HasSwitch("dir")) {
-    dir = cl.GetSwitchValuePath("dir");
+  if (cl->HasSwitch("dir")) {
+    dir = cl->GetSwitchValuePath("dir");
   }
 
+#if defined(OS_POSIX)
   XInitThreads();
+#endif
   
   app = new QApplication(argc, NULL);  
 

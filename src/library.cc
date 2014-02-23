@@ -2,12 +2,15 @@
 
 #include "library.h"
 
+#if defined(OS_LINUX)
 #include <ftw.h>
+#endif
 
 #include <vector>
 
 static std::vector<Track*> tracks_;
 
+#if defined(OS_LINUX)
 static int LibraryNftwCallback(const char* pathname, const struct stat* sbuf,
                                int type, struct FTW* ftwb) {
   if (type == FTW_F) {
@@ -19,12 +22,15 @@ static int LibraryNftwCallback(const char* pathname, const struct stat* sbuf,
   }
   return 0;
 }
+#endif
 
 Library::Library(const base::FilePath& root_path, AudioManager* audio_manager)
     : root_path_(root_path),
       audio_manager_(audio_manager) {
   // Visit all files in root_path_.
+#if defined(OS_LINUX)
   nftw(root_path_.value().c_str(), LibraryNftwCallback, 100, FTW_DEPTH | FTW_PHYS);
+#endif
 }
 
 Library::~Library() {
