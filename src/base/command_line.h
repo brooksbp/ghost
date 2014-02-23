@@ -41,6 +41,43 @@ class CommandLine {
 
   ~CommandLine();
 
+#if defined(OS_WIN)
+  // By default this class will treat command-line arguments beginning with
+  // slashes as switches on Windows, but not other platforms.
+  //
+  // If this behavior is inappropriate for your application, you can call this
+  // function BEFORE initializing the current process' global command line
+  // object and the behavior will be the same as Posix systems (only hyphens
+  // begin switches, everything else will be an arg).
+  static void set_slash_is_not_a_switch();
+#endif
+
+  // Initialize the current process CommandLine singleton. On Windows, ignores
+  // its arguments (we instead parse GetCommandLineW() directly) because we
+  // don't trust the CRT's parsing of the command line, but it still must be
+  // called to set up the command line. Returns false if initialization has
+  // already occurred, and true otherwise. Only the caller receiving a 'true'
+  // return value should take responsibility for calling Reset.
+  static bool Init(int argc, const char* const* argv);
+
+  // Destroys the current process CommandLine singleton. This is necessary if
+  // you want to reset the base library to its initial state (for example, in an
+  // outer library that needs to be able to terminate, and be re-initialized).
+  // If Init is called only once, as in main(), Reset() is not necessary.
+  static void Reset();
+
+  // Get the singleton CommandLine representing the current process's
+  // command line. Note: returned value is mutable, but not thread safe;
+  // only mutate if you know what you're doin!
+  static CommandLine* ForCurrentProcess();
+
+  // Returns true if the CommandLine has been initialized for the given process.
+  static bool InitializedForCurrentProcess();
+
+#if defined(OS_WIN)
+  static CommandLine FromString(const std::wstring& command_line);
+#endif
+  
   // Initialize from an argv vector.
   void InitFromArgv(int argc, const CharType* const* argv);
   void InitFromArgv(const StringVector& argv);
@@ -95,6 +132,20 @@ class CommandLine {
   void AppendArg(const std::string& value);
   void AppendArgPath(const base::FilePath& value);
   void AppendArgNative(const StringType& value);
+
+  // Append the switches and arguments form another command line to this one.
+  // If |include_program| is true, include |other|'s program as well.
+  void AppendArguments(const CommandLine& other, bool include_program);
+
+  // Insert a command before the current command.
+  // Common for debuggers, like "valgrind" or "gdb --args".
+  void PrependWrapper(const StringType& wrapper);
+
+#if defined(OS_WIN)
+  // Initialize by parsing the given command line string.
+  // The program name is assumed to be the first item in the string.
+  void ParseFromString(const std::wstring& command_line);
+#endif
   
  private:
   // Disallow default constructor; a program name must be explicitly specified.
