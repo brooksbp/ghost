@@ -23,6 +23,8 @@ BASE_EXPORT std::string WideToUTF8(const std::wstring& wide);
 BASE_EXPORT bool UTF8ToWide(const char* src, size_t src_len,
                             std::wstring* output);
 //BASE_EXPORT std::wstring UTF8ToWide(const StringPiece& utf8);
+// HACK..
+BASE_EXPORT std::wstring UTF8ToWide(const std::string& utf8);
 
 BASE_EXPORT bool WideToUTF16(const wchar_t* src, size_t src_len,
                              string16* output);
@@ -41,6 +43,10 @@ BASE_EXPORT std::string UTF16ToUTF8(const string16& utf16);
 // UTF16/Wide string.
 //BASE_EXPORT std::wstring ASCIIToWide(const StringPiece& ascii);
 //BASE_EXPORT string16 ASCIIToUTF16(const StringPiece& ascii);
+// HACK..
+inline std::wstring ASCIIToWide(const std::string& ascii) {
+  return std::wstring(ascii.begin(), ascii.end());
+}
 
 }  // namespace base
 

@@ -245,7 +245,7 @@ void CommandLine::InitFromArgv(const StringVector& argv) {
 CommandLine::StringType CommandLine::GetCommandLineString() const {
   StringType string(argv_[0]);
 #if defined (OS_WIN)
-  string = QuoteForCommandLineToArgW(string);
+  string = QuoteForCommandLineToArgvW(string);
 #endif
   StringType params(GetArgumentsString());
   if (!params.empty()) {

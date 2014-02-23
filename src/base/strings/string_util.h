@@ -28,6 +28,29 @@ template <class Char> inline Char ToLowerASCII(Char c) {
   return (c >= 'A' && c <= 'Z') ? (c + ('a' - 'A')) : c;
 }
 
+// ASCII-specific toupper.  The standard library's toupper is locale sensitive,
+// so we don't want to use it here.
+template <class Char> inline Char ToUpperASCII(Char c) {
+  return (c >= 'a' && c <= 'z') ? (c + ('A' - 'a')) : c;
+}
+
+// Function objects to aid in comparing/searching strings.
+
+template<typename Char> struct CaseInsensitiveCompare {
+ public:
+  bool operator()(Char x, Char y) const {
+    // TODO(darin): Do we really want to do locale sensitive comparisons here?
+    // See http://crbug.com/24917
+    return tolower(x) == tolower(y);
+  }
+};
+
+template<typename Char> struct CaseInsensitiveCompareASCII {
+ public:
+  bool operator()(Char x, Char y) const {
+    return ToLowerASCII(x) == ToLowerASCII(y);
+  }
+};
 
 }  // namespace base
 
@@ -79,7 +102,7 @@ BASE_EXPORT TrimPositions TrimWhitespace(const std::string& input,
 // Converts to 7-bit ASCII by truncating. The result must be known to be ASCII
 // beforehand.
 BASE_EXPORT std::string WideToASCII(const std::wstring& wide);
-BASE_EXPORT std::String UTF16ToASCII(const base::string16& utf16);
+BASE_EXPORT std::string UTF16ToASCII(const base::string16& utf16);
 
 #if 0
 // Returns true if the specified string matches the criteria. How can a wide

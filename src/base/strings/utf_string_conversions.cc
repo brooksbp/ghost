@@ -66,6 +66,12 @@ std::wstring UTF8ToWide(const StringPiece& utf8) {
   UTF8ToWide(utf8.data(), utf8.length(), &ret);
   return ret;
 }
+#else
+std::wstring UTF8ToWide(const std::string& utf8) {
+  std::wstring ret;
+  UTF8ToWide(utf8.data(), utf8.length(), &ret);
+  return ret;
+}
 #endif
 
 // UTF-16 <-> Wide -------------------------------------------------------------

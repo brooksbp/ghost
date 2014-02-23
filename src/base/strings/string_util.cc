@@ -2,6 +2,28 @@
 
 #include "base/strings/string_util.h"
 
+#include <ctype.h>
+#include <errno.h>
+#include <math.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <wchar.h>
+#include <wctype.h>
+
+#include <algorithm>
+#include <vector>
+
+#include "base/basictypes.h"
+// #include "base/logging.h"
+// #include "base/memory/singleton.h"
+#include "base/strings/utf_string_conversion_utils.h"
+#include "base/strings/utf_string_conversions.h"
+// #include "base/third_part/icu/icu_utf.h"
+#include "base/build_config.h"
+
 
 template<typename STR>
 TrimPositions TrimStringT(const STR& input,
@@ -77,7 +99,7 @@ std::string WideToASCII(const std::wstring& wide) {
   return std::string(wide.begin(), wide.end());
 }
 
-std::string UTF16ToASCII(const string16& utf16) {
+std::string UTF16ToASCII(const base::string16& utf16) {
   //DCHECK(IsStringASCII(utf16)) << utf16;
   return std::string(utf16.begin(), utf16.end());
 }
