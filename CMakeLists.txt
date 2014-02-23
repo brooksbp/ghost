@@ -64,14 +64,23 @@ if (WIN32)
   file(GLOB_RECURSE INCS "src/*.h")
 endif()
 
-add_executable(ghost WIN32
+set(SRC_FILES
   src/main.cc
   src/track.cc
   src/library.cc
   src/audio_manager.cc
   src/main_window.cc
-  src/timer.cc
+)
+
+if (UNIX)
+  list(APPEND SRC_FILES src/timer_posix.cc)
+elseif (WIN32)
+  list(APPEND SRC_FILES src/timer_win.cc)
+endif()
+
+add_executable(ghost WIN32
   ${base_SRC_FILES}
+  ${SRC_FILES}
   ${INCS}
 )
 

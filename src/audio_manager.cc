@@ -18,7 +18,7 @@ AudioManager::AudioManager() {
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
 
-  track_poller_ = new Timer(0, 100 * 1000 * 1000, true,
+  track_poller_ = new Timer(0, 100, true,
                             std::bind(&AudioManager::TrackPoller, this));
 }
 

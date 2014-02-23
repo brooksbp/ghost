@@ -2,11 +2,14 @@
 
 #include <QtCore/QDebug>
 
-Timer::Timer(int sec, int nsec, bool is_repeating, std::function<void()> callback)
+Timer::Timer(int sec, int msec, bool is_repeating, std::function<void()> callback)
     : sec_(sec),
-      nsec_(nsec),
+      msec_(msec),
       is_repeating_(is_repeating),
       callback_(callback) {
+}
+
+Timer::~Timer() {
 }
 
 void Timer::Start() {
@@ -25,9 +28,9 @@ void Timer::Start() {
   timer_create(CLOCK_REALTIME, &sev, &timerid_);
 
   its_.it_value.tv_sec = sec_;
-  its_.it_value.tv_nsec = nsec_;
+  its_.it_value.tv_nsec = 1000 * 1000 * msec_;
   its_.it_interval.tv_sec = (is_repeating_) ? sec_ : 0;
-  its_.it_interval.tv_nsec = (is_repeating_) ? nsec_ : 0;
+  its_.it_interval.tv_nsec = (is_repeating_) ? 1000 * 1000 * msec_ : 0;
 
   timer_settime(timerid_, 0, &its_, NULL);
 }
@@ -39,9 +42,6 @@ void Timer::Stop() {
   its_.it_interval.tv_nsec = 0;
 
   timer_settime(timerid_, 0, &its_, NULL);
-}
-
-Timer::~Timer() {
 }
 
 void Timer::handler(int sig, siginfo_t* si, void* uc) {
