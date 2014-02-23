@@ -1,5 +1,7 @@
 #include "audio_manager.h"
 
+#include <QtCore/QDebug>
+
 AudioManager::AudioManager() {
   gst_init(NULL, NULL);
 
@@ -27,6 +29,7 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::PlayMp3File(const char* file) {
+  qDebug() << "enter";
   gst_element_set_state(pipeline_, GST_STATE_READY);
 
   g_object_set(G_OBJECT(source_), "location", file, NULL);
@@ -34,6 +37,7 @@ void AudioManager::PlayMp3File(const char* file) {
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
   playing_ = 1;
   track_poller_->Start();
+  qDebug() << "exit";
 }
 
 void AudioManager::TrackPoller() {
