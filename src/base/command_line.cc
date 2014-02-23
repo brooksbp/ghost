@@ -1,16 +1,24 @@
 // base/command_line.cc
 
-#include "command_line.h"
+#include "base/command_line.h"
 
 #include <algorithm>
+#include <ostream>
 
+#include "base/basictypes.h"
 #include "base/file_path.h"
+// #include "base/logging.h"
+// #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
 #include "base/build_config.h"
-#include "base/macros.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <shellapi.h>
+#endif
 
 using base::FilePath;
-
 
 CommandLine* CommandLine::current_process_commandline_ = NULL;
 
