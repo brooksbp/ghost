@@ -4,9 +4,10 @@ project(ghost)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-add_definitions("-std=c++0x")
-
-#set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
+if (UNIX)
+  add_definitions("-std=c++11")
+  set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
+endif()
 
 set(base_SRC_FILES
   src/base/command_line.cc

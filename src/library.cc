@@ -32,7 +32,7 @@ Library::~Library() {
 }
 
 Track* Library::GetTrack(int index) {
-  if (index >= 0 && index < tracks_.size()) {
+  if (index >= 0 && index < (int) tracks_.size()) {
     return tracks_[index];
   }
   return NULL;

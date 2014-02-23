@@ -17,9 +17,11 @@ bool ReadUnicodeCharacter(const char* src,
   // U8_NEXT expects to be able to use -1 to signal an error, so we must
   // use a signed type for code_point.  But this function returns false
   // on error anyway, so code_point_out is unsigned.
-  int32 code_point;
 #if 0
+  int32 code_point;
   CBU8_NEXT(src, *char_index, src_len, code_point);
+#else
+  int32 code_point = 0;
 #endif
   *code_point_out = static_cast<uint32>(code_point);
 
