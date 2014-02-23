@@ -3,7 +3,17 @@
 #ifndef BASE_STRINGS_STRING_UTIL_H_
 #define BASE_STRINGS_STRING_UTIL_H_
 
+#include <ctype.h>
+#include <stdarg.h>
+
 #include <string>
+#include <vector>
+
+#include "base/base_export.h"
+#include "base/basictypes.h"
+#include "base/compiler_specific.h"
+#include "base/strings/string16.h"
+// #include "base/strings/string_piece.h"
 
 // HACK
 typedef wchar_t char16;
@@ -32,22 +42,39 @@ extern const char kWhitespaceASCII[];
 extern const char kUtf8ByteOrderMark[];
 
 
+#if defined(OS_WIN)
+#include "base/strings/string_util_win.h"
+#elif defined(OS_POSIX)
+#include "base/strings/string_util_posix.h"
+#else
+#error Define string operations appropriately for your platform
+#endif
+
+// Trims any whitespace from either end of the input string.  Returns where
+// whitespace was found.
+// The non-wide version has two functions:
+// * TrimWhitespaceASCII()
+//   This function is for ASCII strings and only looks for ASCII whitespace;
+// Please choose the best one according to your usage.
+// NOTE: Safe to use the same variable for both input and output.
 enum TrimPositions {
   TRIM_NONE     = 0,
   TRIM_LEADING  = 1 << 0,
   TRIM_TRAILING = 1 << 1,
   TRIM_ALL      = TRIM_LEADING | TRIM_TRAILING,
 };
-
-TrimPositions TrimWhitespaceASCII(const std::string& input,
-                                  TrimPositions postiions,
-                                  std::string* output);
+BASE_EXPORT TrimPositions TrimWhitespace(const base::string16& input,
+                                         TrimPositions positions,
+                                         base::string16* output);
+BASE_EXPORT TrimPositions TrimWhitespaceASCII(const std::string& input,
+                                              TrimPositions postiions,
+                                              std::string* output);
 
 // Deprecated.  This function is only for backward compatibility and calls
 // TrimWhitespaceASCII().
-TrimPositions TrimWhitespace(const std::string& input,
-                             TrimPositions postiions,
-                             std::string* output);
+BASE_EXPORT TrimPositions TrimWhitespace(const std::string& input,
+                                         TrimPositions postiions,
+                                         std::string* output);
 
 #if 0
 // Returns true if the specified string matches the criteria. How can a wide
