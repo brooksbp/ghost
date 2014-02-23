@@ -8,5 +8,7 @@ Track::~Track() {
 }
 
 void Track::BuildTag(void) {
-  //tag_ = ID3_Tag(file_path_.value().c_str());
+#if 0
+  tag_ = ID3_Tag(file_path_.value().c_str());
+#endif
 }
