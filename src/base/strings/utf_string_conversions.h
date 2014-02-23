@@ -5,8 +5,8 @@
 
 #include <string>
 
-#include "string16.h"
-#include "string_piece.h"
+#include "base/strings/string16.h"
+#include "base/strings/string_piece.h"
 
 namespace base {
 

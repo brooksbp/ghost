@@ -12,9 +12,10 @@ set(base_SRC_FILES
   src/base/command_line.cc
   src/base/file_path.cc
   src/base/file_path_constants.cc
-  src/base/string_util.cc
-  src/base/string_util_constants.cc
-  src/base/utf_string_conversions.cc
+  src/base/strings/string_util.cc
+  src/base/strings/string_util_constants.cc
+  src/base/strings/string16.cc
+  src/base/strings/utf_string_conversions.cc
 )
 
 ## GTest

@@ -4,10 +4,10 @@
 
 #include <algorithm>
 
-#include "file_path.h"
-#include "string_util.h"
-#include "build_config.h"
-#include "macros.h"
+#include "base/file_path.h"
+#include "base/strings/string_util.h"
+#include "base/build_config.h"
+#include "base/macros.h"
 
 using base::FilePath;
 

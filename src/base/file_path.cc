@@ -1,7 +1,7 @@
 // base/files/file_path.cc
 
-#include "file_path.h"
-#include "string_util.h"
+#include "base/file_path.h"
+#include "base/strings/string_util.h"
 
 #include <strings.h>
 

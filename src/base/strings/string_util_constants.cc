@@ -1,6 +1,6 @@
 // base/strings/string_util_constants.cc
 
-#include "string_util.h"
+#include "base/strings/string_util.h"
 
 #define WHITESPACE_UNICODE                      \
   0x0009, /* <control-0009> to <control-000D> */        \
