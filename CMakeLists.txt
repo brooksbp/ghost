@@ -19,6 +19,10 @@ set(base_SRC_FILES
   src/base/strings/utf_string_conversion_utils.cc
 )
 
+if (WIN32)
+  list(REMOVE_ITEM base_SRC_FILES src/base/strings/string16.cc)
+endif()
+
 ## GTest
 
 set(gtest_SOURCE_DIR third_party/gtest-1.7.0)
