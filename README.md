@@ -9,3 +9,12 @@ Ubuntu / Debian:
 Arch Linux:
 
     pacman -S cmake gstreamer gst-plugins-base gst-plugins-ugly qt5-base glib libmad
+
+Windows 7
+
+    Visual Studio Express 2013
+    Visual Studio 2012 Redistributable
+    CMake
+    Python 3
+    Qt5
+    Gstreamer

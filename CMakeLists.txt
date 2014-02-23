@@ -6,7 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions("-std=c++0x")
 
-set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
+#set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
 
 set(base_SRC_FILES
   src/base/command_line.cc
@@ -41,7 +41,7 @@ include_directories(/usr/include/gstreamer-1.0)
 include_directories(/usr/include/glib-2.0)
 include_directories(/usr/lib/x86_64-linux-gnu/glib-2.0/include)
 
-add_executable(ghost
+add_executable(ghost WIN32
   src/main.cc
   src/track.cc
   src/library.cc
@@ -60,5 +60,18 @@ target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
 
 #target_link_libraries(ghost id3)
 
+if(WIN32)
+  set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.2.1\\5.2.1\\msvc2012_64\\")
+endif()
+
+if (POLICY CMP0020)
+  cmake_policy(SET CMP0020 NEW)
+endif()
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+
+find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
-qt5_use_modules(ghost Widgets)
+
+qt5_use_modules(ghost Widgets Core)
