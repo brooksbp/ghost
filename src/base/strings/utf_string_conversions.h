@@ -35,6 +35,10 @@ BASE_EXPORT std::wstring UTF16ToWide(const string16& utf16);
 
 BASE_EXPORT bool UTF8ToUTF16(const char* src, size_t src_len, string16* output);
 //BASE_EXPORT string16 UTF8ToUTF16(const StringPiece& utf8);
+// HACK..
+inline string16 UTF8ToUTF16(const std::string& utf8) {
+  return UTF8ToWide(utf8);
+}
 BASE_EXPORT bool UTF16ToUTF8(const char16* src, size_t src_len,
                              std::string* output);
 BASE_EXPORT std::string UTF16ToUTF8(const string16& utf16);

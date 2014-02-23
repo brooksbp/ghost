@@ -84,7 +84,12 @@ static inline bool DoLowerCaseEqualsASCII(Iter a_begin,
   return *b == 0;
 }
 
+// Front-ends for LowerCaseEqualsASCII.
 bool LowerCaseEqualsASCII(const std::string& a, const char* b) {
+  return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
+}
+
+bool LowerCaseEqualsASCII(const base::string16& a, const char* b) {
   return DoLowerCaseEqualsASCII(a.begin(), a.end(), b);
 }
 
@@ -93,6 +98,24 @@ bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
                           const char* b) {
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
+
+bool LowerCaseEqualsASCII(base::string16::const_iterator a_begin,
+                          base::string16::const_iterator a_end,
+                          const char* b) {
+  return DoLowerCaseEqualsASCII(a_begin, a_end, b);
+}
+
+bool LowerCaseEqualsASCII(const char* a_begin,
+                          const char* a_end,
+                          const char* b) {
+  return DoLowerCaseEqualsASCII(a_begin, a_end, b);
+}
+bool LowerCaseEqualsASCII(const base::char16* a_begin,
+                          const base::char16* a_end,
+                          const char* b) {
+  return DoLowerCaseEqualsASCII(a_begin, a_end, b);
+}
+
 
 std::string WideToASCII(const std::wstring& wide) {
   //DCHECK(IsStringASCII(wide)) << wide;

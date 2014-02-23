@@ -149,10 +149,26 @@ template <class str> inline str StringToUpperASCII(const str& s) {
   return output;
 }
 
-bool LowerCaseEqualsASCII(const std::string& a, const char* b);
-bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
-                          std::string::const_iterator a_end,
-                          const char* b);
+// Compare the lower-case form of the given string against the given ASCII
+// string.  This is useful for doing checking if an input string matches some
+// token, and it is optimized to avoid intermediate string copies.  This API is
+// borrowed from the equivalent APIs in Mozilla.
+BASE_EXPORT bool LowerCaseEqualsASCII(const std::string& a, const char* b);
+BASE_EXPORT bool LowerCaseEqualsASCII(const base::string16& a, const char* b);
+
+// Same thing, but with string iterators instead.
+BASE_EXPORT bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
+                                      std::string::const_iterator a_end,
+                                      const char* b);
+BASE_EXPORT bool LowerCaseEqualsASCII(base::string16::const_iterator a_begin,
+                                      base::string16::const_iterator a_end,
+                                      const char* b);
+BASE_EXPORT bool LowerCaseEqualsASCII(const char* a_begin,
+                                      const char* a_end,
+                                      const char* b);
+BASE_EXPORT bool LowerCaseEqualsASCII(const base::char16* a_begin,
+                                      const base::char16* a_end,
+                                      const char* b);
 
 
 #endif  // BASE_STRINGS_STRING_UTIL_H_

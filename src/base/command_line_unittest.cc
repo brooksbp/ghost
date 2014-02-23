@@ -1,7 +1,14 @@
-#include "command_line.h"
-#include "file_path.h"
-#include "macros.h"
+// Copyright (c) 2012 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
+#include <string>
+#include <vector>
+
+#include "base/basictypes.h"
+#include "base/command_line.h"
+#include "base/file_path.h"
+#include "base/strings/utf_string_conversions.h"
 #include <gtest/gtest.h>
 
 using base::FilePath;

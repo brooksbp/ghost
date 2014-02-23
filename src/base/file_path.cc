@@ -1,9 +1,28 @@
 // base/files/file_path.cc
 
 #include "base/file_path.h"
-#include "base/strings/string_util.h"
 
-#include <strings.h>
+#include <string.h>
+#include <algorithm>
+
+#include "base/basictypes.h"
+// #include "base/logging.h"
+// #include "base/pickle.h"
+
+// #include "base/strings/string_piece.h"
+#include "base/strings/string_util.h"
+#include "base/strings/utf_string_conversions.h"
+
+#if defined(OS_MACOSX)
+#include "base/mac/scoped_cftyperef.h"
+#include "base/third_party/icu/icu_utf.h"
+#endif
+
+#if defined(OS_WIN)
+#include <Windows.h>
+#elif defined(OS_MACOSX)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 namespace base {
 
@@ -229,8 +248,34 @@ void FilePath::StripTrailingSeparatorsInternal() {
   }
 }
 
-// FIXME: multiple platform-dependent CompareIgnoreCase's not implemented here
+#if defined(OS_WIN)
+// Windows specific implementation of file string comparisons
 
+int FilePath::CompareIgnoreCase(const StringType& string1,
+                                const StringType& string2) {
+  // Perform character-wise upper case comparison rather than using the
+  // fully Unicode-aware CompareString(). For details see:
+  // http://blogs.msdn.com/michkap/archive/2005/10/17/481600.aspx
+  StringType::const_iterator i1 = string1.begin();
+  StringType::const_iterator i2 = string2.begin();
+  StringType::const_iterator string1end = string1.end();
+  StringType::const_iterator string2end = string2.end();
+  for ( ; i1 != string1end && i2 != string2end; ++i1, ++i2) {
+    wchar_t c1 = (wchar_t)LOWORD(::CharUpperW((LPWSTR)MAKELONG(*i1, 0)));
+    wchar_t c2 = (wchar_t)LOWORD(::CharUpperW((LPWSTR)MAKELONG(*i2, 0)));
+    if (c1 < c2)
+      return -1;
+    if (c1 > c2)
+      return 1;
+  }
+  if (i1 != string1end)
+    return 1;
+  if (i2 != string2end)
+    return -1;
+  return 0;
+}
+
+#elif defined(OS_POSIX)
 // Generic (POSIX) implementation of file string comparison.
 int FilePath::CompareIgnoreCase(const StringType& string1,
                                 const StringType& string2) {
@@ -241,5 +286,6 @@ int FilePath::CompareIgnoreCase(const StringType& string1,
     return 1;
   return 0;
 }
+#endif
 
 }  // namespace base
