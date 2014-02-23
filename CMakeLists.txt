@@ -85,12 +85,23 @@ add_executable(ghost WIN32
   ${INCS}
 )
 
-target_link_libraries(ghost rt)
-target_link_libraries(ghost X11)
+if (UNIX)
+  target_link_libraries(ghost rt)
+  target_link_libraries(ghost X11)
+endif()
 
 target_link_libraries(ghost ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(ghost gstreamer-1.0)
-target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
+
+
+if (WIN32)
+  find_library(GSTREAMER_LIB gstreamer-1.0 C:/gstreamer/1.0/x86_64/lib/)
+  target_link_libraries(ghost ${GSTREAMER_LIB})
+endif()
+
+if (UNIX)
+  target_link_libraries(ghost gstreamer-1.0)
+  target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
+endif()
 
 #target_link_libraries(ghost id3)
 

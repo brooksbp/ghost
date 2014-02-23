@@ -18,6 +18,9 @@
 #if defined(OS_POSIX)
 #include <X11/Xlib.h>
 #endif
+#if defined(OS_WIN)
+#include <Windows.h>
+#endif
 
 QApplication* app;
 
@@ -28,7 +31,12 @@ void sig_handler(int s) {
 }
 #endif
 
+#if defined(OS_POSIX)
 int main(int argc, const char* argv[]) {
+#elif defined(OS_WIN)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
+  int argc = 0;
+#endif
 #if defined(OS_POSIX)
   struct sigaction sa;
   sa.sa_handler = sig_handler;
