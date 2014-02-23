@@ -16,6 +16,7 @@ set(base_SRC_FILES
   src/base/strings/string_util_constants.cc
   src/base/strings/string16.cc
   src/base/strings/utf_string_conversions.cc
+  src/base/strings/utf_string_conversion_utils.cc
 )
 
 ## GTest
@@ -29,6 +30,7 @@ include_directories(${gtest_SOURCE_DIR}/include)
 
 add_executable(unit-tests
   src/base/command_line_unittest.cc
+  src/base/strings/string16_unittest.cc
   ${base_SRC_FILES}
 )
 

@@ -15,7 +15,7 @@
 #include <stddef.h>  // For size_t.
 #include <stdint.h>  // For intptr_t.
 
-// #include "base/macros.h"
+#include "base/macros.h"
 // #include "base/port.h"  // Types that only need exist on certain systems.
 
 // DEPRECATED: Please use (u)int{8,16,32,64}_t instead (and include <stdint.h>).

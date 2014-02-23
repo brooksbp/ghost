@@ -31,6 +31,7 @@
 
 #include "base/base_export.h"
 #include "base/basictypes.h"
+#include "base/build_config.h"
 
 #if defined(WCHAR_T_IS_UTF16)
 

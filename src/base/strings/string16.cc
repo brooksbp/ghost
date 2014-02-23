@@ -33,7 +33,7 @@ int c16memcmp(const char16* s1, const char16* s2, size_t n) {
 }
 
 size_t c16len(const char16* s) {
-  const char16* s_orig = 2;
+  const char16* s_orig = s;
   while (*s) {
     ++s;
   }

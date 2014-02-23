@@ -1,28 +1,147 @@
-// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Copyright 2014 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// Various Google-specific macros.
-//
-// This code is compiled directly on many platforms, including client
-// platforms like Windows, Mac, and embedded systems.  Before making
-// any changes here, make sure that you're not breaking any platforms.
-//
+
+// This file contains macros and macro-like constructs (e.g., templates) that
+// are commonly used throughout Chromium source. (It may also contain things
+// that are closely related to things that are commonly used that belong in this
+// file.)
 
 #ifndef BASE_MACROS_H_
 #define BASE_MACROS_H_
 
-#include <stddef.h>         // For size_t
+#include <stddef.h>  // For size_t.
+#include <string.h>  // For memcpy.
 
-#if 0
-#include "base/type_traits.h"
+#include "base/compiler_specific.h"  // For ALLOW_UNUSED.
+
+// Put this in the private: declarations for a class to be uncopyable.
+#define DISALLOW_COPY(TypeName) \
+  TypeName(const TypeName&)
+
+// Put this in the private: declarations for a class to be unassignable.
+#define DISALLOW_ASSIGN(TypeName) \
+  void operator=(const TypeName&)
+
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
+
+// An older, deprecated, politically incorrect name for the above.
+// NOTE: The usage of this macro was banned from our code base, but some
+// third_party libraries are yet using it.
+// TODO(tfarina): Figure out how to fix the usage of this macro in the
+// third_party libraries and get rid of it.
+#define DISALLOW_EVIL_CONSTRUCTORS(TypeName) DISALLOW_COPY_AND_ASSIGN(TypeName)
+
+// A macro to disallow all the implicit constructors, namely the
+// default constructor, copy constructor and operator= functions.
+//
+// This should be used in the private: declarations for a class
+// that wants to prevent anyone from instantiating it. This is
+// especially useful for classes containing only static methods.
+#define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName) \
+  TypeName();                                    \
+  DISALLOW_COPY_AND_ASSIGN(TypeName)
+
+// The arraysize(arr) macro returns the # of elements in an array arr.
+// The expression is a compile-time constant, and therefore can be
+// used in defining new arrays, for example.  If you use arraysize on
+// a pointer by mistake, you will get a compile-time error.
+//
+// One caveat is that arraysize() doesn't accept any array of an
+// anonymous type or a type defined inside a function.  In these rare
+// cases, you have to use the unsafe ARRAYSIZE_UNSAFE() macro below.  This is
+// due to a limitation in C++'s template system.  The limitation might
+// eventually be removed, but it hasn't happened yet.
+
+// This template function declaration is used in defining arraysize.
+// Note that the function doesn't need an implementation, as we only
+// use its type.
+template <typename T, size_t N>
+    char (&ArraySizeHelper(T (&array)[N]))[N];
+
+// That gcc wants both of these prototypes seems mysterious. VC, for
+// its part, can't decide which to use (another mystery). Matching of
+// template overloads: the final frontier.
+#ifndef _MSC_VER
+template <typename T, size_t N>
+    char (&ArraySizeHelper(const T (&array)[N]))[N];
 #endif
+
+#define arraysize(array) (sizeof(ArraySizeHelper(array)))
+
+// ARRAYSIZE_UNSAFE performs essentially the same calculation as arraysize,
+// but can be used on anonymous types or types defined inside
+// functions.  It's less safe than arraysize as it accepts some
+// (although not all) pointers.  Therefore, you should use arraysize
+// whenever possible.
+//
+// The expression ARRAYSIZE_UNSAFE(a) is a compile-time constant of type
+// size_t.
+//
+// ARRAYSIZE_UNSAFE catches a few type errors.  If you see a compiler error
+//
+//   "warning: division by zero in ..."
+//
+// when using ARRAYSIZE_UNSAFE, you are (wrongfully) giving it a pointer.
+// You should only use ARRAYSIZE_UNSAFE on statically allocated arrays.
+//
+// The following comments are on the implementation details, and can
+// be ignored by the users.
+//
+// ARRAYSIZE_UNSAFE(arr) works by inspecting sizeof(arr) (the # of bytes in
+// the array) and sizeof(*(arr)) (the # of bytes in one array
+// element).  If the former is divisible by the latter, perhaps arr is
+// indeed an array, in which case the division result is the # of
+// elements in the array.  Otherwise, arr cannot possibly be an array,
+// and we generate a compiler error to prevent the code from
+// compiling.
+//
+// Since the size of bool is implementation-defined, we need to cast
+// !(sizeof(a) & sizeof(*(a))) to size_t in order to ensure the final
+// result has type size_t.
+//
+// This macro is not perfect as it wrongfully accepts certain
+// pointers, namely where the pointer size is divisible by the pointee
+// size.  Since all our code has to go through a 32-bit compiler,
+// where a pointer is 4 bytes, this means all pointers to a type whose
+// size is 3 or greater than 4 will be (righteously) rejected.
+
+#define ARRAYSIZE_UNSAFE(a) \
+  ((sizeof(a) / sizeof(*(a))) / \
+   static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
+
+
+// Use implicit_cast as a safe version of static_cast or const_cast
+// for upcasting in the type hierarchy (i.e. casting a pointer to Foo
+// to a pointer to SuperclassOfFoo or casting a pointer to Foo to
+// a const pointer to Foo).
+// When you use implicit_cast, the compiler checks that the cast is safe.
+// Such explicit implicit_casts are necessary in surprisingly many
+// situations where C++ demands an exact type match instead of an
+// argument type convertible to a target type.
+//
+// The From type can be inferred, so the preferred syntax for using
+// implicit_cast is the same as for static_cast etc.:
+//
+//   implicit_cast<ToType>(expr)
+//
+// implicit_cast would have been part of the C++ standard library,
+// but the proposal was submitted too late.  It will probably make
+// its way into the language in the future.
+template<typename To, typename From>
+    inline To implicit_cast(From const &f) {
+  return f;
+}
 
 // The COMPILE_ASSERT macro can be used to verify that a compile time
 // expression is true. For example, you could use it to verify the
 // size of a static array:
 //
-//   COMPILE_ASSERT(ARRAYSIZE(content_type_names) == CONTENT_NUM_TYPES,
+//   COMPILE_ASSERT(ARRAYSIZE_UNSAFE(content_type_names) == CONTENT_NUM_TYPES,
 //                  content_type_names_incorrect_size);
 //
 // or to make sure a struct is smaller than a certain size:
@@ -33,8 +152,21 @@
 // the expression is false, most compilers will issue a warning/error
 // containing the name of the variable.
 
-#define COMPILE_ASSERT(expr, msg)               \
-  typedef CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1]
+#undef COMPILE_ASSERT
+
+#if __cplusplus >= 201103L
+
+// Under C++11, just use static_assert.
+#define COMPILE_ASSERT(expr, msg) static_assert(expr, #msg)
+
+#else
+
+template <bool>
+struct CompileAssert {
+};
+
+#define COMPILE_ASSERT(expr, msg) \
+  typedef CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1] ALLOW_UNUSED
 
 // Implementation details of COMPILE_ASSERT:
 //
@@ -58,7 +190,7 @@
 //   expr is a compile-time constant.  (Template arguments must be
 //   determined at compile-time.)
 //
-// - The outter parentheses in CompileAssert<(bool(expr))> are necessary
+// - The outer parentheses in CompileAssert<(bool(expr))> are necessary
 //   to work around a bug in gcc 3.4.4 and 4.0.1.  If we had written
 //
 //     CompileAssert<bool(expr)>
@@ -77,169 +209,105 @@
 //   This is to avoid running into a bug in MS VC 7.1, which
 //   causes ((0.0) ? 1 : -1) to incorrectly evaluate to 1.
 
-
-// A macro to disallow the copy constructor and operator= functions
-// This should be used in the private: declarations for a class
-//
-// For disallowing only assign or copy, write the code directly, but declare
-// the intend in a comment, for example:
-// void operator=(const TypeName&);  // DISALLOW_ASSIGN
-// Note, that most uses of DISALLOW_ASSIGN and DISALLOW_COPY are broken
-// semantically, one should either use disallow both or neither. Try to
-// avoid these in new code.
-#define DISALLOW_COPY_AND_ASSIGN(TypeName)      \
-  TypeName(const TypeName&);                    \
-  void operator=(const TypeName&)
-
-// An older, politically incorrect name for the above.
-// Prefer DISALLOW_COPY_AND_ASSIGN for new code.
-#define DISALLOW_EVIL_CONSTRUCTORS(TypeName) DISALLOW_COPY_AND_ASSIGN(TypeName)
-
-// A macro to disallow all the implicit constructors, namely the
-// default constructor, copy constructor and operator= functions.
-//
-// This should be used in the private: declarations for a class
-// that wants to prevent anyone from instantiating it. This is
-// especially useful for classes containing only static methods.
-#define DISALLOW_IMPLICIT_CONSTRUCTORS(TypeName)        \
-  TypeName();                                           \
-  DISALLOW_COPY_AND_ASSIGN(TypeName)
-
-// The arraysize(arr) macro returns the # of elements in an array arr.
-// The expression is a compile-time constant, and therefore can be
-// used in defining new arrays, for example.  If you use arraysize on
-// a pointer by mistake, you will get a compile-time error.
-//
-// One caveat is that arraysize() doesn't accept any array of an
-// anonymous type or a type defined inside a function.  In these rare
-// cases, you have to use the unsafe ARRAYSIZE() macro below.  This is
-// due to a limitation in C++'s template system.  The limitation might
-// eventually be removed, but it hasn't happened yet.
-
-// This template function declaration is used in defining arraysize.
-// Note that the function doesn't need an implementation, as we only
-// use its type.
-template <typename T, size_t N>
-char (&ArraySizeHelper(T (&array)[N]))[N];
-
-// That gcc wants both of these prototypes seems mysterious. VC, for
-// its part, can't decide which to use (another mystery). Matching of
-// template overloads: the final frontier.
-#ifndef COMPILER_MSVC
-template <typename T, size_t N>
-char (&ArraySizeHelper(const T (&array)[N]))[N];
 #endif
 
-#define arraysize(array) (sizeof(ArraySizeHelper(array)))
+// bit_cast<Dest,Source> is a template function that implements the
+// equivalent of "*reinterpret_cast<Dest*>(&source)".  We need this in
+// very low-level functions like the protobuf library and fast math
+// support.
+//
+//   float f = 3.14159265358979;
+//   int i = bit_cast<int32>(f);
+//   // i = 0x40490fdb
+//
+// The classical address-casting method is:
+//
+//   // WRONG
+//   float f = 3.14159265358979;            // WRONG
+//   int i = * reinterpret_cast<int*>(&f);  // WRONG
+//
+// The address-casting method actually produces undefined behavior
+// according to ISO C++ specification section 3.10 -15 -.  Roughly, this
+// section says: if an object in memory has one type, and a program
+// accesses it with a different type, then the result is undefined
+// behavior for most values of "different type".
+//
+// This is true for any cast syntax, either *(int*)&f or
+// *reinterpret_cast<int*>(&f).  And it is particularly true for
+// conversions between integral lvalues and floating-point lvalues.
+//
+// The purpose of 3.10 -15- is to allow optimizing compilers to assume
+// that expressions with different types refer to different memory.  gcc
+// 4.0.1 has an optimizer that takes advantage of this.  So a
+// non-conforming program quietly produces wildly incorrect output.
+//
+// The problem is not the use of reinterpret_cast.  The problem is type
+// punning: holding an object in memory of one type and reading its bits
+// back using a different type.
+//
+// The C++ standard is more subtle and complex than this, but that
+// is the basic idea.
+//
+// Anyways ...
+//
+// bit_cast<> calls memcpy() which is blessed by the standard,
+// especially by the example in section 3.9 .  Also, of course,
+// bit_cast<> wraps up the nasty logic in one place.
+//
+// Fortunately memcpy() is very fast.  In optimized mode, with a
+// constant size, gcc 2.95.3, gcc 4.0.1, and msvc 7.1 produce inline
+// code with the minimal amount of data movement.  On a 32-bit system,
+// memcpy(d,s,4) compiles to one load and one store, and memcpy(d,s,8)
+// compiles to two loads and two stores.
+//
+// I tested this code with gcc 2.95.3, gcc 4.0.1, icc 8.1, and msvc 7.1.
+//
+// WARNING: if Dest or Source is a non-POD type, the result of the memcpy
+// is likely to surprise you.
 
-// ARRAYSIZE performs essentially the same calculation as arraysize,
-// but can be used on anonymous types or types defined inside
-// functions.  It's less safe than arraysize as it accepts some
-// (although not all) pointers.  Therefore, you should use arraysize
-// whenever possible.
-//
-// The expression ARRAYSIZE(a) is a compile-time constant of type
-// size_t.
-//
-// ARRAYSIZE catches a few type errors.  If you see a compiler error
-//
-//   "warning: division by zero in ..."
-//
-// when using ARRAYSIZE, you are (wrongfully) giving it a pointer.
-// You should only use ARRAYSIZE on statically allocated arrays.
-//
-// The following comments are on the implementation details, and can
-// be ignored by the users.
-//
-// ARRAYSIZE(arr) works by inspecting sizeof(arr) (the # of bytes in
-// the array) and sizeof(*(arr)) (the # of bytes in one array
-// element).  If the former is divisible by the latter, perhaps arr is
-// indeed an array, in which case the division result is the # of
-// elements in the array.  Otherwise, arr cannot possibly be an array,
-// and we generate a compiler error to prevent the code from
-// compiling.
-//
-// Since the size of bool is implementation-defined, we need to cast
-// !(sizeof(a) & sizeof(*(a))) to size_t in order to ensure the final
-// result has type size_t.
-//
-// This macro is not perfect as it wrongfully accepts certain
-// pointers, namely where the pointer size is divisible by the pointee
-// size.  Since all our code has to go through a 32-bit compiler,
-// where a pointer is 4 bytes, this means all pointers to a type whose
-// size is 3 or greater than 4 will be (righteously) rejected.
-//
-// Kudos to Jorg Brown for this simple and elegant implementation.
-//
-// - wan 2005-11-16
-//
-// Starting with Visual C++ 2005, WinNT.h includes ARRAYSIZE.
-#if !defined(COMPILER_MSVC) || (defined(_MSC_VER) && _MSC_VER < 1400)
-#define ARRAYSIZE(a)                            \
-  ((sizeof(a) / sizeof(*(a))) /                 \
-   static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
-#endif
+template <class Dest, class Source>
+    inline Dest bit_cast(const Source& source) {
+  COMPILE_ASSERT(sizeof(Dest) == sizeof(Source), VerifySizesAreEqual);
 
-// A macro to turn a symbol into a string
-#define AS_STRING(x)   AS_STRING_INTERNAL(x)
-#define AS_STRING_INTERNAL(x)   #x
+  Dest dest;
+  memcpy(&dest, &source, sizeof(dest));
+  return dest;
+}
 
-#if 0
-// One of the type traits, is_pod, makes it possible to query whether
-// a type is a POD type. It is impossible for type_traits.h to get
-// this right without compiler support, so it fails conservatively. It
-// knows that fundamental types and pointers are PODs, but it can't
-// tell whether user classes are PODs. The DECLARE_POD macro is used
-// to inform the type traits library that a user class is a POD.
+// Used to explicitly mark the return value of a function as unused. If you are
+// really sure you don't want to do anything with the return value of a function
+// that has been marked WARN_UNUSED_RESULT, wrap it with this. Example:
 //
-// Implementation note: the typedef at the end is just to make it legal
-// to put a semicolon after DECLARE_POD(foo).
+//   scoped_ptr<MyType> my_var = ...;
+//   if (TakeOwnership(my_var.get()) == SUCCESS)
+//     ignore_result(my_var.release());
 //
-//
-// So what's a POD?  The C++ standard (clause 9 paragraph 4) gives a
-// full definition, but a good rule of thumb is that a struct is a POD
-// ("plain old data") if it doesn't use any of the features that make
-// C++ different from C.  A POD struct can't have constructors,
-// destructors, assignment operators, base classes, private or
-// protected members, or virtual functions, and all of its member
-// variables must themselves be PODs.
+template<typename T>
+inline void ignore_result(const T&) {
+}
 
-#define DECLARE_POD(TypeName)                   \
-  namespace base {                              \
-  template<> struct is_pod<TypeName> : true_type { };   \
-  }                                                     \
-  typedef int Dummy_Type_For_DECLARE_POD                \
+// The following enum should be used only as a constructor argument to indicate
+// that the variable has static storage class, and that the constructor should
+// do nothing to its state.  It indicates to the reader that it is legal to
+// declare a static instance of the class, provided the constructor is given
+// the base::LINKER_INITIALIZED argument.  Normally, it is unsafe to declare a
+// static variable that has a constructor or a destructor because invocation
+// order is undefined.  However, IF the type can be initialized by filling with
+// zeroes (which the loader does for static variables), AND the destructor also
+// does nothing to the storage, AND there are no virtual methods, then a
+// constructor declared as
+//       explicit MyClass(base::LinkerInitialized x) {}
+// and invoked as
+//       static MyClass my_variable_name(base::LINKER_INITIALIZED);
+namespace base {
+  enum LinkerInitialized { LINKER_INITIALIZED };
 
-// We once needed a different technique to assert that a nested class
-// is a POD. This is no longer necessary, and DECLARE_NESTED_POD is
-// just a synonym for DECLARE_POD. We continue to provide
-// DECLARE_NESTED_POD only so we don't have to change client
-// code. Regardless of whether you use DECLARE_POD or
-// DECLARE_NESTED_POD: use it after the outer class. Using it within a
-// class definition will give a compiler error.
-#define DECLARE_NESTED_POD(TypeName) DECLARE_POD(TypeName)
+  // Use these to declare and define a static local variable (static T;) so that
+  // it is leaked so that its destructors are not called at exit. If you need
+  // thread-safe initialization, use base/lazy_instance.h instead.
+#define CR_DEFINE_STATIC_LOCAL(type, name, arguments) \
+    static type& name = *new type arguments
 
-// Declare that TemplateName<T> is a POD whenever T is
-#define PROPAGATE_POD_FROM_TEMPLATE_ARGUMENT(TemplateName)      \
-  namespace base {                                              \
-  template <typename T> struct is_pod<TemplateName<T> > : is_pod<T> { }; \
-  }                                                                     \
-  typedef int Dummy_Type_For_PROPAGATE_POD_FROM_TEMPLATE_ARGUMENT
-
-// Macro that does nothing if TypeName is a POD, and gives a compiler
-// error if TypeName is a non-POD.  You should put a descriptive
-// comment right next to the macro call so that people can tell what
-// the compiler error is about.
-//
-// Implementation note: this works by taking the size of a type that's
-// complete when TypeName is a POD and incomplete otherwise.
-
-template <typename Boolean> struct ERROR_TYPE_MUST_BE_POD;
-template <> struct ERROR_TYPE_MUST_BE_POD<base::true_type> { };
-#define ENFORCE_POD(TypeName)                   \
-  enum { dummy_##TypeName                       \
-  = sizeof(ERROR_TYPE_MUST_BE_POD<              \
-           typename base::is_pod<TypeName>::type>) }
-#endif
+}  // base
 
 #endif  // BASE_MACROS_H_
