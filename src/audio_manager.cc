@@ -28,11 +28,11 @@ AudioManager::~AudioManager() {
   gst_object_unref(GST_OBJECT(pipeline_));
 }
 
-void AudioManager::PlayMp3File(const char* file) {
+void AudioManager::PlayMp3File(base::FilePath& file) {
   qDebug() << "enter";
   gst_element_set_state(pipeline_, GST_STATE_READY);
 
-  g_object_set(G_OBJECT(source_), "location", file, NULL);
+  g_object_set(G_OBJECT(source_), "location", file.value().c_str(), NULL);
 
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
   playing_ = 1;
@@ -42,8 +42,15 @@ void AudioManager::PlayMp3File(const char* file) {
 
 void AudioManager::TrackPoller() {
   if (playing_) {
+#if defined(OS_POSIX)
     gst_element_query_position(pipeline_, GST_FORMAT_TIME, &pos_);
     gst_element_query_duration(pipeline_, GST_FORMAT_TIME, &len_);
+#elif defined(OS_WIN)
+    // Is this for gstreamer-0.10 ?
+    GstFormat fmt = GST_FORMAT_TIME;
+    gst_element_query_position(pipeline_, &fmt, &pos_);
+    gst_element_query_duration(pipeline_, &fmt, &len_);
+#endif
     PlaybackProgressCallback(pos_, len_);
   } else {
     track_poller_->Stop();

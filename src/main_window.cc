@@ -113,7 +113,11 @@ QVariant TableModel::data(const QModelIndex& index, int role) const {
   if (role == Qt::DisplayRole) {
     Track* track = library_->GetTrack(index.row());
     if (track) {
+#if defined(OS_WIN)
+      return QString::fromWCharArray(track->file_path_.value().c_str());
+#else
       return QString(track->file_path_.value().c_str());
+#endif
     }
   }
   return QVariant();

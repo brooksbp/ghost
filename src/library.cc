@@ -52,7 +52,7 @@ void Library::Play(int index) {
   Track* track = GetTrack(index);
   if (track) {
     current_index_ = index;
-    audio_manager_->PlayMp3File(track->file_path_.value().c_str());
+    audio_manager_->PlayMp3File(track->file_path_);
   }
 }
 

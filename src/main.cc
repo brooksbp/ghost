@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
   CommandLine::Init(0, NULL);
   CommandLine* cl = CommandLine::ForCurrentProcess();
 
-  base::FilePath dir("../test-data/");
+  base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
   if (cl->HasSwitch("dir")) {
     dir = cl->GetSwitchValuePath("dir");
   }

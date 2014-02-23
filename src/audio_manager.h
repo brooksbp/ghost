@@ -8,6 +8,7 @@
 
 #include "timer.h"
 #include "base/basictypes.h"
+#include "base/file_path.h"
 
 // Abstract all of Gstreamer and audio control here..
 
@@ -16,7 +17,7 @@ class AudioManager {
   AudioManager();
   ~AudioManager();
 
-  void PlayMp3File(const char* file);
+  void PlayMp3File(base::FilePath& file);
 
   std::function<void()> eosCallback;
   std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
