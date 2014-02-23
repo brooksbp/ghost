@@ -3,8 +3,10 @@
 
 #include <functional>
 
+#if !defined(OS_WIN)
 #include <gst/gst.h>
 #include <glib.h>
+#endif
 
 #include "timer.h"
 #include "base/basictypes.h"

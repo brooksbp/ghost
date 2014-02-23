@@ -14,6 +14,7 @@ set(base_SRC_FILES
   src/base/file_path_constants.cc
   src/base/string_util.cc
   src/base/string_util_constants.cc
+  src/base/utf_string_conversions.cc
 )
 
 ## GTest
