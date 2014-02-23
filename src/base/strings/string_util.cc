@@ -72,3 +72,12 @@ bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,
   return DoLowerCaseEqualsASCII(a_begin, a_end, b);
 }
 
+std::string WideToASCII(const std::wstring& wide) {
+  //DCHECK(IsStringASCII(wide)) << wide;
+  return std::string(wide.begin(), wide.end());
+}
+
+std::string UTF16ToASCII(const string16& utf16) {
+  //DCHECK(IsStringASCII(utf16)) << utf16;
+  return std::string(utf16.begin(), utf16.end());
+}

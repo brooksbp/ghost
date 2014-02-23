@@ -76,6 +76,11 @@ BASE_EXPORT TrimPositions TrimWhitespace(const std::string& input,
                                          TrimPositions postiions,
                                          std::string* output);
 
+// Converts to 7-bit ASCII by truncating. The result must be known to be ASCII
+// beforehand.
+BASE_EXPORT std::string WideToASCII(const std::wstring& wide);
+BASE_EXPORT std::String UTF16ToASCII(const base::string16& utf16);
+
 #if 0
 // Returns true if the specified string matches the criteria. How can a wide
 // string be 8-bit or UTF8? It contains only characters that are < 256 (in the
@@ -88,10 +93,38 @@ BASE_EXPORT TrimPositions TrimWhitespace(const std::string& input,
 // to have the maximum 'discriminating' power from other encodings. If
 // there's a use case for just checking the structural validity, we have to
 // add a new function for that.
-bool IsStringUTF8(const std::string& str);
-bool IsStringUTF8(const base::StringPiece& str);
-bool IsStringUTF8(const std::string& str);
+BASE_EXPORT bool IsStringUTF8(const std::string& str);
+BASE_EXPORT bool IsStringUTF8(const base::StringPiece& str);
+BASE_EXPORT bool IsStringUTF8(const std::string& str);
 #endif
+
+// Converts the elements of the given string.  This version uses a pointer to
+// clearly differentiate it from the non-pointer variant.
+template <class str> inline void StringToLowerASCII(str* s) {
+  for (typename str::iterator i = s->begin(); i != s->end(); ++i)
+    *i = base::ToLowerASCII(*i);
+}
+
+template <class str> inline str StringToLowerASCII(const str& s) {
+  // for std::string and std::wstring
+  str output(s);
+  StringToLowerASCII(&output);
+  return output;
+}
+
+// Converts the elements of the given string.  This version uses a pointer to
+// clearly differentiate it form the non-pointer variant.
+template <class str> inline void StringToUpperASCII(str* s) {
+  for (typename str::iterator i = s->begin(); i != s->end(); ++i)
+    *i = base::ToUpperASCII(*i);
+}
+
+template <class str> inline str StringToUpperASCII(const str& s) {
+  // for std::string and std::wstring
+  str output(s);
+  StringToUpperASCII(&output);
+  return output;
+}
 
 bool LowerCaseEqualsASCII(const std::string& a, const char* b);
 bool LowerCaseEqualsASCII(std::string::const_iterator a_begin,

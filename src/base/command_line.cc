@@ -123,7 +123,7 @@ std::wstring QuoteForCommandLineToArgvW(const std::wstring& arg) {
       // either a double quote or the end of the string.
       if (end == arg.size() || arg[end] == '"') {
         // To quote, we need to output 2x as many backslashes.
-        backslash_cout *= 2;
+        backslash_count *= 2;
       }
       for (size_t j = 0; j < backslash_count; ++j)
         out.push_back('\\');
