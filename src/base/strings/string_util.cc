@@ -24,6 +24,16 @@
 // #include "base/third_part/icu/icu_utf.h"
 #include "base/build_config.h"
 
+// Remove when this entire file is in the base namespace.
+using base::char16;
+using base::string16;
+
+namespace {
+
+}  // namespace
+
+namespace base {
+
 
 template<typename STR>
 TrimPositions TrimStringT(const STR& input,
@@ -58,10 +68,18 @@ TrimPositions TrimStringT(const STR& input,
 }
 
 
+}  // namespace base
+
+TrimPositions TrimWhitespace(const base::string16& input,
+                             TrimPositions positions,
+                             base::string16* output) {
+  return base::TrimStringT(input, base::kWhitespaceUTF16, positions, output);
+}
+
 TrimPositions TrimWhitespaceASCII(const std::string& input,
                                   TrimPositions positions,
                                   std::string* output) {
-  return TrimStringT(input, kWhitespaceASCII, positions, output);
+  return base::TrimStringT(input, base::kWhitespaceASCII, positions, output);
 }
 
 // This function is only for backward compatibility and calls

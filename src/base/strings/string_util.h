@@ -52,9 +52,6 @@ template<typename Char> struct CaseInsensitiveCompareASCII {
   }
 };
 
-}  // namespace base
-
-
 // Contains the set of characters representing whitespace in the corresponding
 // encoding. Null-terminated.
 extern const wchar_t kWhitespaceWide[];
@@ -63,6 +60,8 @@ extern const char kWhitespaceASCII[];
 
 // Null-terminated string representing the UTF-8 byte order mark.
 extern const char kUtf8ByteOrderMark[];
+
+}  // namespace base
 
 
 #if defined(OS_WIN)

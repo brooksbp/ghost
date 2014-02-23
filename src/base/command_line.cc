@@ -389,3 +389,21 @@ void CommandLine::AppendArgPath(const FilePath& path) {
 void CommandLine::AppendArgNative(const CommandLine::StringType& value) {
   argv_.push_back(value);
 }
+
+#if defined(OS_WIN)
+void CommandLine::ParseFromString(const std::wstring& command_line) {
+  std::wstring command_line_string;
+  TrimWhitespace(command_line, TRIM_ALL, &command_line_string);
+  if (command_line_string.empty())
+    return;
+
+  int num_args = 0;
+  wchar_t** args = NULL;
+  args = ::CommandLineToArgvW(command_line_string.c_str(), &num_args);
+
+  // DPLOG_IF(FATAL, !args) << "CommandLineToArgvW failed on command line: "
+  //   << command_line;
+  InitFromArgv(num_args, args);
+  LocalFree(args);
+}
+#endif
