@@ -8,6 +8,12 @@ if (UNIX)
   add_definitions("-std=c++11")
   set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
 endif()
+if (MSVC)
+  set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MTd /Zi /Ob0 /Od /RTC1")
+  set(CMAKE_CXX_FLAGS_MINSIZEREL     "/MT /O1 /Ob1 /D NDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE        "/MT /O2 /Ob2 /D NDEBUG")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /Zi /O2 /Ob1 /D NDEBUG")
+endif()
 
 set(base_SRC_FILES
   src/base/command_line.cc
