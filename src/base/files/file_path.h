@@ -5,9 +5,9 @@
 
 #include <string>
 
-#include "compiler_specific.h"
-#include "build_config.h"
-#include "macros.h"
+#include "base/compiler_specific.h"
+#include "base/build_config.h"
+#include "base/macros.h"
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid in testing.  These #defines are
