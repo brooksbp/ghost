@@ -28,6 +28,7 @@ set(base_SRC_FILES
 
 if (WIN32)
   list(REMOVE_ITEM base_SRC_FILES src/base/strings/string16.cc)
+  list(APPEND base_SRC_FILES src/base/win/windows_version.cc)
 endif()
 
 ## GTest

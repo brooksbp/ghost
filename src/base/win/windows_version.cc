@@ -65,7 +65,7 @@ OSInfo::OSInfo()
         break;
     }
   } else if (version_number_.major > 6) {
-    NOTREACHED();
+    // NOTREACHED();
     version_ = VERSION_WIN_LAST;
   }
   service_pack_.major = version_info.wServicePackMajor;
@@ -79,7 +79,7 @@ OSInfo::OSInfo()
     case PROCESSOR_ARCHITECTURE_IA64:  architecture_ = IA64_ARCHITECTURE; break;
   }
   processors_ = system_info.dwNumberOfProcessors;
-  allocation_granularity_ = systme_info.dwAllocationGranularity;
+  allocation_granularity_ = system_info.dwAllocationGranularity;
 
   GetProductInfoPtr get_product_info;
   DWORD os_type;
@@ -87,7 +87,7 @@ OSInfo::OSInfo()
   if (version_info.dwMajorVersion == 6) {
     // Only present on Vista+.
     get_product_info = reinterpret_cast<GetProductInfoPtr>(
-        ::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "GetProductInfo"));
+        ::GetProcAddress(::GetModuleHandle("kernel32.dll"), "GetProductInfo"));
 
     get_product_info(version_info.dwMajorVersion, version_info.dwMinorVersion,
                      0, 0, &os_type);
@@ -147,9 +147,9 @@ std::string OSInfo::processor_model_name() {
   if (processor_model_name_.empty()) {
     const wchar_t kProcessorNameString[] =
         L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0";
-    base::win::RegKey key(HKEY_LOCAL_MACHINE, kProcessorNameString, KEY_READ);
+    // base::win::RegKey key(HKEY_LOCAL_MACHINE, kProcessorNameString, KEY_READ);
     string16 value;
-    key.ReadValue(L"ProcessorNameString", &value);
+    // key.ReadValue(L"ProcessorNameString", &value);
     processor_model_name_ = UTF16ToUTF8(value);
   }
   return processor_model_name_;
@@ -159,7 +159,7 @@ std::string OSInfo::processor_model_name() {
 OSInfo::WOW64Status OSInfo::GetWOW64StatusForProcess(HANDLE process_handle) {
   typedef BOOL (WINAPI* IsWow64ProcessFunc)(HANDLE, PBOOL);
   IsWow64ProcessFunc is_wow64_process = reinterpret_cast<IsWow64ProcessFunc>(
-      GetProcAddress(GetModuleHandle(L"kernel32.dll"), "IsWow64Process"));
+      GetProcAddress(GetModuleHandle("kernel32.dll"), "IsWow64Process"));
   if (!is_wow64_process)
     return WOW64_DISABLED;
   BOOL is_wow64 = FALSE;

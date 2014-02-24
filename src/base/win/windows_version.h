@@ -54,7 +54,7 @@ public:
   struct ServicePack {
     int major;
     int minor;
-  }
+  };
 
   // The processor architecture this copy of Windows natively uses.  For
   // example, given an x64-capable processor, we have three possibilities:
