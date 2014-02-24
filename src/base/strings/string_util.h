@@ -15,12 +15,7 @@
 #include "base/strings/string16.h"
 // #include "base/strings/string_piece.h"
 
-// HACK
-typedef wchar_t char16;
-
-
 namespace base {
-
 
 // ASCII-specific tolower.  The standard library's tolower is locale sensitive,
 // so we don't want to use it here.
