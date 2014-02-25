@@ -2,6 +2,47 @@
 
 #include <QtCore/QDebug>
 
+static void gst_debug_logcat(GstDebugCategory* category,
+  GstDebugLevel level,
+  const gchar* file,
+  const gchar* function,
+  gint line,
+  GObject* object,
+  GstDebugMessage* message,
+  gpointer unused) {
+  GstClockTime gst_time;
+  gchar* tag;
+
+  if (level > gst_debug_category_get_threshold(category))
+    return;
+
+  gst_time = gst_util_get_timestamp();
+
+  tag = g_strdup_printf("GStreamer+%s", gst_debug_category_get_name(category));
+
+  if (object) {
+    gchar* obj;
+
+    if (GST_IS_PAD(object) && GST_OBJECT_NAME(object)) {
+      obj = g_strdup_printf("<%s:%s>", GST_DEBUG_PAD_NAME(object));
+    } else if (GST_IS_OBJECT(object) && GST_OBJECT_NAME(object)) {
+      obj = g_strdup_printf("<%s>", GST_OBJECT_NAME(object));
+    } else if (G_IS_OBJECT(object)) {
+      obj = g_strdup_printf("<%s@%p>", G_OBJECT_TYPE_NAME(object), object);
+    } else {
+      obj = g_strdup_printf("<%p>", object);
+    }
+
+    qDebug() << file << ":" << line << ":" << function << " " << obj << " " << gst_debug_message_get(message);
+
+    g_free(obj);
+  } else {
+    qDebug() << file << ":" << line << ":" << function << " " << gst_debug_message_get(message);
+  }
+
+  g_free(tag);
+}
+
 AudioManager::AudioManager() {
   gst_init(NULL, NULL);
 
@@ -17,6 +58,11 @@ AudioManager::AudioManager() {
 
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
+
+  gst_debug_set_active(TRUE);
+  gst_debug_set_default_threshold(GST_LEVEL_WARNING);
+  gst_debug_remove_log_function(gst_debug_log_default);
+  gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
 
   track_poller_ = new Timer(0, 100, true,
                             std::bind(&AudioManager::TrackPoller, this));
