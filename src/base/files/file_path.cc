@@ -219,6 +219,55 @@ bool FilePath::MatchesExtension(const StringType& extension) const {
   return FilePath::CompareEqualIgnoreCase(extension, current_extension);
 }
 
+FilePath FilePath::Append(const StringType& component) const {
+  const StringType* appended = &component;
+  StringType without_nuls;
+
+  StringType::size_type nul_pos = component.find(kStringTerminator);
+  if (nul_pos != StringType::npos) {
+    without_nuls = component.substr(0, nul_pos);
+    appended = &without_nuls;
+  }
+
+  // DCHECK(!IsPathAbsolute(*appended));
+
+  if (path_.compare(kCurrentDirectory) == 0) {
+    // Append normally doesn't do any normalization, but as a special case,
+    // when appending to kCurrentDirectory, just return a new path for the
+    // component argument.  Appending component to kCurrentDirectory would
+    // serve no purpose other than needlessly lengthening the path, and
+    // it's likely in practice to wind up with FilePath objects containing
+    // only kCurrentDirectory when calling DirName on a single relative path
+    // component.
+    return FilePath(*appended);
+  }
+
+  FilePath new_path(path_);
+  new_path.StripTrailingSeparatorsInternal();
+  
+  // Don't append a separator if the path is empty (indicating the current
+  // directory) or if the path component is empty (indicating nothing to
+  // append).
+  if (appended->length() > 0 && new_path.path_.length() > 0) {
+    // Don't append a separator if the path still ends with a trailing
+    // separator after stripping (indicating the root directory).
+    if (!IsSeparator(new_path.path_[new_path.path_.length() - 1])) {
+      // Don't append a separator if the path is just a drive letter.
+      if (FindDriveLetter(new_path.path_) + 1 != new_path.path_.length()) {
+        new_path.path_.append(1, kSeparators[0]);
+      }
+    }
+  }
+
+  new_path.path_.append(*appended);
+  return new_path;
+}
+
+FilePath FilePath::Append(const FilePath& component) const {
+  return Append(component.value());
+}
+
+
 FilePath FilePath::StripTrailingSeparators() const {
   FilePath new_path(path_);
   new_path.StripTrailingSeparatorsInternal();

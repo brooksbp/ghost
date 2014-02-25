@@ -99,6 +99,15 @@ class FilePath {
   // case insensitive. Don't forget the leading period if appropriate.
   bool MatchesExtension(const StringType& extension) const;
 
+  // Returns a FilePath by appending a separator and the supplied path
+  // component to this object's path.  Append takes care to avoid adding
+  // excessive separators if this object's path already ends with a separator.
+  // If this object's path is kCurrentDirectory, a new FilePath corresponding
+  // only to |component| is returned.  |component| must be a relative path;
+  // it is an error to pass an absolute path.
+  FilePath Append(const StringType& component) const WARN_UNUSED_RESULT;
+  FilePath Append(const FilePath& component) const WARN_UNUSED_RESULT;
+
 
   // Returns a copy of this FilePath that does not end with a trailing
   // separator.

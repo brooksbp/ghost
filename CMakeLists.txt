@@ -19,6 +19,7 @@ set(base_SRC_FILES
   src/base/command_line.cc
   src/base/files/file_path.cc
   src/base/files/file_path_constants.cc
+  src/base/files/file_enumerator.cc
   src/base/strings/string_util.cc
   src/base/strings/string_util_constants.cc
   src/base/strings/string16.cc
@@ -29,6 +30,10 @@ set(base_SRC_FILES
 if (WIN32)
   list(REMOVE_ITEM base_SRC_FILES src/base/strings/string16.cc)
   list(APPEND base_SRC_FILES src/base/win/windows_version.cc)
+  list(APPEND base_SRC_FILES src/base/files/file_enumerator_win.cc)
+endif()
+if (UNIX)
+  list(APPEND base_SRC_FILES src/base/files/file_enumerator_posix.cc)
 endif()
 
 ## GTest
