@@ -1,40 +1,29 @@
-#include <QtCore/QDebug>
-
 #include "library.h"
 
-#if defined(OS_LINUX)
-#include <ftw.h>
-#endif
+#include "base/files/file_enumerator.h"
 
 #include <vector>
 
-static std::vector<Track*> tracks_;
+#include <QtCore/QDebug>
 
-#if defined(OS_LINUX)
-static int LibraryNftwCallback(const char* pathname, const struct stat* sbuf,
-                               int type, struct FTW* ftwb) {
-  if (type == FTW_F) {
-    base::FilePath file(pathname);
-    if (file.MatchesExtension(".mp3")) {
-      Track* track = new Track(file);
-      tracks_.push_back(track);
-    }
-  }
-  return 0;
-}
-#endif
+
+static std::vector<Track*> tracks_;
 
 Library::Library(const base::FilePath& root_path, AudioManager* audio_manager)
     : root_path_(root_path),
       audio_manager_(audio_manager) {
-  // Visit all files in root_path_.
-#if defined(OS_LINUX)
-  nftw(root_path_.value().c_str(), LibraryNftwCallback, 100, FTW_DEPTH | FTW_PHYS);
-#endif
+  // Add all mp3 files found in root_path.
+  base::FileEnumerator iter(root_path, true, base::FileEnumerator::FILES);
+  for (base::FilePath name = iter.Next(); !name.empty(); name = iter.Next()) {
+    if (name.MatchesExtension(".mp3")) {
+      Track* track = new Track(name);
+      tracks_.push_back(track);
+    }
+  }
 }
 
 Library::~Library() {
-  // TODO: should tracks_ be scoped_ptrs?
+  // TODO: should tracks_ be vector of scoped_ptr's?
 }
 
 Track* Library::GetTrack(int index) {
