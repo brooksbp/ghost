@@ -20,6 +20,7 @@
 #endif
 #if defined(OS_WIN)
 #include <Windows.h>
+#include <tchar.h>
 #endif
 
 QApplication* app;
@@ -34,8 +35,7 @@ void sig_handler(int s) {
 #if defined(OS_POSIX)
 int main(int argc, const char* argv[]) {
 #elif defined(OS_WIN)
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
-  int argc = 0;
+int _tmain(int argc, _TCHAR* argv[]) {
 #endif
 #if defined(OS_POSIX)
   struct sigaction sa;
@@ -75,6 +75,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
   
   main_window.Initialize(&library);
   main_window.show();
+
+  qDebug() << "initialized";
 
   return app->exec();
 }

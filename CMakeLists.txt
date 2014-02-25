@@ -92,7 +92,7 @@ elseif (WIN32)
   list(APPEND SRC_FILES src/timer_win.cc)
 endif()
 
-add_executable(ghost WIN32
+add_executable(ghost
   ${base_SRC_FILES}
   ${SRC_FILES}
   ${INCS}
