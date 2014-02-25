@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-#include "base/logging.h"
+// #include "base/logging.h"
 // #include "base/threading/thread_restrictions.h"
 #include "base/win/windows_version.h"
 
@@ -50,7 +50,7 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
       has_find_data_(false),
       find_handle_(INVALID_HANDLE_VALUE) {
   // INCLUDE_DOT_DOT must not be specified if recursive.
-  DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
+  // DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
   memset(&find_data_, 0, sizeof(find_data_));
   pending_paths_.push(root_path);
 }
@@ -65,7 +65,7 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
       pattern_(pattern),
       find_handle_(INVALID_HANDLE_VALUE) {
   // INCLUDE_DOT_DOT must not be specified if recursive.
-  DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
+  // DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
   memset(&find_data_, 0, sizeof(find_data_));
   pending_paths_.push(root_path);
 }
@@ -77,7 +77,7 @@ FileEnumerator::~FileEnumerator() {
 
 FileEnumerator::FileInfo FileEnumerator::GetInfo() const {
   if (!has_find_data_) {
-    NOTREACHED();
+    // NOTREACHED();
     return FileInfo();
   }
   FileInfo ret;
@@ -95,7 +95,7 @@ FilePath FileEnumerator::Next() {
       pending_paths_.pop();
 
       // Start a new find operation.
-      FilePath src = root_path;
+      FilePath src = root_path_;
 
       if (pattern_.empty())
         src = src.Append(L"*");  // No pattern = match everything.
@@ -107,7 +107,7 @@ FilePath FileEnumerator::Next() {
         // enumerations (we seldom abort in the middle).
         find_handle_ = FindFirstFileEx(src.value().c_str(),
                                        FindExInfoBasic,  // Omit short name.
-                                       &find_data_
+                                       &find_data_,
                                        FindExSearchNameMatch,
                                        NULL,
                                        FIND_FIRST_EX_LARGE_FETCH);

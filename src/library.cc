@@ -15,7 +15,7 @@ Library::Library(const base::FilePath& root_path, AudioManager* audio_manager)
   // Add all mp3 files found in root_path.
   base::FileEnumerator iter(root_path, true, base::FileEnumerator::FILES);
   for (base::FilePath name = iter.Next(); !name.empty(); name = iter.Next()) {
-    if (name.MatchesExtension(".mp3")) {
+    if (name.MatchesExtension(FILE_PATH_LITERAL(".mp3"))) {
       Track* track = new Track(name);
       tracks_.push_back(track);
     }

@@ -87,7 +87,7 @@ OSInfo::OSInfo()
   if (version_info.dwMajorVersion == 6) {
     // Only present on Vista+.
     get_product_info = reinterpret_cast<GetProductInfoPtr>(
-        ::GetProcAddress(::GetModuleHandle("kernel32.dll"), "GetProductInfo"));
+        ::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "GetProductInfo"));
 
     get_product_info(version_info.dwMajorVersion, version_info.dwMinorVersion,
                      0, 0, &os_type);
@@ -159,7 +159,7 @@ std::string OSInfo::processor_model_name() {
 OSInfo::WOW64Status OSInfo::GetWOW64StatusForProcess(HANDLE process_handle) {
   typedef BOOL (WINAPI* IsWow64ProcessFunc)(HANDLE, PBOOL);
   IsWow64ProcessFunc is_wow64_process = reinterpret_cast<IsWow64ProcessFunc>(
-      GetProcAddress(GetModuleHandle("kernel32.dll"), "IsWow64Process"));
+      GetProcAddress(GetModuleHandle(L"kernel32.dll"), "IsWow64Process"));
   if (!is_wow64_process)
     return WOW64_DISABLED;
   BOOL is_wow64 = FALSE;

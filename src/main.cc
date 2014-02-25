@@ -49,7 +49,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
   CommandLine::Init(0, NULL);
   CommandLine* cl = CommandLine::ForCurrentProcess();
 
+#if defined(OS_WIN)
+  base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
+#else
   base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
+#endif
   if (cl->HasSwitch("dir")) {
     dir = cl->GetSwitchValuePath("dir");
   }
