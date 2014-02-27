@@ -67,6 +67,10 @@ void Library::PrintTracks(void) {
   for (std::vector<Track*>::iterator it = tracks_.begin(); it != tracks_.end();
        ++it) {
     Track* track = *it;
+#if defined(OS_WIN)
     std::cout << base::WideToUTF8(track->file_path_.value()) << std::endl;
+#elif defined(OS_POSIX)
+    std::cout << track->file_path_.value() << std::endl;
+#endif
   }
 }

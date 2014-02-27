@@ -13,13 +13,10 @@ static void gst_debug_logcat(GstDebugCategory* category,
   GObject* object,
   GstDebugMessage* message,
   gpointer unused) {
-  GstClockTime gst_time;
   gchar* tag;
 
   if (level > gst_debug_category_get_threshold(category))
     return;
-
-  gst_time = gst_util_get_timestamp();
 
   tag = g_strdup_printf("GStreamer+%s", gst_debug_category_get_name(category));
 
@@ -86,12 +83,10 @@ AudioManager::~AudioManager() {
 void AudioManager::PlayMp3File(base::FilePath& file) {
 #if defined(OS_POSIX)
   gst_element_set_state(pipeline_, GST_STATE_READY);
-  g_object_set(G_OBJECT(source_), "location", loc.value().c_str(), NULL);
+  g_object_set(G_OBJECT(source_), "location", file.value().c_str(), NULL);
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
 #elif defined(OS_WIN)
   gst_element_set_state(playbin_, GST_STATE_READY);
-  // location expects a ptr to a string, not a wstring, need to
-  // add FileUtil::AsUTF8Unsafe possibly to avoid differences.
   std::string loc = base::WideToUTF8(file.value());
   g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
