@@ -1,5 +1,23 @@
 ### ghost
 
+##### Build
+
+    git submodule init ; git submodule sync
+
+    mkdir build
+    cd build
+
+    cmake ..
+    make
+
+or, on Windows:
+
+    cmake .. -G "Visual Studio 12 Win64"
+
+Run unit tests:
+
+    ./unit-test
+
 ##### Dependencies
 
 Ubuntu / Debian:
