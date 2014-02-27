@@ -41,11 +41,11 @@ if (UNIX)
   list(APPEND base_SRC_FILES src/base/files/file_enumerator_posix.cc)
 endif()
 
-## GTest
+## Google Test
 
-set(gtest_SOURCE_DIR third_party/gtest-1.7.0)
+set(gtest_SOURCE_DIR third_party/googletest)
 
-add_subdirectory(third_party/gtest-1.7.0)
+add_subdirectory(third_party/googletest)
 enable_testing(true)
 
 include_directories(${gtest_SOURCE_DIR}/include)
