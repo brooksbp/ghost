@@ -1,6 +1,9 @@
 #include "audio_manager.h"
 
+#include "base/strings/utf_string_conversions.h"
+
 #include <QtCore/QDebug>
+#include <iostream>
 
 static void gst_debug_logcat(GstDebugCategory* category,
   GstDebugLevel level,
@@ -46,8 +49,10 @@ static void gst_debug_logcat(GstDebugCategory* category,
 AudioManager::AudioManager() {
   gst_init(NULL, NULL);
 
+#if defined(OS_POSIX)
   pipeline_ = gst_pipeline_new("audio-player");
   bus_      = gst_pipeline_get_bus(GST_PIPELINE(pipeline_));
+
   source_   = gst_element_factory_make("filesrc", "file-source");
   decoder_  = gst_element_factory_make("mad", "mp3-decoder");
   sink_     = gst_element_factory_make("autoaudiosink", "audio-output");
@@ -55,7 +60,11 @@ AudioManager::AudioManager() {
   gst_bin_add_many(GST_BIN(pipeline_), source_, decoder_, sink_, NULL);
 
   gst_element_link_many(source_, decoder_, sink_, NULL);
+#elif defined(OS_WIN)
+  playbin_ = gst_element_factory_make("playbin", "playbin");
 
+  bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
+#endif
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
 
@@ -75,15 +84,21 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::PlayMp3File(base::FilePath& file) {
-  qDebug() << "enter";
+#if defined(OS_POSIX)
   gst_element_set_state(pipeline_, GST_STATE_READY);
-
-  g_object_set(G_OBJECT(source_), "location", file.value().c_str(), NULL);
-
+  g_object_set(G_OBJECT(source_), "location", loc.value().c_str(), NULL);
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
+#elif defined(OS_WIN)
+  gst_element_set_state(playbin_, GST_STATE_READY);
+  // location expects a ptr to a string, not a wstring, need to
+  // add FileUtil::AsUTF8Unsafe possibly to avoid differences.
+  std::string loc = base::WideToUTF8(file.value());
+  g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+#endif
+
   playing_ = 1;
   track_poller_->Start();
-  qDebug() << "exit";
 }
 
 void AudioManager::TrackPoller() {

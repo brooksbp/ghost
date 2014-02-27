@@ -28,10 +28,14 @@ class AudioManager {
   GstElement* pipeline_;
 
   GstBus* bus_;
-  
+
+#if defined(OS_POSIX)
   GstElement* source_;
   GstElement* decoder_;
   GstElement* sink_;
+#elif defined(OS_WIN)
+  GstElement* playbin_;
+#endif
 
   int playing_;
 

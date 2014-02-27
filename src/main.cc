@@ -67,6 +67,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
   AudioManager audio_manager;
   Library library(dir, &audio_manager);
 
+  library.PrintTracks();
+
   MainWindow main_window;
 
   audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);

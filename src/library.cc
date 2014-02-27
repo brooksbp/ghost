@@ -1,10 +1,13 @@
 #include "library.h"
 
 #include "base/files/file_enumerator.h"
+#include "base/strings/utf_string_conversions.h"
 
 #include <vector>
 
 #include <QtCore/QDebug>
+
+#include <iostream>
 
 
 static std::vector<Track*> tracks_;
@@ -61,16 +64,9 @@ void Library::EndOfStream(void) {
 }
 
 void Library::PrintTracks(void) {
-#if 0
   for (std::vector<Track*>::iterator it = tracks_.begin(); it != tracks_.end();
        ++it) {
     Track* track = *it;
-    ID3_Frame* frame;
-    if ((frame = track->tag_.Find(ID3FID_TITLE))) {
-      char title[1024];
-      frame->Field(ID3FN_TEXT).Get(title, 1024);
-      std::cout << "Track: " << title << std::endl;
-    }
+    std::cout << base::WideToUTF8(track->file_path_.value()) << std::endl;
   }
-#endif
 }
