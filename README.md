@@ -2,23 +2,22 @@
 
 ##### Build
 
-    git submodule init ; git submodule sync
+    git submodule init
+    git submodule update
 
     mkdir build
     cd build
 
+Posix:
+
     cmake ..
     make
 
-or, on Windows:
+Windows:
 
     cmake .. -G "Visual Studio 12 Win64"
 
-Run unit tests:
-
-    ./unit-test
-
-##### Dependencies
+##### Platform Dependencies
 
 Ubuntu / Debian:
 
@@ -28,7 +27,7 @@ Arch Linux:
 
     pacman -S cmake gstreamer gst-plugins-base gst-plugins-ugly qt5-base glib libmad
 
-Windows 7
+Windows 7:
 
     Visual Studio Express 2013
     Visual Studio 2012 Redistributable
