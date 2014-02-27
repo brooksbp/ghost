@@ -2,6 +2,9 @@
 
 #include "base/strings/utf_string_conversions.h"
 
+#include "base/file_util.h"
+#include "base/files/file_path.h"
+
 #include <QtCore/QDebug>
 #include <iostream>
 
@@ -87,7 +90,9 @@ void AudioManager::PlayMp3File(base::FilePath& file) {
   gst_element_set_state(pipeline_, GST_STATE_PLAYING);
 #elif defined(OS_WIN)
   gst_element_set_state(playbin_, GST_STATE_READY);
-  std::string loc = base::WideToUTF8(file.value());
+  base::FilePath abs_loc = base::MakeAbsoluteFilePath(file);
+  std::string loc = base::WideToUTF8(abs_loc.value());
+  loc.insert(0, "file:///");
   g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
 #endif
