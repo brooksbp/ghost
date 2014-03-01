@@ -56,6 +56,58 @@ BASE_EXPORT FilePath MakeAbsoluteFilePath(const FilePath& input);
 BASE_EXPORT int64 ComputeDirectorySize(const FilePath& root_path);
 
 
+// Returns true if the given path exists on the local filesystem,
+// false otherwise.
+BASE_EXPORT bool PathExists(const FilePath& path);
+
+
+// Returns true if the given path exists and is a directory, false otherwise.
+BASE_EXPORT bool DirectoryExists(const FilePath& path);
+
+
+// Reads the file at |path| into |contents| and returns true on success.
+// |contents| may be NULL, in which case this function is useful for its
+// side effect of priming the disk cache (could be used for unit tests).
+// The function returns false and the string pointed to by |contents| is
+// cleared when |path| does not exist or if it contains path traversal
+// components ('..').
+BASE_EXPORT bool ReadFileToString(const FilePath& path, std::string* contents);
+
+// Reads the file at |path| into |contents| and returns true on success.
+// |contents| may be NULL, in which case this function is useful for its
+// side effect of priming the disk cache (could be used for unit tests).
+// The function returns false and the string pointed to by |contents| is
+// cleared when |path| does not exist or if it contains path traversal
+// components ('..').
+// When the file size exceeds |max_size|, the function returns false
+// with |contents| holding the file truncated to |max_size|.
+BASE_EXPORT bool ReadFileToString(const FilePath& path,
+                                  std::string* contents,
+                                  size_t max_size);
+
+
+// Get the home directory. This is more complicated than just getenv("HOME")
+// as it knows to fall back on getpwent() etc.
+//
+// You should not generally call this directory. Instead use DIR_HOME with the
+// path service which will use this function but cache the value.
+BASE_EXPORT FilePath GetHomeDir();
+
+
+// Wrapper for fopen-like calls. Returns non-NULL FILE* on success.
+BASE_EXPORT FILE* OpenFile(const FilePath& filename, const char* mode);
+
+// Closes file opened by OpenFile. Returns true on success.
+BASE_EXPORT bool CloseFile(FILE* file);
+
+// Truncates an open file to end at the location of the current file pointer.
+// This is a cross-platform analog to Windows' SetEndOfFile() function.
+BASE_EXPORT bool TruncateFile(FILE* file);
+
+// Reads the given number of bytes from the file into the buffer.  Returns
+// the number of read bytes, or -1 on error.
+BASE_EXPORT int ReadFile(const FilePath& filename, char* data, int size);
+
 }  // namespace base
 
 #endif  // BASE_FILE_UTIL_H_

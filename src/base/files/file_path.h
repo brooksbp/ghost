@@ -3,11 +3,17 @@
 #ifndef BASE_FILES_FILE_PATH_H_
 #define BASE_FILES_FILE_PATH_H_
 
+#include <stddef.h>
 #include <string>
+#include <vector>
 
+#include "base/base_export.h"
 #include "base/compiler_specific.h"
+// #include "base/containers/hash_tables.h"
+#include "base/strings/string16.h"
+// #include "base/strings/string_piece.h"  // For implicit conversions.
 #include "base/build_config.h"
-#include "base/macros.h"
+//#include "base/macros.h"
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid in testing.  These #defines are
@@ -59,6 +65,16 @@ class FilePath {
   FilePath(const FilePath& that);
   explicit FilePath(const StringType& path);
   ~FilePath();
+  FilePath& operator=(const FilePath& that);
+
+  bool operator==(const FilePath& that) const;
+
+  bool operator!=(const FilePath& that) const;
+  
+  // Required for some STL containers and operations
+  bool operator<(const FilePath& that) const {
+    return path_ < that.path_;
+  }
 
   const StringType& value() const { return path_; }
 
@@ -68,6 +84,19 @@ class FilePath {
 
   // Returns true if |character| is in kSeparators.
   static bool IsSeparator(CharType character);
+
+  // Returns a vector of all the components of the provided path. It is
+  // equivalent to calling DirName().value() on the path's root component,
+  // and BaseName().value() on each child component.
+  //
+  // To make sure this is lossless so we can differentiate absolute and
+  // relative paths, the root slash will be included even though no other
+  // slashes will be. The precise behavior is:
+  //
+  // Posix:  "/foo/bar"  ->  [ "/", "foo", "bar ]
+  // Windows:  "C:\foo\bar"  ->  [ "C:", "\\", "foo", "bar" ]
+  void GetComponents(std::vector<FilePath::StringType>* components) const;
+
   
   // Returns a FilePath corresponding to the directory containing the path
   // named by this object, stripping away the file component.  If this object
@@ -112,6 +141,10 @@ class FilePath {
   // Returns a copy of this FilePath that does not end with a trailing
   // separator.
   FilePath StripTrailingSeparators() const WARN_UNUSED_RESULT;
+
+  // Returns true if this FilePath contains any attempt to reference a parent
+  // directory (i.e. has a path component that is ".."
+  bool ReferencesParent() const;
 
 
   // Compare two strings in the same way the file system does.

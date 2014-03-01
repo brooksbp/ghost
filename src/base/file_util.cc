@@ -42,4 +42,68 @@ int64 ComputeDirectorySize(const FilePath& root_path) {
 }
 
 
+bool ReadFileToString(const FilePath& path,
+                      std::string* contents,
+                      size_t max_size) {
+  if (contents)
+    contents->clear();
+  if (path.ReferencesParent())
+    return false;
+  FILE* file = OpenFile(path, "rb");
+  if (!file) {
+    return false;
+  }
+
+  char buf[1 << 16];
+  size_t len;
+  size_t size = 0;
+  bool read_status = true;
+
+  // Many files supplied in |path| have incorrect size (proc files etc).
+  // Hence, the file is read sequentially as opposed to a one-shot read.
+  while ((len = fread(buf, 1, sizeof(buf), file)) > 0) {
+    if (contents)
+      contents->append(buf, std::min(len, max_size - size));
+
+    if ((max_size - size) < len) {
+      read_status = false;
+      break;
+    }
+    
+    size += len;
+  }
+  CloseFile(file);
+
+  return read_status;
+}
+
+bool ReadFileToString(const FilePath& path, std::string* contents) {
+  return ReadFileToString(path, contents, std::numeric_limits<size_t>::max());
+}
+
+
+bool CloseFile(FILE* file) {
+  if (file == NULL)
+    return true;
+  return fclose(file) == 0;
+}
+
+bool TruncateFile(FILE* file) {
+  if (file == NULL)
+    return false;
+  long current_offset = ftell(file);
+  if (current_offset == -1)
+    return false;
+#if defined(OS_WIN)
+  int fd = _fileno(file);
+  if (_chsize(fd, current_offset) != 0)
+    return false;
+#else
+  int fd = fileno(file);
+  if (ftruncate(fd, current_offset) != 0)
+    return false;
+#endif
+  return true;
+}
+
 }  // namespace base

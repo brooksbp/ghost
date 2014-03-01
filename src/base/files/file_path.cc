@@ -53,6 +53,51 @@ StringType::size_type FindDriveLetter(const StringType& path) {
   return StringType::npos;
 }
 
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+bool EqualDriveLetterCaseInsensitive(const StringType& a,
+                                     const StringType& b) {
+  size_t a_letter_pos = FindDriveLetter(a);
+  size_t b_letter_pos = FindDriveLetter(b);
+
+  if (a_letter_pos == StringType::npos || b_letter_pos == StringType::npos)
+    return a == b;
+
+  StringType a_letter(a.substr(0, a_letter_pos + 1));
+  StringType b_letter(b.substr(0, b_letter_pos + 1));
+  if (!StartsWith(a_letter, b_letter, false))
+    return false;
+
+  StringType a_rest(a.substr(a_letter_pos + 1));
+  StringType b_rest(b.substr(b_letter_pos + 1));
+  return a_rest == b_rest;
+}
+#endif  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+
+bool IsPathAbsolute(const StringType& path) {
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  StringType::size_type letter = FindDriveLetter(path);
+  if (letter != StringType::npos) {
+    // Look for a separator right after the drive specification.
+    return path.length() > letter + 1 &&
+        FilePath::IsSeparator(path[letter + 1]);
+  }
+  // Look for a pair of leading separators.
+  return path.length() > 1 &&
+      FilePath::IsSeparator(path[0]) && FilePath::IsSeparator(path[0]);
+#else
+  // Look for a separator in the first position.
+  return path.length() > 0 && FilePath::IsSeparator(path[0]);
+#endif  // defined(FILE_PATH_USES_DRIVE_LETTERS)
+}
+
+bool AreAllSeparators(const StringType& input) {
+  for (StringType::const_iterator it = input.begin();
+       it != input.end(); ++it) {
+    if (!FilePath::IsSeparator(*it))
+      return false;
+  }
+  return true;
+}
 
 // Find the position of the '.' that separates the extension from the rest
 // of the file name. The position is relative to BaseName(), not value().
@@ -125,6 +170,28 @@ FilePath::FilePath(const StringType& path) : path_(path) {
 FilePath::~FilePath() {
 }
 
+FilePath& FilePath::operator=(const FilePath& that) {
+  path_ = that.path_;
+  return *this;
+}
+
+bool FilePath::operator==(const FilePath& that) const {
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  return EqualDriveLetterCaseInsensitive(this->path_, that.path_);
+#else
+  return path_ == that.path_;
+#endif
+}
+
+bool FilePath::operator!=(const FilePath& that) const {
+#if defined(FILE_PATH_USES_DRIVE_LETTERS)
+  return !EqualDriveLetterCaseInsensitive(this->path_, that.path_);
+#else
+  return path_ != that.path_;
+#endif
+}
+
+// static
 bool FilePath::IsSeparator(CharType character) {
   for (size_t i = 0; i < kSeparatorsLength - 1; ++i) {
     if (character == kSeparators[i]) {
@@ -134,6 +201,42 @@ bool FilePath::IsSeparator(CharType character) {
 
   return false;
 }
+
+void FilePath::GetComponents(std::vector<StringType>* components) const {
+  // DCHECK(components);
+  if (!components)
+    return;
+  components->clear();
+  if (value().empty())
+    return;
+
+  std::vector<StringType> ret_val;
+  FilePath current = *this;
+  FilePath base;
+
+  // Capture path components.
+  while (current != current.DirName()) {
+    base = current.BaseName();
+    if (!AreAllSeparators(base.value()))
+      ret_val.push_back(base.value());
+    current = current.DirName();
+  }
+
+  // Capture root, if any.
+  base = current.BaseName();
+  if (!base.value().empty() && base.value() != kCurrentDirectory)
+    ret_val.push_back(current.BaseName().value());
+
+  // Capture drive letter, if any.
+  FilePath dir = current.DirName();
+  StringType::size_type letter = FindDriveLetter(dir.value());
+  if (letter != StringType::npos) {
+    ret_val.push_back(StringType(dir.value(), 0, letter + 1));
+  }
+
+  *components = std::vector<StringType>(ret_val.rbegin(), ret_val.rend());
+}
+
 
 // libgen's dirname and basename aren't guaranteed to be thread-safe and aren't
 // guaranteed to not modify their input strings, and in fact are implemented
@@ -274,6 +377,27 @@ FilePath FilePath::StripTrailingSeparators() const {
 
   return new_path;
 }
+
+bool FilePath::ReferencesParent() const {
+  std::vector<StringType> components;
+  GetComponents(&components);
+
+  std::vector<StringType>::const_iterator it = components.begin();
+  for (; it != components.end(); ++it) {
+    const StringType& component = *it;
+    // Windows has odd, undocumented behavior with path components containing
+    // only whitespace and . characters. So, if all we see is . and
+    // whitespace, then we treat any .. sequence as referencing parent.
+    // For simplicity we enforce this on all platforms.
+    if (component.find_first_not_of(FILE_PATH_LITERAL(". \n\r\t")) ==
+        std::string::npos &&
+        component.find(kParentDirectory) != std::string::npos) {
+      return true;
+    }
+  }
+  return false;
+}
+
 
 void FilePath::StripTrailingSeparatorsInternal() {
   // If there is no drive letter, start will be 1, which will prevent stripping
