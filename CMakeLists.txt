@@ -51,6 +51,8 @@ enable_testing(true)
 include_directories(${gtest_SOURCE_DIR}/include)
 
 add_executable(unit-tests
+  src/playlist_pls.cc
+  src/playlist_pls_unittest.cc
   src/base/command_line_unittest.cc
   src/base/strings/string16_unittest.cc
   ${base_SRC_FILES}
@@ -86,6 +88,7 @@ set(SRC_FILES
   src/main.cc
   src/track.cc
   src/library.cc
+  src/playlist_pls.cc
   src/audio_manager.cc
   src/main_window.cc
 )

@@ -91,6 +91,17 @@ TrimPositions TrimWhitespace(const std::string& input,
 }
 
 
+std::string WideToASCII(const std::wstring& wide) {
+  //DCHECK(IsStringASCII(wide)) << wide;
+  return std::string(wide.begin(), wide.end());
+}
+
+std::string UTF16ToASCII(const base::string16& utf16) {
+  //DCHECK(IsStringASCII(utf16)) << utf16;
+  return std::string(utf16.begin(), utf16.end());
+}
+
+
 template<typename Iter>
 static inline bool DoLowerCaseEqualsASCII(Iter a_begin,
                                           Iter a_end,
@@ -135,12 +146,61 @@ bool LowerCaseEqualsASCII(const base::char16* a_begin,
 }
 
 
-std::string WideToASCII(const std::wstring& wide) {
-  //DCHECK(IsStringASCII(wide)) << wide;
-  return std::string(wide.begin(), wide.end());
+#if 0
+bool EqualsASCII(const string16& a, const base::StringPiece& b) {
+  if (a.length() != b.length())
+    return false;
+  return std::equal(b.begin(), b.end(), a.begin());
+}
+#endif
+
+bool StartsWithASCII(const std::string& str,
+                     const std::string& search,
+                     bool case_sensitive) {
+  if (case_sensitive)
+    return str.compare(0, search.length(), search) == 0;
+  else
+    return base::strncasecmp(str.c_str(), search.c_str(), search.length()) == 0;
 }
 
-std::string UTF16ToASCII(const base::string16& utf16) {
-  //DCHECK(IsStringASCII(utf16)) << utf16;
-  return std::string(utf16.begin(), utf16.end());
+template <typename STR>
+bool StartsWithT(const STR& str, const STR& search, bool case_sensitive) {
+  if (case_sensitive) {
+    return str.compare(0, search.length(), search) == 0;
+  } else {
+    if (search.size() > str.size())
+      return false;
+    return std::equal(search.begin(), search.end(), str.begin(),
+                      base::CaseInsensitiveCompare<typename STR::value_type>());
+  }
+}
+
+bool StartsWith(const string16& str, const string16& search,
+                bool case_sensitive) {
+  return StartsWithT(str, search, case_sensitive);
+}
+
+template <typename STR>
+bool EndsWithT(const STR& str, const STR& search, bool case_sensitive) {
+  typename STR::size_type str_length = str.length();
+  typename STR::size_type search_length = search.length();
+  if (search_length > str_length)
+    return false;
+  if (case_sensitive) {
+    return str.compare(str_length - search_length, search_length, search) == 0;
+  } else {
+    return std::equal(search.begin(), search.end(),
+                      str.begin() + (str_length - search_length),
+                      base::CaseInsensitiveCompare<typename STR::value_type>());
+  }
+}
+
+bool EndsWith(const std::string& str, const std::string& search,
+              bool case_sensitive) {
+  return EndsWithT(str, search, case_sensitive);
+}
+
+bool EndsWith(const string16& str, const string16& search,
+              bool case_sensitive) {
+  return EndsWithT(str, search, case_sensitive);
 }

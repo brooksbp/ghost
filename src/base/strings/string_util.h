@@ -164,5 +164,62 @@ BASE_EXPORT bool LowerCaseEqualsASCII(const base::char16* a_begin,
                                       const base::char16* a_end,
                                       const char* b);
 
+// Performs a case-sensitive string compare. The behavior is undefined if both
+// strings are not ASCII.
+#if 0
+BASE_EXPORT bool EqualsASCII(const base::string16& a, const base::StringPiece& b);
+#endif
+
+// Returns true if str starts with search, or false otherwise.
+BASE_EXPORT bool StartsWithASCII(const std::string& str,
+                                 const std::string& search,
+                                 bool case_sensitive);
+BASE_EXPORT bool StartsWith(const base::string16& str,
+                            const base::string16& search,
+                            bool case_sensitive);
+
+// Returns true if str ends with search, or false otherwise.
+BASE_EXPORT bool EndsWith(const std::string& str,
+                          const std::string& search,
+                          bool case_sensitive);
+BASE_EXPORT bool EndsWith(const base::string16& str,
+                          const base::string16& search,
+                          bool case_sensitive);
+
+
+// Determines the type of ASCII character, independent of locale (the C
+// library versions will change based on locale).
+template <typename Char>
+inline bool IsAsciiWhitespace(Char c) {
+  return c == ' ' || c == '\r' || c == '\n' || c == '\t';
+}
+template <typename Char>
+inline bool IsAsciiDigit(Char c) {
+  return c >= '0' && c <= '9';
+}
+
+template <typename Char>
+inline bool IsHexDigit(Char c) {
+  return (c >= '0' && c <= '9') ||
+         (c >= 'A' && c <= 'F') ||
+         (c >= 'a' && c <= 'f');
+}
+
+template <typename Char>
+inline Char HexDigitToInt(Char c) {
+  // DCHECK(IsHexDigit(c));
+  if (c >= '0' && c <= '9')
+    return c - '0';
+  if (c >= 'A' && c <= 'F')
+    return c - 'A' + 10;
+  if (c >= 'a' && c <= 'f')
+    return c - 'a' + 10;
+  return 0;
+}
+
+// Returns true if it's a whitespace character.
+inline bool IsWhitespace(wchar_t c) {
+  return wcschr(base::kWhitespaceWide, c) != NULL;
+}
 
 #endif  // BASE_STRINGS_STRING_UTIL_H_
