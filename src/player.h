@@ -21,6 +21,12 @@ class Player {
   // Play the Track located at |index| in the library.
   void Play(int index);
 
+  // Pause the current Track, if playing.
+  void Pause();
+
+  // Resume the current Track, if paused.
+  void Resume();
+
   // Returns true if a file or stream is currently playing.
   bool IsPlaying() const { return playing_; }
 

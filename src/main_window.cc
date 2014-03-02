@@ -81,13 +81,19 @@ void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
   uint64_t r = (pos * 1000) / len;
   
   if (r <= 1000) {
-    qDebug() << "setting slider value " << r;
+    //qDebug() << "setting slider value " << r;
     slider_->setValue(r);
   }
 }
 
 void MainWindow::handleButtonPressed() {
-  
+  if (player_->IsPlaying()) {
+    player_->Pause();
+    play_button_->setText("play");
+  } else {
+    player_->Resume();
+    play_button_->setText("pause");
+  }
 }
 
 void MainWindow::handleSliderPressed() {
@@ -105,6 +111,8 @@ void MainWindow::handleSliderReleased() {
 
 void MainWindow::handleDoubleClick(const QModelIndex& index) {
   player_->Play(index.row());
+  
+  play_button_->setText("pause");
 }
 
 

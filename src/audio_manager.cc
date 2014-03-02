@@ -82,7 +82,7 @@ void AudioManager::PlayURI(std::string& uri) {
 
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
 
-  playing_ = 1;
+  playing_ = true;
 }
 
 void AudioManager::PlayMp3File(base::FilePath& file) {
@@ -119,7 +119,7 @@ gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
   
   switch (GST_MESSAGE_TYPE(msg)) {
     case GST_MESSAGE_EOS:
-      this_->playing_ = 0;
+      this_->playing_ = false;
       this_->track_poller_->Stop();
 
       this_->eosCallback();
@@ -138,4 +138,13 @@ gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
   }
   
   return TRUE;
+}
+
+// TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
+// single functions so that different entry points can trigger them.
+void AudioManager::Pause() {
+  gst_element_set_state(playbin_, GST_STATE_PAUSED);
+}
+void AudioManager::Resume() {
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
 }

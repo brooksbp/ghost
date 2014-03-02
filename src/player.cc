@@ -24,3 +24,17 @@ void Player::Play(int index) {
     playing_ = true;
   }
 }
+
+void Player::Pause() {
+  if (playing_) {
+    audio_manager_->Pause();
+    playing_ = false;
+  }
+}
+
+void Player::Resume() {
+  if (!playing_) {
+    audio_manager_->Resume();
+    playing_ = true;
+  }
+}

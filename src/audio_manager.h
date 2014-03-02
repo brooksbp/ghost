@@ -24,6 +24,9 @@ class AudioManager {
   void PlayURI(std::string& uri);
   void PlayMp3File(base::FilePath& file);
 
+  void Pause();
+  void Resume();
+
   std::function<void()> eosCallback;
   std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
   
@@ -35,7 +38,7 @@ class AudioManager {
 
   GstElement* playbin_;
 
-  int playing_;
+  bool playing_;
 
   // Stream position in nanoseconds.
   int64_t pos_;
