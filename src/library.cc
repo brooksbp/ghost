@@ -12,21 +12,25 @@
 
 static std::vector<Track*> tracks_;
 
-Library::Library(const base::FilePath& root_path, AudioManager* audio_manager)
-    : root_path_(root_path),
-      audio_manager_(audio_manager) {
+Library::Library() {
+}
+
+Library::~Library() {
+  // TODO: should tracks_ be vector of scoped_ptr's?
+}
+
+void Library::Init(const base::FilePath& path, AudioManager* audio_manager) {
+  root_path_ = path;
+  audio_manager_ = audio_manager;
+
   // Add all mp3 files found in root_path.
-  base::FileEnumerator iter(root_path, true, base::FileEnumerator::FILES);
+  base::FileEnumerator iter(root_path_, true, base::FileEnumerator::FILES);
   for (base::FilePath name = iter.Next(); !name.empty(); name = iter.Next()) {
     if (name.MatchesExtension(FILE_PATH_LITERAL(".mp3"))) {
       Track* track = new Track(name);
       tracks_.push_back(track);
     }
   }
-}
-
-Library::~Library() {
-  // TODO: should tracks_ be vector of scoped_ptr's?
 }
 
 Track* Library::GetTrack(int index) {

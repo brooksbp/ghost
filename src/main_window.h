@@ -27,20 +27,25 @@ class MainWindow : public QMainWindow {
  public:
   explicit MainWindow(QWidget* parent = 0);
 
-  void Initialize(Library* library);
+  void Init(Library* library);
 
   void PlaybackProgress(uint64_t pos, uint64_t len);
                                    
  private slots:
-  void handleDoubleClick(const QModelIndex& index);
+  void handleButtonPressed();
 
   void handleSliderPressed();
   void handleSliderMoved(int value);
   void handleSliderReleased();
+
+  void handleDoubleClick(const QModelIndex& index);
   
  private:
   QWidget* central_;
   QGridLayout* central_layout_;
+  QHBoxLayout* hbox_;
+
+  QPushButton* play_button_;
 
   QSlider* slider_;
   bool slider_engaged_;
@@ -61,6 +66,12 @@ class TableModel : public QAbstractTableModel {
   int rowCount(const QModelIndex& parent) const;
   int columnCount(const QModelIndex& parent) const;
   QVariant data(const QModelIndex& index, int role) const;
+  
+  void beginReset() { beginResetModel(); }
+  void endReset() { endResetModel(); }
+
+  // Use when structure of indices don't change, otherwise use xxxReset().
+  void emitDataChanged();
 
  private:
   Library* library_;

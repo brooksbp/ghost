@@ -47,6 +47,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
   sigaction(SIGINT, &sa, NULL);
 #endif
 
+#if defined(OS_POSIX)
+  XInitThreads();
+#endif
+
   // Initialize the commandline singleton from the environment.
   CommandLine::Init(argc, argv);
   CommandLine* cl = CommandLine::ForCurrentProcess();
@@ -60,32 +64,29 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
-#if defined(OS_POSIX)
-  XInitThreads();
-#endif
-
 #if defined(OS_WIN)
   base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
 #else
   base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
 #endif
-  if (cl->HasSwitch("dir")) {
+  if (cl->HasSwitch("dir"))
     dir = cl->GetSwitchValuePath("dir");
-  }
+
+
+  app = new QApplication(argc, NULL);  
+  MainWindow main_window;
 
   AudioManager audio_manager;
-  Library library(dir, &audio_manager);
-
-  // must be called before MainWindow ctor.
-  app = new QApplication(argc, NULL);  
-
-  MainWindow main_window;
+  Library library;
 
   audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);
   audio_manager.PlaybackProgressCallback =
       [&] (int64_t one, int64_t two) { main_window.PlaybackProgress(one, two); };
-  
-  main_window.Initialize(&library);
+
+  library.Init(dir, &audio_manager);
+  std::cout << "n tracks = " << library.GetNumTracks() << std::endl;
+
+  main_window.Init(&library);
   main_window.show();
 
   base::FilePath playlist;
@@ -97,8 +98,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
     if (pls.tracks_.size() > 0)
       audio_manager.PlayURI(pls.tracks_[0].file_);
   }
-
-  qDebug() << "initialized";
 
   return app->exec();
 }

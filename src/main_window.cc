@@ -4,11 +4,32 @@
 #include <QtWidgets/QHeaderView>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+  // +-------------------------------------------+
+  // |:central_layout_                           |
+  // |+-----------------------------------------+|
+  // ||:hbox_    buttons, slider                ||
+  // ||                                         ||
+  // |+-----------------------------------------+|
+  // |     tracks_table                          |
+  // +-------------------------------------------+
+
   central_ = new QWidget(this);
   central_layout_ = new QGridLayout(central_);
   setCentralWidget(central_);
 
-  // Slider
+  hbox_ = new QHBoxLayout;
+  central_layout_->addLayout(hbox_, 0, 0);
+
+  // Play control buttons ------------------------------------------------------
+  play_button_ = new QPushButton;
+  play_button_->setText("--");
+
+  connect(
+      play_button_, SIGNAL(released()), this, SLOT(handleButtonPressed()));
+  
+  hbox_->addWidget(play_button_);
+
+  // Slider --------------------------------------------------------------------
   slider_ = new QSlider(Qt::Horizontal, 0);
   slider_->setMaximum(1000);
   slider_->setMinimum(0);
@@ -18,9 +39,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   connect(slider_, SIGNAL(sliderMoved(int)), this, SLOT(handleSliderMoved(int)));
   connect(slider_, SIGNAL(sliderReleased()), this, SLOT(handleSliderReleased()));
   
-  central_layout_->addWidget(slider_);
+  hbox_->addWidget(slider_);
 
-  // TableView
+  // Tracks table --------------------------------------------------------------
   table_view_ = new QTableView();
   table_model_ = new TableModel(0, library_);
 
@@ -37,12 +58,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   central_layout_->addWidget(table_view_);
 
-
+  //----------------------------------------------------------------------------
   resize(800, 400);
 }
 
-void MainWindow::Initialize(Library* library) {
-    library_ = library;
+void MainWindow::Init(Library* library) {
+  table_model_->beginReset();
+  library_ = library;
+  table_model_->endReset();
 }
 
 void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
@@ -58,6 +81,10 @@ void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
     qDebug() << "setting slider value " << r;
     slider_->setValue(r);
   }
+}
+
+void MainWindow::handleButtonPressed() {
+  
 }
 
 void MainWindow::handleSliderPressed() {
@@ -122,3 +149,10 @@ QVariant TableModel::data(const QModelIndex& index, int role) const {
   }
   return QVariant();
 }
+
+void TableModel::emitDataChanged() {
+  QModelIndex tl = createIndex(0, 0);
+  QModelIndex br = createIndex(library_->GetNumTracks() - 1, 0);
+  emit dataChanged(tl, br);
+}
+

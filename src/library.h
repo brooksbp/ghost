@@ -7,8 +7,10 @@
 
 class Library {
  public:
-  Library(const base::FilePath& root_path, AudioManager* audio_manager);
+  Library();
   ~Library();
+
+  void Init(const base::FilePath& path, AudioManager* audio_manager);
 
   Track* GetTrack(int index);
   int GetNumTracks(void);
