@@ -1,5 +1,10 @@
 ### ghost
 
+    $ ./ghost -help
+    -help
+    --dir=/path/to/library/             music library path.
+    --pls=/path/to/playlist.pls         play/stream playlist.
+
 ##### Build
 
     git submodule init

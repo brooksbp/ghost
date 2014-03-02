@@ -6,6 +6,7 @@
 #include "audio_manager.h"
 #include "main_window.h"
 #include "timer.h"
+#include "playlist_pls.h"
 
 #include <QtWidgets/QApplication>
 
@@ -14,6 +15,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 
 #if defined(OS_POSIX)
 #include <X11/Xlib.h>
@@ -46,8 +48,21 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif
 
   // Initialize the commandline singleton from the environment.
-  CommandLine::Init(0, NULL);
+  CommandLine::Init(argc, argv);
   CommandLine* cl = CommandLine::ForCurrentProcess();
+
+  if (cl->HasSwitch("help")) {
+    std::cout << "\t-help" << std::endl;
+    std::cout << "\t--dir=/path/to/library/" << "\t\tmusic library path."
+              << std::endl;
+    std::cout << "\t--pls=/path/to/playlist.pls" << "\tplay/stream playlist."
+              << std::endl;
+    return 0;
+  }
+
+#if defined(OS_POSIX)
+  XInitThreads();
+#endif
 
 #if defined(OS_WIN)
   base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
@@ -58,16 +73,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
     dir = cl->GetSwitchValuePath("dir");
   }
 
-#if defined(OS_POSIX)
-  XInitThreads();
-#endif
-  
-  app = new QApplication(argc, NULL);  
-
   AudioManager audio_manager;
   Library library(dir, &audio_manager);
 
-  library.PrintTracks();
+  // must be called before MainWindow ctor.
+  app = new QApplication(argc, NULL);  
 
   MainWindow main_window;
 
@@ -77,6 +87,14 @@ int _tmain(int argc, _TCHAR* argv[]) {
   
   main_window.Initialize(&library);
   main_window.show();
+
+  base::FilePath playlist;
+  if (cl->HasSwitch("pls")) {
+    playlist = cl->GetSwitchValuePath("pls");
+    // TODO(brbrooks) exists check
+
+    PlaylistPLS pls(playlist);
+  }
 
   qDebug() << "initialized";
 
