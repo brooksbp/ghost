@@ -9,7 +9,7 @@
 
 Rev 1:
 
-![design rev 1](https://github.com/brooksbp/ghost/doc/design1.jpg)
+![design rev 1](doc/design1.jpg)
 
 ##### Build
 
