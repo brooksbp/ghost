@@ -5,6 +5,12 @@
     --dir=/path/to/library/             music library path.
     --pls=/path/to/playlist.pls         play/stream playlist.
 
+##### Design
+
+Rev 1:
+
+![design rev 1](https://github.com/brooksbp/ghost/doc/design1.jpg)
+
 ##### Build
 
     git submodule init
