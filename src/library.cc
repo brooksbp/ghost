@@ -4,13 +4,12 @@
 
 #include "library.h"
 
+#include <vector>
+
 #include "base/files/file_enumerator.h"
 #include "base/strings/utf_string_conversions.h"
 
-#include <vector>
-
 #include <QtCore/QDebug>
-
 #include <iostream>
 
 
@@ -23,9 +22,8 @@ Library::~Library() {
   // TODO: should tracks_ be vector of scoped_ptr's?
 }
 
-void Library::Init(const base::FilePath& path, AudioManager* audio_manager) {
+void Library::Init(const base::FilePath& path) {
   root_path_ = path;
-  audio_manager_ = audio_manager;
 
   // Add all mp3 files found in root_path.
   base::FileEnumerator iter(root_path_, true, base::FileEnumerator::FILES);
@@ -48,27 +46,7 @@ int Library::GetNumTracks(void) {
   return tracks_.size();
 }
 
-void Library::Play(int index) {
-  Track* track = GetTrack(index);
-  if (track) {
-    current_index_ = index;
-    audio_manager_->PlayMp3File(track->file_path_);
-  }
-}
-
 void Library::EndOfStream(void) {
-#if 0 // FIXME
-  // Play the next index.
-  if (current_index_ + 1 == tracks_.size())
-    current_index_ = 0;
-  else
-    current_index_ += 1;
-
-  Track* track = GetTrack(current_index_);
-  if (track) {
-    audio_manager_->PlayMp3File(track->file_path_.value().c_str());
-  }
-#endif
 }
 
 void Library::PrintTracks(void) {

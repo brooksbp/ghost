@@ -7,14 +7,13 @@
 
 #include "base/files/file_path.h"
 #include "track.h"
-#include "audio_manager.h"
 
 class Library {
  public:
   Library();
   ~Library();
 
-  void Init(const base::FilePath& path, AudioManager* audio_manager);
+  void Init(const base::FilePath& path);
 
   Track* GetTrack(int index);
   int GetNumTracks(void);
@@ -27,7 +26,6 @@ class Library {
   
  private:
   base::FilePath root_path_;
-  AudioManager* audio_manager_;
 
   // Current index into |tracks|.
   int current_index_;

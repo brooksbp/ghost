@@ -95,6 +95,7 @@ set(SRC_FILES
   src/playlist_pls.cc
   src/audio_manager.cc
   src/main_window.cc
+  src/player.cc
 )
 
 if (UNIX)

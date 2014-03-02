@@ -76,21 +76,20 @@ int _tmain(int argc, _TCHAR* argv[]) {
   if (cl->HasSwitch("dir"))
     dir = cl->GetSwitchValuePath("dir");
 
-
+  Player player;
+  AudioManager audio_manager;
+  Library library;
   app = new QApplication(argc, NULL);  
   MainWindow main_window;
 
-  AudioManager audio_manager;
-  Library library;
+  player.Init(&library, &audio_manager, &main_window);
+  library.Init(dir);
+  main_window.Init(&player);
 
   audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);
   audio_manager.PlaybackProgressCallback =
       [&] (int64_t one, int64_t two) { main_window.PlaybackProgress(one, two); };
 
-  library.Init(dir, &audio_manager);
-  std::cout << "n tracks = " << library.GetNumTracks() << std::endl;
-
-  main_window.Init(&library);
   main_window.show();
 
   base::FilePath playlist;

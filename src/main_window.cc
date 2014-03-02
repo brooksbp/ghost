@@ -8,6 +8,11 @@
 #include <QtWidgets/QHeaderView>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+}
+
+void MainWindow::Init(Player* player) {
+  player_ = player;
+
   // +-------------------------------------------+
   // |:central_layout_                           |
   // |+-----------------------------------------+|
@@ -47,7 +52,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   // Tracks table --------------------------------------------------------------
   table_view_ = new QTableView();
-  table_model_ = new TableModel(0, library_);
+  table_model_ = new TableModel(0, player_);
 
   table_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
   table_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -64,12 +69,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   //----------------------------------------------------------------------------
   resize(800, 400);
-}
-
-void MainWindow::Init(Library* library) {
-  table_model_->beginReset();
-  library_ = library;
-  table_model_->endReset();
 }
 
 void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
@@ -105,13 +104,13 @@ void MainWindow::handleSliderReleased() {
 
 
 void MainWindow::handleDoubleClick(const QModelIndex& index) {
-  library_->Play(index.row());
+  player_->Play(index.row());
 }
 
 
-TableModel::TableModel(QObject* parent, Library* library)
+TableModel::TableModel(QObject* parent, Player* player)
     : QAbstractTableModel(parent),
-      library_(library) {
+      player_(player) {
 }
 
 QVariant TableModel::headerData(int section, Qt::Orientation orientation,
@@ -133,7 +132,7 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 int TableModel::rowCount(const QModelIndex&) const {
-  return library_->GetNumTracks();
+  return player_->GetLibrary()->GetNumTracks();
 }
 
 int TableModel::columnCount(const QModelIndex&) const {
@@ -142,7 +141,7 @@ int TableModel::columnCount(const QModelIndex&) const {
 
 QVariant TableModel::data(const QModelIndex& index, int role) const {
   if (role == Qt::DisplayRole) {
-    Track* track = library_->GetTrack(index.row());
+    Track* track = player_->GetLibrary()->GetTrack(index.row());
     if (track) {
 #if defined(OS_WIN)
       return QString::fromWCharArray(track->file_path_.value().c_str());
@@ -156,7 +155,7 @@ QVariant TableModel::data(const QModelIndex& index, int role) const {
 
 void TableModel::emitDataChanged() {
   QModelIndex tl = createIndex(0, 0);
-  QModelIndex br = createIndex(library_->GetNumTracks() - 1, 0);
+  QModelIndex br = createIndex(player_->GetLibrary()->GetNumTracks() - 1, 0);
   emit dataChanged(tl, br);
 }
 

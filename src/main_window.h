@@ -14,24 +14,17 @@
 #include <QtCore/QDebug>
 #include <QtCore/QAbstractTableModel>
 
-#include "library.h"
+#include "player.h"
 #include "base/basictypes.h"
 
-namespace Ui {
-
-class MainWindow;
-
-}
-
 class TableModel;
-
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
  public:
   explicit MainWindow(QWidget* parent = 0);
 
-  void Init(Library* library);
+  void Init(Player* player);
 
   void PlaybackProgress(uint64_t pos, uint64_t len);
                                    
@@ -57,14 +50,14 @@ class MainWindow : public QMainWindow {
   QTableView* table_view_;
   TableModel* table_model_;
 
-  Library* library_;
+  Player* player_;
 };
 
 
 class TableModel : public QAbstractTableModel {
   Q_OBJECT
  public:
-  TableModel(QObject* parent = 0, Library* library = 0);
+  TableModel(QObject* parent = 0, Player* player = 0);
 
   QVariant headerData(int section, Qt::Orientation orientation, int role) const;
   int rowCount(const QModelIndex& parent) const;
@@ -78,7 +71,7 @@ class TableModel : public QAbstractTableModel {
   void emitDataChanged();
 
  private:
-  Library* library_;
+  Player* player_;
 };
 
 #endif  // MAIN_WINDOW_H_
