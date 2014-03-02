@@ -94,8 +94,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
     // TODO(brbrooks) exists check
 
     PlaylistPLS pls(playlist);
-    std::cout << "alsjfdlskjf=    " << pls.tracks_.size() << std::endl;
-    //std::cout << "pls loc[0] = " << pls.tracks_[0].file_ << std::endl;
+    if (pls.tracks_.size() > 0)
+      audio_manager.PlayURI(pls.tracks_[0].file_);
   }
 
   qDebug() << "initialized";

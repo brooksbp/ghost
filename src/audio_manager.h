@@ -5,6 +5,7 @@
 
 #include <gst/gst.h>
 #include <glib.h>
+#include <string>
 
 #include "timer.h"
 #include "base/basictypes.h"
@@ -16,6 +17,7 @@ class AudioManager {
   AudioManager();
   ~AudioManager();
 
+  void PlayURI(std::string& uri);
   void PlayMp3File(base::FilePath& file);
 
   std::function<void()> eosCallback;

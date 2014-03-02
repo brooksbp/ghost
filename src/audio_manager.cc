@@ -71,20 +71,24 @@ AudioManager::~AudioManager() {
   gst_object_unref(GST_OBJECT(pipeline_));
 }
 
-void AudioManager::PlayMp3File(base::FilePath& file) {
+void AudioManager::PlayURI(std::string& uri) {
   gst_element_set_state(playbin_, GST_STATE_READY);
 
+  g_object_set(G_OBJECT(playbin_), "uri", uri.c_str(), NULL);
+
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+
+  playing_ = 1;
+}
+
+void AudioManager::PlayMp3File(base::FilePath& file) {
 #if defined(OS_WIN)
   std::string loc = base::WideToUTF8(file.value());
 #else
   std::string loc = file.value();
 #endif
-  g_object_set(G_OBJECT(playbin_), "uri",
-               gst_filename_to_uri(loc.c_str(), NULL), NULL);
-
-  gst_element_set_state(playbin_, GST_STATE_PLAYING);
-
-  playing_ = 1;
+  std::string loc2 = gst_filename_to_uri(loc.c_str(), NULL);
+  PlayURI(loc2);
   track_poller_->Start();
 }
 
