@@ -1,3 +1,7 @@
+// Copyright 2014 Ghost Authors. All rights reserved.
+// Use of this source code is governed by a ALv2 license that can be
+// found in the LICENSE file.
+
 #include "audio_manager.h"
 
 #include "base/strings/utf_string_conversions.h"

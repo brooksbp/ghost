@@ -1,3 +1,7 @@
+// Copyright 2014 Ghost Authors. All rights reserved.
+// Use of this source code is governed by a ALv2 license that can be
+// found in the LICENSE file.
+
 #ifndef AUDIO_MANAGER_H_
 #define AUDIO_MANAGER_H_
 
