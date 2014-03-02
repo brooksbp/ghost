@@ -10,8 +10,7 @@
 #include "base/basictypes.h"
 #include "base/files/file_path.h"
 
-// Abstract all of Gstreamer and audio control here..
-
+// Gstreamer stuff..
 class AudioManager {
  public:
   AudioManager();
@@ -26,16 +25,9 @@ class AudioManager {
   static gboolean GstBusCallback(GstBus* bus, GstMessage* msg, gpointer data);
 
   GstElement* pipeline_;
-
   GstBus* bus_;
 
-#if defined(OS_POSIX)
-  GstElement* source_;
-  GstElement* decoder_;
-  GstElement* sink_;
-#elif defined(OS_WIN)
   GstElement* playbin_;
-#endif
 
   int playing_;
 

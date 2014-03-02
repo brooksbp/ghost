@@ -49,22 +49,10 @@ static void gst_debug_logcat(GstDebugCategory* category,
 AudioManager::AudioManager() {
   gst_init(NULL, NULL);
 
-#if defined(OS_POSIX)
-  pipeline_ = gst_pipeline_new("audio-player");
-  bus_      = gst_pipeline_get_bus(GST_PIPELINE(pipeline_));
-
-  source_   = gst_element_factory_make("filesrc", "file-source");
-  decoder_  = gst_element_factory_make("mad", "mp3-decoder");
-  sink_     = gst_element_factory_make("autoaudiosink", "audio-output");
-
-  gst_bin_add_many(GST_BIN(pipeline_), source_, decoder_, sink_, NULL);
-
-  gst_element_link_many(source_, decoder_, sink_, NULL);
-#elif defined(OS_WIN)
   playbin_ = gst_element_factory_make("playbin", "playbin");
 
   bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
-#endif
+
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
 
@@ -84,18 +72,17 @@ AudioManager::~AudioManager() {
 }
 
 void AudioManager::PlayMp3File(base::FilePath& file) {
-#if defined(OS_POSIX)
-  gst_element_set_state(pipeline_, GST_STATE_READY);
-  g_object_set(G_OBJECT(source_), "location", file.value().c_str(), NULL);
-  gst_element_set_state(pipeline_, GST_STATE_PLAYING);
-#elif defined(OS_WIN)
   gst_element_set_state(playbin_, GST_STATE_READY);
-  base::FilePath abs_loc = base::MakeAbsoluteFilePath(file);
-  std::string loc = base::WideToUTF8(abs_loc.value());
-  loc.insert(0, "file:///");
-  g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
-  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+
+#if defined(OS_WIN)
+  std::string loc = base::WideToUTF8(file.value());
+#else
+  std::string loc = file.value();
 #endif
+  g_object_set(G_OBJECT(playbin_), "uri",
+               gst_filename_to_uri(loc.c_str(), NULL), NULL);
+
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
 
   playing_ = 1;
   track_poller_->Start();
@@ -104,13 +91,13 @@ void AudioManager::PlayMp3File(base::FilePath& file) {
 void AudioManager::TrackPoller() {
   if (playing_) {
 #if defined(OS_POSIX)
-    gst_element_query_position(pipeline_, GST_FORMAT_TIME, &pos_);
-    gst_element_query_duration(pipeline_, GST_FORMAT_TIME, &len_);
+    gst_element_query_position(playbin_, GST_FORMAT_TIME, &pos_);
+    gst_element_query_duration(playbin_, GST_FORMAT_TIME, &len_);
 #elif defined(OS_WIN)
-    // Is this for gstreamer-0.10 ?
+    // gstreamer-0.10 compat?
     GstFormat fmt = GST_FORMAT_TIME;
-    gst_element_query_position(pipeline_, &fmt, &pos_);
-    gst_element_query_duration(pipeline_, &fmt, &len_);
+    gst_element_query_position(playbin_, &fmt, &pos_);
+    gst_element_query_duration(playbin_, &fmt, &len_);
 #endif
     PlaybackProgressCallback(pos_, len_);
   } else {
