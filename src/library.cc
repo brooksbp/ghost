@@ -42,6 +42,18 @@ Track* Library::GetTrack(int index) {
   return NULL;
 }
 
+Track* Library::GetTrackForPlaying(int index) {
+  if (index >= 0 && index < (int) tracks_.size()) {
+    current_track_ = index;
+    return GetCurrentTrack();
+  }
+  return NULL;
+}
+
+Track* Library::GetCurrentTrack() {
+  return tracks_[current_track_];
+}
+
 int Library::GetNumTracks(void) {
   return tracks_.size();
 }

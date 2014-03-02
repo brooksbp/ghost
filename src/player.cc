@@ -20,7 +20,7 @@ void Player::Init(Library* library, AudioManager* audio_manager,
 void Player::Play(int index) {
   Track* track = library_->GetTrack(index);
   if (track) {
-    // current_index_ = index;
     audio_manager_->PlayMp3File(track->file_path_);
+    playing_ = true;
   }
 }

@@ -15,7 +15,15 @@ class Library {
 
   void Init(const base::FilePath& path);
 
+  // Returns the Track located at |index|.
   Track* GetTrack(int index);
+
+  // Returns the Track located at |index| and sets current_track_.
+  Track* GetTrackForPlaying(int index);
+
+  // Returns the Track located at current_track_;
+  Track* GetCurrentTrack();
+
   int GetNumTracks(void);
 
   void PrintTracks(void);
@@ -28,7 +36,7 @@ class Library {
   base::FilePath root_path_;
 
   // Current index into |tracks|.
-  int current_index_;
+  int current_track_;
 };
 
 #endif  // LIBRARY_H_

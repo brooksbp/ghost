@@ -18,7 +18,11 @@ class Player {
   void Init(Library* library, AudioManager* audio_manager,
             MainWindow* main_window);
 
+  // Play the Track located at |index| in the library.
   void Play(int index);
+
+  // Returns true if a file or stream is currently playing.
+  bool IsPlaying() const { return playing_; }
 
   Library* GetLibrary() const { return library_; }
 
