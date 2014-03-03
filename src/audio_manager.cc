@@ -4,13 +4,14 @@
 
 #include "audio_manager.h"
 
-#include "base/strings/utf_string_conversions.h"
-
+#include "g_own_ptr.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/strings/utf_string_conversions.h"
 
 #include <QtCore/QDebug>
 #include <iostream>
+
 
 static void gst_debug_logcat(GstDebugCategory* category,
   GstDebugLevel level,
