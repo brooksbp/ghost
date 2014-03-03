@@ -21,34 +21,30 @@ static void gst_debug_logcat(GstDebugCategory* category,
   GObject* object,
   GstDebugMessage* message,
   gpointer unused) {
-  gchar* tag;
+  GOwnPtr<gchar> tag;
 
   if (level > gst_debug_category_get_threshold(category))
     return;
 
-  tag = g_strdup_printf("GStreamer+%s", gst_debug_category_get_name(category));
+  tag.outPtr() = g_strdup_printf("GStreamer+%s", gst_debug_category_get_name(category));
 
   if (object) {
-    gchar* obj;
+    GOwnPtr<gchar> obj;
 
     if (GST_IS_PAD(object) && GST_OBJECT_NAME(object)) {
-      obj = g_strdup_printf("<%s:%s>", GST_DEBUG_PAD_NAME(object));
+      obj.outPtr() = g_strdup_printf("<%s:%s>", GST_DEBUG_PAD_NAME(object));
     } else if (GST_IS_OBJECT(object) && GST_OBJECT_NAME(object)) {
-      obj = g_strdup_printf("<%s>", GST_OBJECT_NAME(object));
+      obj.outPtr() = g_strdup_printf("<%s>", GST_OBJECT_NAME(object));
     } else if (G_IS_OBJECT(object)) {
-      obj = g_strdup_printf("<%s@%p>", G_OBJECT_TYPE_NAME(object), object);
+      obj.outPtr() = g_strdup_printf("<%s@%p>", G_OBJECT_TYPE_NAME(object), object);
     } else {
-      obj = g_strdup_printf("<%p>", object);
+      obj.outPtr() = g_strdup_printf("<%p>", object);
     }
 
     qDebug() << file << ":" << line << ":" << function << " " << obj << " " << gst_debug_message_get(message);
-
-    g_free(obj);
   } else {
     qDebug() << file << ":" << line << ":" << function << " " << gst_debug_message_get(message);
   }
-
-  g_free(tag);
 }
 
 AudioManager::AudioManager() {
@@ -126,12 +122,10 @@ gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
       this_->eosCallback();
       break;
     case GST_MESSAGE_ERROR: {
-      gchar* debug;
-      GError* error;
-      gst_message_parse_error(msg, &error, &debug);
-      g_free(debug);
+      GOwnPtr<gchar> debug;
+      GOwnPtr<GError> error;
+      gst_message_parse_error(msg, &error.outPtr(), &debug.outPtr());
       g_printerr("Error: %s\n", error->message);
-      g_error_free(error);
       break;
     }
     default:

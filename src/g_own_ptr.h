@@ -36,7 +36,7 @@ template <typename T> class GOwnPtr {
   // MAKE_NONCOPYABLE(GOwnPtr);
  public:
   explicit GOwnPtr(T* ptr = 0) : ptr_(ptr) { }
-  ~GOwnPtr() { FreeOwnedGPtr(ptr_); }
+  ~GOwnPtr() { freeOwnedGPtr(ptr_); }
 
   T* get() const { return ptr_; }
   T* release() {
@@ -114,7 +114,7 @@ inline typename GOwnPtr<T>::PtrType getPtr(const GOwnPtr<T>& p) {
   return p.get();
 }
 
-template <typename T> inline void freeOwnedPtr(T* ptr) {
+template <typename T> inline void freeOwnedGPtr(T* ptr) {
   g_free(ptr);
 }
 
