@@ -56,7 +56,7 @@ typedef pthread_mutex_t* MutexHandle;
 // #include "base/threading/platform_thread.h"
 #include "base/vlog.h"
 #if defined(OS_POSIX)
-// #include "base/safe_strerror_posix.h"
+#include "base/safe_strerror_posix.h"
 #endif
 
 #if defined(OS_ANDROID)
@@ -551,7 +551,7 @@ LogMessage::LogMessage(const char* file, int line, LogSeverity severity)
 }
 
 LogMessage::LogMessage(const char* file, int line, std::string* result)
-    : severity_(severity), file_(file), line_(line) {
+    : severity_(LOG_FATAL), file_(file), line_(line) {
   Init(file, line);
   stream_ << "Check failed: " << *result;
   delete result;
@@ -567,11 +567,13 @@ LogMessage::LogMessage(const char* file, int line, LogSeverity severity,
 
 LogMessage::~LogMessage() {
 #if !defined(NDEBUG) && !defined(OS_NACL)
-  if (severity_ == LOG_FATAL_) {
+  if (severity_ == LOG_FATAL) {
+#if 0  // FIXME(brbrooks)
     // Include a stack trace on fatal.
     base::debug::StackTrace trace;
     stream_ << std::endl;  // Newline to separate from log message.
     trace.OutputToStream(&stream);
+#endif
   }
 #endif
   stream_ << std::endl;
@@ -650,7 +652,7 @@ LogMessage::~LogMessage() {
     // are contained in minidumps for diagnostic purposes.
     char str_stack[1024];
     str_newline.copy(str_stack, arraysize(str_stack));
-    base::debug::Alias(str_stack);
+    //base::debug::Alias(str_stack);  // FIXME(brbrooks)
 
     if (log_assert_handler) {
       // Make a copy of the string for the handler out of paranoia.
@@ -665,7 +667,7 @@ LogMessage::~LogMessage() {
       DisplayDebugMessageInDialog(stream_.str());
 #endif
       // Crash the process to generate a dump.
-      base::debug::BreakDebugger();
+      //base::debug::BreakDebugger();  // FIXME(brbrooks)
     }
   } else if (severity_ == LOG_ERROR_REPORT) {
     // We are here only if the user runs with --enable-dcheck in release mode.
@@ -689,8 +691,10 @@ void LogMessage::Init(const char* file, int line) {
   stream_ << '[';
   if (log_process_id)
     stream_ << CurrentProcessId() << ':';
+#if 0 // FIXME(brbrooks)
   if (log_thread_id)
     stream_ << base::PlatformThread::CurrentId() << ':';
+#endif
   if (log_timestamp) {
     time_t t = time(NULL);
     struct tm local_time = {0};
@@ -797,7 +801,7 @@ Win32ErrorLogMessage::~Win32ErrorLogMessage() {
   // We're about to crash (CHECK). Put |err_| on the stack by placing it in a
   // field) and use Alias in hopes that it makes it into crash dumps.
   DWORD last_error = err_;
-  base::debug::Alias(&last_error);
+  //base::debug::Alias(&last_error);  // FIXME(brbrooks)
 }
 #elif defined(OS_POSIX)
 ErrnoLogMessage::ErrnoLogMessage(const char* file,
@@ -845,8 +849,10 @@ void RawLog(int level, const char* message) {
     }
   }
 
+#if 0  // FIXME(brbrooks)
   if (level == LOG_FATAL)
     base::debug::BreakDebugger();
+#endif
 }
 
 // This was defined at the beginning of this file.

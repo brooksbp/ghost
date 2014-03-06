@@ -48,6 +48,7 @@ endif()
 if (UNIX)
   list(APPEND base_SRC_FILES src/base/file_util_posix.cc)
   list(APPEND base_SRC_FILES src/base/files/file_enumerator_posix.cc)
+  list(APPEND base_SRC_FILES src/base/safe_strerror_posix.cc)
   list(APPEND base_SRC_FILES src/base/strings/string16.cc)
   list(APPEND base_SRC_FILES src/base/synchronization/lock_impl_posix.cc)
 endif()
@@ -136,9 +137,6 @@ if (UNIX)
   target_link_libraries(ghost X11)
 endif()
 
-target_link_libraries(ghost ${CMAKE_THREAD_LIBS_INIT})
-
-
 if (WIN32)
   find_library(GSTREAMER_LIB gstreamer-1.0 C:/gstreamer/1.0/x86_64/lib/)
   target_link_libraries(ghost ${GSTREAMER_LIB})
@@ -153,7 +151,7 @@ if (UNIX)
   target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
 endif()
 
-#target_link_libraries(ghost id3)
+target_link_libraries(ghost pthread)
 
 if (WIN32)
   set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.2.1\\5.2.1\\msvc2012_64\\")
