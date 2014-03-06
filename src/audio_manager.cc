@@ -5,11 +5,11 @@
 #include "audio_manager.h"
 
 #include "g_own_ptr.h"
+#include "base/logging.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
 #include "base/strings/utf_string_conversions.h"
 
-#include <QtCore/QDebug>
 #include <iostream>
 
 
@@ -41,9 +41,11 @@ static void gst_debug_logcat(GstDebugCategory* category,
       obj.outPtr() = g_strdup_printf("<%p>", object);
     }
 
-    qDebug() << file << ":" << line << ":" << function << " " << obj << " " << gst_debug_message_get(message);
+    LOG(INFO) << file << ":" << line << ":" << function
+              << " " << obj << " " << gst_debug_message_get(message);
   } else {
-    qDebug() << file << ":" << line << ":" << function << " " << gst_debug_message_get(message);
+    LOG(INFO) << file << ":" << line << ":" << function
+              << " " << gst_debug_message_get(message);
   }
 }
 

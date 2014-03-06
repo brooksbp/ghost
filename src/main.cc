@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
+#include "base/logging.h"
 #include "base/files/file_path.h"
 
 #include "track.h"
@@ -33,7 +34,7 @@ QApplication* app;
 
 #if defined(OS_POSIX)
 void sig_handler(int s) {
-  qDebug() << "exiting..";
+  LOG(INFO) << "Goodbye.";
   app->quit();
 }
 #endif
@@ -50,6 +51,13 @@ int _tmain(int argc, _TCHAR* argv[]) {
   sa.sa_flags = 0;
   sigaction(SIGINT, &sa, NULL);
 #endif
+
+  logging::LoggingSettings logging_settings;
+  logging_settings.logging_dest = logging::LOG_TO_ALL;
+  logging_settings.log_file = "ghost-debug.log";
+  logging_settings.lock_log = logging::LOCK_LOG_FILE;
+  logging_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
+  logging::InitLogging(logging_settings);
 
 #if defined(OS_POSIX)
   XInitThreads();

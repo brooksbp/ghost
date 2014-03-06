@@ -11,11 +11,11 @@
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QSlider>
 
-#include <QtCore/QDebug>
 #include <QtCore/QAbstractTableModel>
 
 #include "player.h"
 #include "base/basictypes.h"
+#include "base/logging.h"
 
 class TableModel;
 
