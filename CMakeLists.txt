@@ -31,6 +31,8 @@ set(base_SRC_FILES
   src/base/strings/string_util.cc
   src/base/strings/string_util_constants.cc
   src/base/strings/string16.cc
+  src/base/strings/string_piece.cc
+  src/base/strings/nullable_string16.cc
   src/base/strings/utf_string_conversions.cc
   src/base/strings/utf_string_conversion_utils.cc
 )
@@ -62,6 +64,9 @@ add_executable(unit-tests
   src/base/vlog_unittest.cc
   src/base/command_line_unittest.cc
   src/base/strings/string16_unittest.cc
+  src/base/strings/string_piece_unittest.cc
+  src/base/strings/nullable_string16_unittest.cc
+
   ${base_SRC_FILES}
 )
 
