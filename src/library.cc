@@ -7,10 +7,8 @@
 #include <vector>
 
 #include "base/files/file_enumerator.h"
+#include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
-
-#include <QtCore/QDebug>
-#include <iostream>
 
 
 static std::vector<Track*> tracks_;
@@ -66,9 +64,9 @@ void Library::PrintTracks(void) {
        ++it) {
     Track* track = *it;
 #if defined(OS_WIN)
-    std::cout << base::WideToUTF8(track->file_path_.value()) << std::endl;
+    LOG(INFO) << base::WideToUTF8(track->file_path_.value());
 #elif defined(OS_POSIX)
-    std::cout << track->file_path_.value() << std::endl;
+    LOG(INFO) << track->file_path_.value();
 #endif
   }
 }
