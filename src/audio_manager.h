@@ -31,7 +31,9 @@ class AudioManager {
   std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
   
  private:
-  static gboolean GstBusCallback(GstBus* bus, GstMessage* msg, gpointer data);
+
+  static gboolean __OnBusMessage(GstBus* bus, GstMessage* msg, gpointer data);
+  gboolean OnBusMessage(GstBus* bus, GstMessage* msg);
 
   GstElement* playbin_;
 

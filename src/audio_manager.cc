@@ -56,10 +56,8 @@ AudioManager::AudioManager() {
 
   GstBus* bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
   gst_bus_add_signal_watch(bus_);
-  g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
+  g_signal_connect(bus_, "message", G_CALLBACK(__OnBusMessage), this);
   gst_object_unref(bus_);
-
-
 
   gst_debug_set_active(TRUE);
   gst_debug_set_default_threshold(GST_LEVEL_WARNING);
@@ -76,6 +74,8 @@ AudioManager::~AudioManager() {
     gst_object_unref(GST_OBJECT(playbin_));
     playbin_ = 0;
   }
+
+  gst_deinit();
 }
 
 void AudioManager::PlayURI(std::string& uri) {
@@ -99,6 +99,15 @@ void AudioManager::PlayMp3File(base::FilePath& file) {
   track_poller_->Start();
 }
 
+// TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
+// single functions so that different entry points can trigger them.
+void AudioManager::Pause() {
+  gst_element_set_state(playbin_, GST_STATE_PAUSED);
+}
+void AudioManager::Resume() {
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+}
+
 void AudioManager::TrackPoller() {
   if (playing_) {
 #if defined(OS_POSIX)
@@ -116,37 +125,84 @@ void AudioManager::TrackPoller() {
   }
 }
 
-gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
+// static
+gboolean AudioManager::__OnBusMessage(GstBus* bus, GstMessage* msg,
                                       gpointer data) {
-  AudioManager* this_ = static_cast<AudioManager*>(data);
+  return static_cast<AudioManager*>(data)->OnBusMessage(bus, msg);
+}
+
+gboolean AudioManager::OnBusMessage(GstBus* bus, GstMessage* msg) {
   GOwnPtr<gchar> debug;
   GOwnPtr<GError> error;
   
   switch (GST_MESSAGE_TYPE(msg)) {
+    case GST_MESSAGE_EOS:
+      // TODO(brbrooks) Move this into own fn
+      playing_ = false;
+      track_poller_->Stop();
+      eosCallback();
+      LOG(INFO) << "End of stream.";
+      break;
+    case GST_MESSAGE_STATE_CHANGED:
+      if (GST_MESSAGE_SRC(msg) == reinterpret_cast<GstObject*>(playbin_)) {
+        GstState old_state, new_state;
+        gst_message_parse_state_changed(msg, &old_state, &new_state, NULL);
+        LOG(INFO) << GST_MESSAGE_SRC(msg) << " State " << old_state << " -> " << new_state;
+      }
+      break;
+    case GST_MESSAGE_STREAM_STATUS:
+      GstStreamStatusType type;
+      GstElement* owner;
+      gst_message_parse_stream_status(msg, &type, &owner);
+      LOG(INFO) << owner << " stream status " << type;
+      break;
+    case GST_MESSAGE_STREAM_START:
+      // "Useful e.g. when using playbin in gapless playback mode, to get
+      // notified when the next title actually starts playing (which will
+      // be some time after the URI for the next title has been set).
+      
+      // Ignore for now.
+      break;
+    case GST_MESSAGE_DURATION_CHANGED:
+      // Can now get the duration with a query.
+
+      // Ignore for now.
+      break;
     case GST_MESSAGE_ERROR:
       gst_message_parse_error(msg, &error.outPtr(), &debug.outPtr());
       LOG(ERROR) << "Error: " << error->code << " " << error->message;
       break;
-    case GST_MESSAGE_EOS:
-      // TODO(brbrooks) Move this into own fn
-      this_->playing_ = false;
-      this_->track_poller_->Stop();
-      this_->eosCallback();
-      LOG(INFO) << "End of stream.";
-      break;
+    case GST_MESSAGE_UNKNOWN:
+    case GST_MESSAGE_WARNING:
+    case GST_MESSAGE_INFO:
+    case GST_MESSAGE_BUFFERING:
+    case GST_MESSAGE_STATE_DIRTY:
+    case GST_MESSAGE_STEP_DONE:
+    case GST_MESSAGE_TAG:
+    case GST_MESSAGE_CLOCK_PROVIDE:
+    case GST_MESSAGE_CLOCK_LOST:
+    case GST_MESSAGE_NEW_CLOCK:
+    case GST_MESSAGE_STRUCTURE_CHANGE:
+    case GST_MESSAGE_APPLICATION:
+    case GST_MESSAGE_ELEMENT:
+    case GST_MESSAGE_SEGMENT_START:
+    case GST_MESSAGE_SEGMENT_DONE:
+    case GST_MESSAGE_LATENCY:
+    case GST_MESSAGE_ASYNC_START:
+    case GST_MESSAGE_ASYNC_DONE:
+    case GST_MESSAGE_REQUEST_STATE:
+    case GST_MESSAGE_STEP_START:
+    case GST_MESSAGE_QOS:
+    case GST_MESSAGE_PROGRESS:
+    case GST_MESSAGE_TOC:
+    case GST_MESSAGE_RESET_TIME:
+    case GST_MESSAGE_NEED_CONTEXT:
+    case GST_MESSAGE_HAVE_CONTEXT:
+    case GST_MESSAGE_ANY:
     default:
       LOG(WARNING) << "Unhandled msg: " << GST_MESSAGE_TYPE_NAME(msg);
       break;
   }
   
   return TRUE;
-}
-
-// TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
-// single functions so that different entry points can trigger them.
-void AudioManager::Pause() {
-  gst_element_set_state(playbin_, GST_STATE_PAUSED);
-}
-void AudioManager::Resume() {
-  gst_element_set_state(playbin_, GST_STATE_PLAYING);
 }
