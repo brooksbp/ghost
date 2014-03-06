@@ -18,13 +18,11 @@ namespace base {
 TEST(String16Test, OutputStream) {
   // Basic stream test.
   {
-#if 0
     std::ostringstream stream;
     stream << "Empty '" << string16() << "' standard '"
            << string16(ASCIIToUTF16("Hello, world")) << "'";
     EXPECT_STREQ("Empty '' standard 'Hello, world'",
                  stream.str().c_str());
-#endif
   }
 
   // Interesting edge cases.

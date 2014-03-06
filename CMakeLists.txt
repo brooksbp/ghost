@@ -22,7 +22,7 @@ endif()
 
 set(base_SRC_FILES
   src/base/vlog.cc
-  src/base/logging.cc
+  #src/base/logging.cc
   src/base/command_line.cc
   src/base/file_util.cc
   src/base/files/file_path.cc
@@ -32,11 +32,11 @@ set(base_SRC_FILES
   src/base/strings/string_util_constants.cc
   src/base/strings/string16.cc
   src/base/strings/string_piece.cc
+  src/base/strings/string_number_conversions.cc
   src/base/strings/nullable_string16.cc
   src/base/strings/utf_string_conversions.cc
   src/base/strings/utf_string_conversion_utils.cc
 )
-
 if (WIN32)
   list(REMOVE_ITEM base_SRC_FILES src/base/strings/string16.cc)
 
@@ -58,16 +58,24 @@ enable_testing(true)
 
 include_directories(${gtest_SOURCE_DIR}/include)
 
-add_executable(unit-tests
-  src/playlist_pls.cc
-  src/playlist_pls_unittest.cc
+set(base_UT_FILES
   src/base/vlog_unittest.cc
   src/base/command_line_unittest.cc
   src/base/strings/string16_unittest.cc
   src/base/strings/string_piece_unittest.cc
+  src/base/strings/string_number_conversions_unittest.cc
   src/base/strings/nullable_string16_unittest.cc
+)
+if (UNIX)
+  list(APPEND base_UT_FILES src/base/scoped_clear_errno_unittest.cc)
+endif()
+
+add_executable(unit-tests
+  src/playlist_pls.cc
+  src/playlist_pls_unittest.cc
 
   ${base_SRC_FILES}
+  ${base_UT_FILES}
 )
 
 target_link_libraries(unit-tests gtest gtest_main)
