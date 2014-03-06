@@ -69,9 +69,7 @@ AudioManager::AudioManager() {
 }
 
 AudioManager::~AudioManager() {
-  gst_element_set_state(pipeline_, GST_STATE_NULL);
   gst_object_unref(bus_);
-  gst_object_unref(GST_OBJECT(pipeline_));
 }
 
 void AudioManager::PlayURI(std::string& uri) {

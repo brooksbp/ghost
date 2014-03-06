@@ -52,6 +52,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
   sigaction(SIGINT, &sa, NULL);
 #endif
 
+  // Initialize the commandline singleton from the environment.
+  CommandLine::Init(argc, argv);
+  CommandLine* cl = CommandLine::ForCurrentProcess();
+
   logging::LoggingSettings logging_settings;
   logging_settings.logging_dest = logging::LOG_TO_ALL;
   logging_settings.log_file = "ghost-debug.log";
@@ -62,10 +66,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #if defined(OS_POSIX)
   XInitThreads();
 #endif
-
-  // Initialize the commandline singleton from the environment.
-  CommandLine::Init(argc, argv);
-  CommandLine* cl = CommandLine::ForCurrentProcess();
 
   if (cl->HasSwitch("help")) {
     std::cout << "\t-help" << std::endl;
