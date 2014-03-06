@@ -33,6 +33,7 @@ set(base_SRC_FILES
   src/base/strings/string16.cc
   src/base/strings/string_piece.cc
   src/base/strings/string_number_conversions.cc
+  src/base/strings/string_split.cc
   src/base/strings/nullable_string16.cc
   src/base/strings/utf_string_conversions.cc
   src/base/strings/utf_string_conversion_utils.cc
