@@ -21,34 +21,34 @@ if (MSVC)
 endif()
 
 set(base_SRC_FILES
-  src/base/vlog.cc
-  #src/base/logging.cc
   src/base/command_line.cc
   src/base/file_util.cc
+  src/base/files/file_enumerator.cc
   src/base/files/file_path.cc
   src/base/files/file_path_constants.cc
-  src/base/files/file_enumerator.cc
+  src/base/logging.cc
+  src/base/strings/nullable_string16.cc
   src/base/strings/string_util.cc
   src/base/strings/string_util_constants.cc
-  src/base/strings/string16.cc
   src/base/strings/string_piece.cc
   src/base/strings/string_number_conversions.cc
   src/base/strings/string_split.cc
-  src/base/strings/nullable_string16.cc
   src/base/strings/utf_string_conversions.cc
   src/base/strings/utf_string_conversion_utils.cc
   src/base/third_party/icu/icu_utf.cc
+  src/base/vlog.cc
 )
 if (WIN32)
-  list(REMOVE_ITEM base_SRC_FILES src/base/strings/string16.cc)
-
   list(APPEND base_SRC_FILES src/base/file_util_win.cc)
-  list(APPEND base_SRC_FILES src/base/win/windows_version.cc)
   list(APPEND base_SRC_FILES src/base/files/file_enumerator_win.cc)
+  list(APPEND base_SRC_FILES src/base/synchronization/lock_impl_win.cc)
+  list(APPEND base_SRC_FILES src/base/win/windows_version.cc)
 endif()
 if (UNIX)
   list(APPEND base_SRC_FILES src/base/file_util_posix.cc)
   list(APPEND base_SRC_FILES src/base/files/file_enumerator_posix.cc)
+  list(APPEND base_SRC_FILES src/base/strings/string16.cc)
+  list(APPEND base_SRC_FILES src/base/synchronization/lock_impl_posix.cc)
 endif()
 
 ## Google Test
