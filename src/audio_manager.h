@@ -33,9 +33,6 @@ class AudioManager {
  private:
   static gboolean GstBusCallback(GstBus* bus, GstMessage* msg, gpointer data);
 
-  GstElement* pipeline_;
-  GstBus* bus_;
-
   GstElement* playbin_;
 
   bool playing_;

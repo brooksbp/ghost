@@ -54,10 +54,12 @@ AudioManager::AudioManager() {
 
   playbin_ = gst_element_factory_make("playbin", "playbin");
 
-  bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
-
+  GstBus* bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
   gst_bus_add_signal_watch(bus_);
   g_signal_connect(bus_, "message", G_CALLBACK(AudioManager::GstBusCallback), this);
+  gst_object_unref(bus_);
+
+
 
   gst_debug_set_active(TRUE);
   gst_debug_set_default_threshold(GST_LEVEL_WARNING);
@@ -69,7 +71,11 @@ AudioManager::AudioManager() {
 }
 
 AudioManager::~AudioManager() {
-  gst_object_unref(bus_);
+  if (playbin_) {
+    gst_element_set_state(playbin_, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(playbin_));
+    playbin_ = 0;
+  }
 }
 
 void AudioManager::PlayURI(std::string& uri) {
@@ -113,22 +119,23 @@ void AudioManager::TrackPoller() {
 gboolean AudioManager::GstBusCallback(GstBus* bus, GstMessage* msg,
                                       gpointer data) {
   AudioManager* this_ = static_cast<AudioManager*>(data);
+  GOwnPtr<gchar> debug;
+  GOwnPtr<GError> error;
   
   switch (GST_MESSAGE_TYPE(msg)) {
+    case GST_MESSAGE_ERROR:
+      gst_message_parse_error(msg, &error.outPtr(), &debug.outPtr());
+      LOG(ERROR) << "Error: " << error->code << " " << error->message;
+      break;
     case GST_MESSAGE_EOS:
+      // TODO(brbrooks) Move this into own fn
       this_->playing_ = false;
       this_->track_poller_->Stop();
-
       this_->eosCallback();
+      LOG(INFO) << "End of stream.";
       break;
-    case GST_MESSAGE_ERROR: {
-      GOwnPtr<gchar> debug;
-      GOwnPtr<GError> error;
-      gst_message_parse_error(msg, &error.outPtr(), &debug.outPtr());
-      g_printerr("Error: %s\n", error->message);
-      break;
-    }
     default:
+      LOG(WARNING) << "Unhandled msg: " << GST_MESSAGE_TYPE_NAME(msg);
       break;
   }
   
