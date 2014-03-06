@@ -34,6 +34,7 @@ set(base_SRC_FILES
   src/base/strings/string_piece.cc
   src/base/strings/string_number_conversions.cc
   src/base/strings/string_split.cc
+  src/base/strings/stringprintf.cc
   src/base/strings/utf_string_conversions.cc
   src/base/strings/utf_string_conversion_utils.cc
   src/base/third_party/icu/icu_utf.cc
@@ -63,13 +64,14 @@ enable_testing(true)
 include_directories(${gtest_SOURCE_DIR}/include)
 
 set(base_UT_FILES
-  src/base/vlog_unittest.cc
+  src/base/scoped_clear_errno_unittest.cc
   src/base/command_line_unittest.cc
-  src/base/strings/string16_unittest.cc
   src/base/strings/string_piece_unittest.cc
   src/base/strings/string_number_conversions_unittest.cc
+  src/base/strings/string16_unittest.cc
   src/base/strings/nullable_string16_unittest.cc
   src/base/strings/utf_string_conversions_unittest.cc
+  src/base/vlog_unittest.cc
 )
 if (UNIX)
   list(APPEND base_UT_FILES src/base/scoped_clear_errno_unittest.cc)
