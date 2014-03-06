@@ -7,8 +7,8 @@
 
 #include "base/basictypes.h"
 #include "base/files/file_path.h"
-// #include "base/logging.h"
-// #include "base/strings/string_split.h"
+#include "base/logging.h"
+#include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/build_config.h"
@@ -72,7 +72,7 @@ void AppendSwitchesAndArguments(CommandLine& command_line,
   bool parse_switches = true;
   for (size_t i = 1; i < argv.size(); i++) {
     CommandLine::StringType arg = argv[i];
-    TrimWhitespace(arg, TRIM_ALL, &arg);
+    base::TrimWhitespace(arg, base::TRIM_ALL, &arg);
 
     CommandLine::StringType switch_string;
     CommandLine::StringType switch_value;
@@ -289,7 +289,7 @@ FilePath CommandLine::GetProgram() const {
 }
 
 void CommandLine::SetProgram(const FilePath& program) {
-  TrimWhitespace(program.value(), TRIM_ALL, &argv_[0]);
+  base::TrimWhitespace(program.value(), base::TRIM_ALL, &argv_[0]);
 }
 
 bool CommandLine::HasSwitch(const std::string& switch_string) const {
@@ -299,12 +299,10 @@ bool CommandLine::HasSwitch(const std::string& switch_string) const {
 std::string CommandLine::GetSwitchValueASCII(
     const std::string& switch_string) const {
   StringType value = GetSwitchValueNative(switch_string);
-#if 0
   if (!IsStringASCII(value)) {
-    // FIXME: DLOG(WARNING) << "Value of switch(" << switch_string << ") must be ASCII.";
+    DLOG(WARNING) << "Value of switch(" << switch_string << ") must be ASCII.";
     return std::string();
   }
-#endif
 #if defined(OS_WIN)
   return WideToASCII(value);
 #else
@@ -375,7 +373,7 @@ CommandLine::StringVector CommandLine::GetArgs() const {
 
 void CommandLine::AppendArg(const std::string& value) {
 #if defined(OS_WIN)
-  //DCHECK(IsStringUTF8(value));
+  DCHECK(IsStringUTF8(value));
   AppendArgNative(base::UTF8ToWide(value));
 #elif defined(OS_POSIX)
   AppendArgNative(value);
@@ -401,8 +399,8 @@ void CommandLine::ParseFromString(const std::wstring& command_line) {
   wchar_t** args = NULL;
   args = ::CommandLineToArgvW(command_line_string.c_str(), &num_args);
 
-  // DPLOG_IF(FATAL, !args) << "CommandLineToArgvW failed on command line: "
-  //   << command_line;
+  DPLOG_IF(FATAL, !args) << "CommandLineToArgvW failed on command line: "
+                         << command_line;
   InitFromArgv(num_args, args);
   LocalFree(args);
 }

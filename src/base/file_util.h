@@ -32,7 +32,7 @@
 
 #if defined(OS_POSIX)
 #include "base/file_descriptor_posix.h"
-// #include "base/logging.h"
+#include "base/logging.h"
 #include "base/posix/eintr_wrapper.h"
 #endif
 

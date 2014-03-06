@@ -4,7 +4,7 @@
 
 #include "base/strings/utf_string_conversion_utils.h"
 
-//#include "base/third_party/icu/icu_utf.h"
+#include "base/third_party/icu/icu_utf.h"
 
 namespace base {
 
@@ -17,12 +17,8 @@ bool ReadUnicodeCharacter(const char* src,
   // U8_NEXT expects to be able to use -1 to signal an error, so we must
   // use a signed type for code_point.  But this function returns false
   // on error anyway, so code_point_out is unsigned.
-#if 0
   int32 code_point;
   CBU8_NEXT(src, *char_index, src_len, code_point);
-#else
-  int32 code_point = 0;
-#endif
   *code_point_out = static_cast<uint32>(code_point);
 
   // The ICU macro above moves to the next char, we want to point to the last
@@ -37,7 +33,6 @@ bool ReadUnicodeCharacter(const char16* src,
                           int32 src_len,
                           int32* char_index,
                           uint32* code_point) {
-#if 0
   if (CBU16_IS_SURROGATE(src[*char_index])) {
     if (!CBU16_IS_SURROGATE_LEAD(src[*char_index]) ||
                 *char_index + 1 >= src_len ||
@@ -50,9 +45,7 @@ bool ReadUnicodeCharacter(const char16* src,
     *code_point = CBU16_GET_SUPPLEMENTARY(src[*char_index],
                                           src[*char_index + 1]);
     (*char_index)++;
-  } else
-#endif
-  {
+  } else {
     // Not a surrogate, just one 16-bit word.
     *code_point = src[*char_index];
   }
@@ -86,11 +79,9 @@ size_t WriteUnicodeCharacter(uint32 code_point, std::string* output) {
   // CBU8_APPEND_UNSAFE can append up to 4 bytes.
   size_t char_offset = output->length();
   size_t original_char_offset = char_offset;
-#if 0
   output->resize(char_offset + CBU8_MAX_LENGTH);
 
   CBU8_APPEND_UNSAFE(&(*output)[0], char_offset, code_point);
-#endif
 
   // CBU8_APPEND_UNSAFE will advance our pointer past the inserted character, so
   // it will represent the new length of the string.
@@ -99,7 +90,6 @@ size_t WriteUnicodeCharacter(uint32 code_point, std::string* output) {
 }
 
 size_t WriteUnicodeCharacter(uint32 code_point, string16* output) {
-#if 0
   if (CBU16_LENGTH(code_point) == 1) {
     // Thie code point is in the Basic Multilingual Plane (BMP).
     output->push_back(static_cast<char16>(code_point));
@@ -110,8 +100,6 @@ size_t WriteUnicodeCharacter(uint32 code_point, string16* output) {
   output->resize(char_offset + CBU16_MAX_LENGTH);
   CBU16_APPEND_UNSAFE(&(*output)[0], char_offset, code_point);
   return CBU16_MAX_LENGTH;
-#endif
-  return 777;
 }
 
 // Generalized Unicode converter -----------------------------------------------

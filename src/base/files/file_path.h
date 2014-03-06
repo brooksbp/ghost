@@ -11,9 +11,9 @@
 #include "base/compiler_specific.h"
 // #include "base/containers/hash_tables.h"
 #include "base/strings/string16.h"
-// #include "base/strings/string_piece.h"  // For implicit conversions.
+#include "base/strings/string_piece.h"  // For implicit conversions.
 #include "base/build_config.h"
-//#include "base/macros.h"
+#include "base/macros.h"
 
 // Windows-style drive letter support and pathname separator characters can be
 // enabled and disabled independently, to aid in testing.  These #defines are

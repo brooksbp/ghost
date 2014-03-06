@@ -414,7 +414,7 @@ string16 Uint64ToString16(uint64 value) {
 std::string DoubleToString(double value) {
   // According to g_fmt.cc, it is sufficient to declare a buffer of size 32.
   char buffer[32];
-  dmg_fp::g_fmt(buffer, value);
+  //dmg_fp::g_fmt(buffer, value);
   return std::string(buffer);
 }
 
@@ -463,7 +463,7 @@ bool StringToDouble(const std::string& input, double* output) {
   ScopedClearErrno clear_errno;
 
   char* endptr = NULL;
-  *output = dmg_fp::strtod(input.c_str(), &endptr);
+  //*output = dmg_fp::strtod(input.c_str(), &endptr);
 
   // Cases to return false:
   //  - If errno is ERANGE, there was an overflow or underflow.

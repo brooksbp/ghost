@@ -448,6 +448,4 @@ inline size_t hash_value(const base::StringPiece16& sp16) {
 
 }  // namespace BASE_HASH_NAMESPACE
 #endif
-}  // namespace base
-
 #endif  // BASE_STRINGS_STRING_PIECE_H_

@@ -4,7 +4,7 @@
 
 #include "base/strings/utf_string_conversions.h"
 
-//#include "base/strings/string_piece.h"
+#include "base/strings/string_piece.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversion_utils.h"
 
@@ -60,19 +60,11 @@ bool UTF8ToWide(const char* src, size_t src_len, std::wstring* output) {
   return ConvertUnicode(src, src_len, output);
 }
 
-#if 0
 std::wstring UTF8ToWide(const StringPiece& utf8) {
   std::wstring ret;
   UTF8ToWide(utf8.data(), utf8.length(), &ret);
   return ret;
 }
-#else
-std::wstring UTF8ToWide(const std::string& utf8) {
-  std::wstring ret;
-  UTF8ToWide(utf8.data(), utf8.length(), &ret);
-  return ret;
-}
-#endif
 
 // UTF-16 <-> Wide -------------------------------------------------------------
 
@@ -138,7 +130,6 @@ bool UTF8ToUTF16(const char* src, size_t src_len, string16* output) {
   return ConvertUnicode(src, src_len, output);
 }
 
-#if 0
 string16 UTF8ToUTF16(const StringPiece& utf8) {
   string16 ret;
   // Ignore success flag of this call, it will do the best it can for
@@ -146,15 +137,6 @@ string16 UTF8ToUTF16(const StringPiece& utf8) {
   UTF8ToUTF16(utf8.data(), utf8.length(), &ret);
   return ret;
 }
-#else
-string16 UTF8ToUTF16(const std::string& utf8) {
-  string16 ret;
-  // Ignore success flag of this call, it will do the best it can for
-  // invalid input, which is what we want here.
-  UTF8ToUTF16(utf8.data(), utf8.length(), &ret);
-  return ret;
-}
-#endif
 
 bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output) {
   PrepareForUTF8Output(src, src_len, output);
@@ -176,15 +158,9 @@ bool UTFToUTF16(const char* src, size_t src_len, string16* output) {
   return UTF8ToWide(src, src_len, output);
 }
 
-#if 0
 string16 UTF8ToUTF16(const StringPiece& utf8) {
   return UTF8ToWide(utf8);
 }
-#else
-string16 UTF8ToUTF16(const std::string& utf8) {
-  return UTF8ToWide(utf8);
-}
-#endif
 
 bool UTF16ToUTF8(const char16* src, size_t src_len, std::string* output) {
   return WideToUTF8(src, src_len, output);
@@ -196,7 +172,6 @@ std::string UTF16ToUTF8(const string16& utf16) {
 
 #endif
 
-#if 0
 std::wstring ASCIIToWide(const StringPiece& ascii) {
   DCHECK(IsStringASCII(ascii)) << ascii;
   return std::wstring(ascii.begin(), ascii.end());
@@ -206,6 +181,5 @@ string16 ASCIIToUTF16(const StringPiece& ascii) {
   DCHECK(IsStringASCII(ascii)) << ascii;
   return string16(ascii.begin(), ascii.end());
 }
-#endif
 
 }  // namespace base

@@ -68,7 +68,7 @@ VlogInfo::VlogInfo(const std::string& v_switch,
   }
   for (std::vector<KVPair>::const_iterator it = kv_pairs.begin();
        it != kv_pairs.end(); ++it) {
-    VmodulePattern patter(it->first);
+    VmodulePattern pattern(it->first);
     if (!base::StringToInt(it->second, &pattern.vlog_level)) {
       DLOG(WARNING) << "Parsed vlog level for \""
                     << it->first << "=" << it->second
@@ -87,7 +87,7 @@ namespace {
 // number of dependencies the logging system has.
 base::StringPiece GetModule(const base::StringPiece& file) {
   base::StringPiece module(file);
-  base::StringPiece::size_type = last_slash_pos =
+  base::StringPiece::size_type last_slash_pos =
       module.find_last_of("\\/");
   if (last_slash_pos != base::StringPiece::npos)
     module.remove_prefix(last_slash_pos + 1);
@@ -95,7 +95,7 @@ base::StringPiece GetModule(const base::StringPiece& file) {
   module = module.substr(0, extension_start);
   static const char kInlSuffix[] = "-inl";
   static const int kInlSuffixLen = arraysize(kInlSuffix) - 1;
-  if (modules.ends_with(kInlSuffix))
+  if (module.ends_with(kInlSuffix))
     module.remove_suffix(kInlSuffixLen);
   return module;
 }
