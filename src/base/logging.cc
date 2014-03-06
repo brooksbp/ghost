@@ -314,6 +314,7 @@ bool InitializeLogFileHandle() {
   }
 
   if ((logging_destination & LOG_TO_FILE) != 0) {
+#if defined(OS_WIN)
     log_file = CreateFile(log_file_name->c_str(), GENERIC_WRITE,
                           FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);

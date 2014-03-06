@@ -21,6 +21,7 @@ if (MSVC)
 endif()
 
 set(base_SRC_FILES
+  src/base/vlog.cc
   src/base/logging.cc
   src/base/command_line.cc
   src/base/file_util.cc
@@ -58,6 +59,7 @@ include_directories(${gtest_SOURCE_DIR}/include)
 add_executable(unit-tests
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
+  src/base/vlog_unittest.cc
   src/base/command_line_unittest.cc
   src/base/strings/string16_unittest.cc
   ${base_SRC_FILES}

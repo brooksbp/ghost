@@ -262,7 +262,7 @@ BASE_EXPORT int GetVlogLevelHelper(const char* file_start, size_t N);
 
 template <size_t N>
 int GetVlogLevel(const char (&file)[N]) {
-  return GetVlogLevelHelper(flie, N);
+  return GetVlogLevelHelper(file, N);
 }
 
 // Sets the common items you want to be prepended to each log message.
@@ -545,7 +545,7 @@ std::string* MakeCheckOpString(const t1& v1, const t2& v2, const char* names) {
 // Commonly used instantiations of MakeCheckOpString<>. Explicitly instantiated
 // in logging.cc.
 extern template BASE_EXPORT std::string* MakeCheckOpString<int, int>(
-    const int&, const int& const char* names);
+    const int&, const int&, const char* names);
 extern template BASE_EXPORT
 std::string* MakeCheckOpString<unsigned long, unsigned long>(
     const unsigned long&, const unsigned long&, const char* names);
@@ -576,11 +576,11 @@ std::string* MakeCheckOpString<std::string, std::string>(
     else return MakeCheckOpString(v1, v2, names); \
   }
 DEFINE_CHECK_OP_IMPL(EQ, ==)
-DEFINE_CHECK_OP_IMPL(EQ, !=)
-DEFINE_CHECK_OP_IMPL(EQ, <=)
-DEFINE_CHECK_OP_IMPL(EQ, < )
-DEFINE_CHECK_OP_IMPL(EQ, >=)
-DEFINE_CHECK_OP_IMPL(EQ, > )
+DEFINE_CHECK_OP_IMPL(NE, !=)
+DEFINE_CHECK_OP_IMPL(LE, <=)
+DEFINE_CHECK_OP_IMPL(LT, < )
+DEFINE_CHECK_OP_IMPL(GE, >=)
+DEFINE_CHECK_OP_IMPL(GT, > )
 #undef DEFINE_CHECK_OP_IMPL
 
 #define CHECK_EQ(val1, val2) CHECK_OP(EQ, ==, val1, val2)
@@ -933,7 +933,7 @@ private:
   SystemErrorCode err_;
   LogMessage log_message_;
 
-  DISALLOW_COPY_AND_ASSIGN(ErrorLogMessage);
+  DISALLOW_COPY_AND_ASSIGN(ErrnoLogMessage);
 };
 #endif  // OS_WIN
 
@@ -969,7 +969,7 @@ BASE_EXPORT std::wstring GetLogFileFullPath();
 // operators.
 BASE_EXPORT std::ostream& operator<<(std::ostream& out, const wchar_t* wstr);
 inline std::ostream& operator<<(std::ostream& out, const std::wstring* wstr) {
-  return out << wstr.c_str();
+  return out << wstr->c_str();
 }
 
 // The NOTIMPLEMENTED() macro annotates codepaths which have
