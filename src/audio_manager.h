@@ -21,11 +21,13 @@ class AudioManager {
   AudioManager();
   ~AudioManager();
 
-  void PlayURI(std::string& uri);
-  void PlayMp3File(base::FilePath& file);
+  void Load(std::string& uri);
 
   void Pause();
   void Resume();
+
+  // Get the current playback position in seconds.
+  float GetPosition() const;
 
   std::function<void()> eosCallback;
   std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
@@ -43,9 +45,6 @@ class AudioManager {
   int64_t pos_;
   // Stream duration in nanoseconds.
   int64_t len_;
-  
-  Timer* track_poller_;
-  void TrackPoller();
 };
 
 #endif  // AUDIO_MANAGER_H_

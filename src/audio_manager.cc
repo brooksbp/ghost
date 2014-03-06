@@ -63,9 +63,6 @@ AudioManager::AudioManager() {
   gst_debug_set_default_threshold(GST_LEVEL_WARNING);
   gst_debug_remove_log_function(gst_debug_log_default);
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
-
-  track_poller_ = new Timer(0, 100, true,
-                            std::bind(&AudioManager::TrackPoller, this));
 }
 
 AudioManager::~AudioManager() {
@@ -78,25 +75,24 @@ AudioManager::~AudioManager() {
   gst_deinit();
 }
 
-void AudioManager::PlayURI(std::string& uri) {
+void AudioManager::Load(std::string& uri) {
+  // FIXME(brbrooks) instead of forcing a switch to READY, can we assert
+  // !playing instead and force API caller to stop whatever's playing?
   gst_element_set_state(playbin_, GST_STATE_READY);
 
-  g_object_set(G_OBJECT(playbin_), "uri", uri.c_str(), NULL);
+  // FIXME(brbrooks) can we do this before Load()?
+  std::string loc = gst_filename_to_uri(uri.c_str());
 
-  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+  g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
+  LOG(INFO) << "load " << uri;
 
-  playing_ = true;
+  gst_element_set_state(playbin_, GST_STATE_PAUSED);
 }
 
-void AudioManager::PlayMp3File(base::FilePath& file) {
-#if defined(OS_WIN)
-  std::string loc = base::WideToUTF8(file.value());
-#else
-  std::string loc = file.value();
-#endif
-  std::string loc2 = gst_filename_to_uri(loc.c_str(), NULL);
-  PlayURI(loc2);
-  track_poller_->Start();
+void AudioManager::Play() {
+  // FIXME(brbrooks) assert Load() has been called?
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+  playing_ = true;
 }
 
 // TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
@@ -108,21 +104,16 @@ void AudioManager::Resume() {
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
 }
 
-void AudioManager::TrackPoller() {
-  if (playing_) {
-#if defined(OS_POSIX)
-    gst_element_query_position(playbin_, GST_FORMAT_TIME, &pos_);
-    gst_element_query_duration(playbin_, GST_FORMAT_TIME, &len_);
-#elif defined(OS_WIN)
-    // gstreamer-0.10 compat?
-    GstFormat fmt = GST_FORMAT_TIME;
-    gst_element_query_position(playbin_, &fmt, &pos_);
-    gst_element_query_duration(playbin_, &fmt, &len_);
-#endif
-    PlaybackProgressCallback(pos_, len_);
-  } else {
-    track_poller_->Stop();
-  }
+float AudioManager::GetPosition() {
+  gint64 pos;
+
+  if (!gst_element_query_position(playbin_, GST_FORMAT_TIME, &pos))
+    LOG(ERROR) << "Query position failed.";
+
+  if (pos != static_cast<gint64>(GST_CLOCK_TIME_NONE))
+    return static_cast<float>(position) / static_cast<float>(GST_SECOND);
+
+  return 0.0f;
 }
 
 // static
@@ -139,7 +130,6 @@ gboolean AudioManager::OnBusMessage(GstBus* bus, GstMessage* msg) {
     case GST_MESSAGE_EOS:
       // TODO(brbrooks) Move this into own fn
       playing_ = false;
-      track_poller_->Stop();
       eosCallback();
       LOG(INFO) << "End of stream.";
       break;
