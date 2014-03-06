@@ -21,6 +21,7 @@ if (MSVC)
 endif()
 
 set(base_SRC_FILES
+  src/base/base_switches.cc
   src/base/command_line.cc
   src/base/file_util.cc
   src/base/files/file_enumerator.cc

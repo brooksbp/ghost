@@ -44,7 +44,7 @@ typedef pthread_mutex_t* MutexHandle;
 #include <iomanip>
 #include <ostream>
 
-// #include "base/base_switches.h"
+#include "base/base_switches.h"
 #include "base/command_line.h"
 // #include "base/debug/alias.h"
 // #include "base/debug/debugger.h"
@@ -282,7 +282,7 @@ class LoggingLock {
   static pthread_mutex_t log_mutex;
 #endif
 
-  static bool intialized;
+  static bool initialized;
   static LogLockingState lock_log_file;
 };
 
