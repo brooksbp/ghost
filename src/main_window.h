@@ -47,7 +47,9 @@ class MainWindow : public QMainWindow {
 
   QSlider* slider_;
   bool slider_engaged_;
-  int slider_duration_s_;
+
+  float track_position_;
+  float track_duration_;
 
   QTableView* table_view_;
   TableModel* table_model_;

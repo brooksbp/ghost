@@ -27,6 +27,8 @@ class Player {
   // Resume the current Track, if paused.
   void Resume();
 
+  void Seek(float time);
+
   // Returns true if a file or stream is currently playing.
   bool IsPlaying() const { return playing_; }
 

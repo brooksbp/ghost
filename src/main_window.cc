@@ -74,16 +74,20 @@ void MainWindow::Init(Player* player) {
 void MainWindow::OnPositionUpdated(float pos) {
   if (slider_engaged_)
     return;
-  
+
+  // Most likely don't have an accurate duration yet..
+  if (pos < 0.5f)
+    return;
+
+  track_position_ = pos;
   LOG(INFO) << "position = " << pos;
 
-  // FIXME(brbrooks)
-  slider_->setValue(3);
+  float percent_complete = (track_position_ / track_duration_) * 100;
+  slider_->setValue(percent_complete * 10);
 }
 
 void MainWindow::OnDurationUpdated(float dur) {
-  slider_duration_s_ = dur;
-
+  track_duration_ = dur;
   LOG(INFO) << "duration = " << dur;
 }
 
@@ -102,7 +106,9 @@ void MainWindow::handleSliderPressed() {
   LOG(INFO) << "slider engaged";
 }
 void MainWindow::handleSliderMoved(int value) {
-  LOG(INFO) << "slide moved";
+  float val = ((float) value) / 10;
+  float time = (val * track_duration_) / 100;
+  player_->Seek(time);
 }
 void MainWindow::handleSliderReleased() {
   slider_engaged_ = false;

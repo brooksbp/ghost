@@ -37,6 +37,8 @@ void Timer::Start() {
   its_.it_interval.tv_nsec = (is_repeating_) ? 1000 * 1000 * msec_ : 0;
 
   timer_settime(timerid_, 0, &its_, NULL);
+
+  is_running_ = true;
 }
 
 void Timer::Stop() {
@@ -46,6 +48,8 @@ void Timer::Stop() {
   its_.it_interval.tv_nsec = 0;
 
   timer_settime(timerid_, 0, &its_, NULL);
+
+  is_running_ = false;
 }
 
 void Timer::handler(int sig, siginfo_t* si, void* uc) {

@@ -39,3 +39,7 @@ void Player::Resume() {
     playing_ = true;
   }
 }
+
+void Player::Seek(float time) {
+  gst_player_->Seek(time);
+}

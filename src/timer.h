@@ -22,6 +22,8 @@ class Timer {
   Timer(int sec, int msec, bool is_repeating, std::function<void()> callback);
   ~Timer();
 
+  bool IsRunning() const { return is_running_; }
+
   void Start();
   void Stop();
 
@@ -30,6 +32,8 @@ private:
   int msec_;
   bool is_repeating_; 
   std::function<void()> callback_;
+
+  bool is_running_;
 
 #if defined(OS_POSIX)        
   static void handler(int sig, siginfo_t* si, void* uc);

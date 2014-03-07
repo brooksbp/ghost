@@ -83,6 +83,8 @@ GstPlayer::~GstPlayer() {
 void GstPlayer::Load(const std::string& uri) {
   // FIXME(brbrooks) instead of forcing a switch to READY, can we assert
   // !playing instead and force API caller to stop whatever's playing?
+  if (track_poller_->IsRunning())
+    track_poller_->Stop();
   gst_element_set_state(playbin_, GST_STATE_READY);
 
   // FIXME(brbrooks) ... must be better way to only normalize URI for
@@ -102,6 +104,7 @@ void GstPlayer::Load(const std::string& uri) {
 // single functions so that different entry points can trigger them.
 void GstPlayer::Play() {
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
+  track_poller_->Start();
 }
 void GstPlayer::Pause() {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
@@ -204,7 +207,6 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
       // notified when the next title actually starts playing (which will
       // be some time after the URI for the next title has been set).
       
-      track_poller_->Start();
       break;
     case GST_MESSAGE_DURATION_CHANGED:
       // TODO(brbrooks) it seems like it takes at least 2-5 duration queries
