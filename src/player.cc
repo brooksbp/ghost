@@ -20,7 +20,9 @@ void Player::Init(Library* library, AudioManager* audio_manager,
 void Player::Play(int index) {
   Track* track = library_->GetTrack(index);
   if (track) {
+#if 0 // FIXME(brbrooks)
     audio_manager_->PlayMp3File(track->file_path_);
+#endif
     playing_ = true;
   }
 }
@@ -34,7 +36,7 @@ void Player::Pause() {
 
 void Player::Resume() {
   if (!playing_) {
-    audio_manager_->Resume();
+    audio_manager_->Play();
     playing_ = true;
   }
 }

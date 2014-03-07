@@ -23,11 +23,15 @@ class AudioManager {
 
   void Load(std::string& uri);
 
+  void Play();
   void Pause();
-  void Resume();
+
+  void Seek(float time);
 
   // Get the current playback position in seconds.
   float GetPosition() const;
+  // Get the current stream's duration in seconds.
+  float GetDuration() const;
 
   std::function<void()> eosCallback;
   std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
@@ -40,11 +44,6 @@ class AudioManager {
   GstElement* playbin_;
 
   bool playing_;
-
-  // Stream position in nanoseconds.
-  int64_t pos_;
-  // Stream duration in nanoseconds.
-  int64_t len_;
 };
 
 #endif  // AUDIO_MANAGER_H_

@@ -11,6 +11,7 @@
 #include "base/strings/utf_string_conversions.h"
 
 #include <iostream>
+#include <cmath>
 
 
 static void gst_debug_logcat(GstDebugCategory* category,
@@ -81,7 +82,8 @@ void AudioManager::Load(std::string& uri) {
   gst_element_set_state(playbin_, GST_STATE_READY);
 
   // FIXME(brbrooks) can we do this before Load()?
-  std::string loc = gst_filename_to_uri(uri.c_str());
+  GError* error;
+  std::string loc = gst_filename_to_uri(uri.c_str(), &error);
 
   g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
   LOG(INFO) << "load " << uri;
@@ -89,29 +91,55 @@ void AudioManager::Load(std::string& uri) {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
 }
 
-void AudioManager::Play() {
-  // FIXME(brbrooks) assert Load() has been called?
-  gst_element_set_state(playbin_, GST_STATE_PLAYING);
-  playing_ = true;
-}
-
 // TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
 // single functions so that different entry points can trigger them.
+void AudioManager::Play() {
+  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+}
 void AudioManager::Pause() {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
 }
-void AudioManager::Resume() {
-  gst_element_set_state(playbin_, GST_STATE_PLAYING);
+
+void AudioManager::Seek(float time) {
+  if (time == GetPosition())
+    return;
+
+  double s;
+  float ms = modf(time, &s) * 1000000;
+  GTimeVal tv;
+  tv.tv_sec  = static_cast<glong>(s);
+  tv.tv_usec = static_cast<glong>(roundf(ms / 10000) * 10000);
+
+  GstClockTime clock_time = GST_TIMEVAL_TO_TIME(tv);
+  gdouble rate = 1.0;
+  if (!gst_element_seek(playbin_, rate,
+                        GST_FORMAT_TIME,
+                        (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
+                        GST_SEEK_TYPE_SET, clock_time,
+                        GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE))
+    LOG(ERROR) << "Seek failed.";
 }
 
-float AudioManager::GetPosition() {
+float AudioManager::GetPosition() const {
   gint64 pos;
 
   if (!gst_element_query_position(playbin_, GST_FORMAT_TIME, &pos))
     LOG(ERROR) << "Query position failed.";
 
   if (pos != static_cast<gint64>(GST_CLOCK_TIME_NONE))
-    return static_cast<float>(position) / static_cast<float>(GST_SECOND);
+    return static_cast<float>(pos) / static_cast<float>(GST_SECOND);
+
+  return 0.0f;
+}
+
+float AudioManager::GetDuration() const {
+  gint64 dur;
+
+  if (!gst_element_query_duration(playbin_, GST_FORMAT_TIME, &dur))
+    LOG(ERROR) << "Query duration failed.";
+
+  if (dur != static_cast<gint64>(GST_CLOCK_TIME_NONE))
+    return static_cast<float>(dur) / static_cast<float>(GST_SECOND);
 
   return 0.0f;
 }
