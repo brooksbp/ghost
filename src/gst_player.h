@@ -2,8 +2,8 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
-#ifndef AUDIO_MANAGER_H_
-#define AUDIO_MANAGER_H_
+#ifndef GST_PLAYER_H_
+#define GST_PLAYER_H_
 
 #include <functional>
 
@@ -15,11 +15,10 @@
 #include "base/basictypes.h"
 #include "base/files/file_path.h"
 
-// Gstreamer stuff..
-class AudioManager {
+class GstPlayer {
  public:
-  AudioManager();
-  ~AudioManager();
+  GstPlayer();
+  ~GstPlayer();
 
   void Load(std::string& uri);
 
@@ -46,4 +45,4 @@ class AudioManager {
   bool playing_;
 };
 
-#endif  // AUDIO_MANAGER_H_
+#endif  // GST_PLAYER_H_

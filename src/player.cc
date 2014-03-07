@@ -10,10 +10,10 @@ Player::Player() {
 Player::~Player() {
 }
 
-void Player::Init(Library* library, AudioManager* audio_manager,
+void Player::Init(Library* library, GstPlayer* gst_player,
                   MainWindow* main_window) {
   library_ = library;
-  audio_manager_ = audio_manager;
+  gst_player_ = gst_player;
   main_window_ = main_window;
 }
 
@@ -21,7 +21,7 @@ void Player::Play(int index) {
   Track* track = library_->GetTrack(index);
   if (track) {
 #if 0 // FIXME(brbrooks)
-    audio_manager_->PlayMp3File(track->file_path_);
+    gst_player_->PlayMp3File(track->file_path_);
 #endif
     playing_ = true;
   }
@@ -29,14 +29,14 @@ void Player::Play(int index) {
 
 void Player::Pause() {
   if (playing_) {
-    audio_manager_->Pause();
+    gst_player_->Pause();
     playing_ = false;
   }
 }
 
 void Player::Resume() {
   if (!playing_) {
-    audio_manager_->Play();
+    gst_player_->Play();
     playing_ = true;
   }
 }

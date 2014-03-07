@@ -117,7 +117,7 @@ set(SRC_FILES
   src/library.cc
   src/playlist_pls.cc
   src/g_own_ptr.cc
-  src/audio_manager.cc
+  src/gst_player.cc
   src/main_window.cc
   src/player.cc
 )

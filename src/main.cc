@@ -8,7 +8,7 @@
 
 #include "track.h"
 #include "library.h"
-#include "audio_manager.h"
+#include "gst_player.h"
 #include "main_window.h"
 #include "timer.h"
 #include "playlist_pls.h"
@@ -85,17 +85,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
     dir = cl->GetSwitchValuePath("dir");
 
   Player player;
-  AudioManager audio_manager;
+  GstPlayer gst_player;
   Library library;
   app = new QApplication(argc, NULL);  
   MainWindow main_window;
 
-  player.Init(&library, &audio_manager, &main_window);
+  player.Init(&library, &gst_player, &main_window);
   library.Init(dir);
   main_window.Init(&player);
 
-  audio_manager.eosCallback = std::bind(&Library::EndOfStream, library);
-  audio_manager.PlaybackProgressCallback =
+  gst_player.eosCallback = std::bind(&Library::EndOfStream, library);
+  gst_player.PlaybackProgressCallback =
       [&] (int64_t one, int64_t two) { main_window.PlaybackProgress(one, two); };
 
   main_window.show();
@@ -108,7 +108,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
     PlaylistPLS pls(playlist);
 #if 0 // FIXME(brbrooks) use Load() and Play() and convert to correct URI
     if (pls.tracks_.size() > 0)
-      audio_manager.PlayURI(pls.tracks_[0].file_);
+      gst_player.PlayURI(pls.tracks_[0].file_);
 #endif
   }
 

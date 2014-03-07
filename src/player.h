@@ -6,7 +6,7 @@
 #define PLAYER_H_
 
 #include "library.h"
-#include "audio_manager.h"
+#include "gst_player.h"
 
 class MainWindow;
 
@@ -15,7 +15,7 @@ class Player {
   Player();
   ~Player();
 
-  void Init(Library* library, AudioManager* audio_manager,
+  void Init(Library* library, GstPlayer* gst_player,
             MainWindow* main_window);
 
   // Play the Track located at |index| in the library.
@@ -36,7 +36,7 @@ class Player {
   bool playing_;
 
   Library* library_;
-  AudioManager* audio_manager_;
+  GstPlayer* gst_player_;
   MainWindow* main_window_;
 };
 

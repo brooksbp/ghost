@@ -2,7 +2,7 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
-#include "audio_manager.h"
+#include "gst_player.h"
 
 #include "g_own_ptr.h"
 #include "base/logging.h"
@@ -50,7 +50,7 @@ static void gst_debug_logcat(GstDebugCategory* category,
   }
 }
 
-AudioManager::AudioManager() {
+GstPlayer::GstPlayer() {
   gst_init(NULL, NULL);
 
   playbin_ = gst_element_factory_make("playbin", "playbin");
@@ -66,7 +66,7 @@ AudioManager::AudioManager() {
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
 }
 
-AudioManager::~AudioManager() {
+GstPlayer::~GstPlayer() {
   if (playbin_) {
     gst_element_set_state(playbin_, GST_STATE_NULL);
     gst_object_unref(GST_OBJECT(playbin_));
@@ -76,7 +76,7 @@ AudioManager::~AudioManager() {
   gst_deinit();
 }
 
-void AudioManager::Load(std::string& uri) {
+void GstPlayer::Load(std::string& uri) {
   // FIXME(brbrooks) instead of forcing a switch to READY, can we assert
   // !playing instead and force API caller to stop whatever's playing?
   gst_element_set_state(playbin_, GST_STATE_READY);
@@ -93,14 +93,14 @@ void AudioManager::Load(std::string& uri) {
 
 // TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
 // single functions so that different entry points can trigger them.
-void AudioManager::Play() {
+void GstPlayer::Play() {
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
 }
-void AudioManager::Pause() {
+void GstPlayer::Pause() {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
 }
 
-void AudioManager::Seek(float time) {
+void GstPlayer::Seek(float time) {
   if (time == GetPosition())
     return;
 
@@ -120,7 +120,7 @@ void AudioManager::Seek(float time) {
     LOG(ERROR) << "Seek failed.";
 }
 
-float AudioManager::GetPosition() const {
+float GstPlayer::GetPosition() const {
   gint64 pos;
 
   if (!gst_element_query_position(playbin_, GST_FORMAT_TIME, &pos))
@@ -132,7 +132,7 @@ float AudioManager::GetPosition() const {
   return 0.0f;
 }
 
-float AudioManager::GetDuration() const {
+float GstPlayer::GetDuration() const {
   gint64 dur;
 
   if (!gst_element_query_duration(playbin_, GST_FORMAT_TIME, &dur))
@@ -145,12 +145,12 @@ float AudioManager::GetDuration() const {
 }
 
 // static
-gboolean AudioManager::__OnBusMessage(GstBus* bus, GstMessage* msg,
+gboolean GstPlayer::__OnBusMessage(GstBus* bus, GstMessage* msg,
                                       gpointer data) {
-  return static_cast<AudioManager*>(data)->OnBusMessage(bus, msg);
+  return static_cast<GstPlayer*>(data)->OnBusMessage(bus, msg);
 }
 
-gboolean AudioManager::OnBusMessage(GstBus* bus, GstMessage* msg) {
+gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
   GOwnPtr<gchar> debug;
   GOwnPtr<GError> error;
   
