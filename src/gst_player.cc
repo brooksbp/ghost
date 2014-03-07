@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 
 #include <iostream>
@@ -81,10 +82,14 @@ void GstPlayer::Load(const std::string& uri) {
   // !playing instead and force API caller to stop whatever's playing?
   gst_element_set_state(playbin_, GST_STATE_READY);
 
-  // FIXME(brbrooks) can we do this before Load()?
-  std::string loc = gst_filename_to_uri(uri.c_str(), NULL);
-
-  g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
+  // FIXME(brbrooks) ... must be better way to only normalize URI for
+  // files and not streams.
+  if (!StartsWithASCII(uri, "http://", false)) {
+    std::string loc = gst_filename_to_uri(uri.c_str(), NULL);
+    g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
+  } else {
+    g_object_set(G_OBJECT(playbin_), "uri", uri.c_str(), NULL);
+  }
   LOG(INFO) << "load " << uri;
 
   gst_element_set_state(playbin_, GST_STATE_PAUSED);

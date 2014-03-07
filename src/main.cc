@@ -106,10 +106,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
     // TODO(brbrooks) exists check
 
     PlaylistPLS pls(playlist);
-#if 0 // FIXME(brbrooks) use Load() and Play() and convert to correct URI
-    if (pls.tracks_.size() > 0)
-      gst_player.PlayURI(pls.tracks_[0].file_);
-#endif
+    if (pls.tracks_.size() > 0) {
+      gst_player.Load(pls.tracks_[0].file_);
+      gst_player.Play();
+    }
   }
 
   return app->exec();
