@@ -32,17 +32,31 @@ class GstPlayer {
   // Get the current stream's duration in seconds.
   float GetDuration() const;
 
-  std::function<void()> eosCallback;
-  std::function<void(int64_t&, int64_t&)> PlaybackProgressCallback;
+  std::function<void()> OnEndOfStream;
+  std::function<void(float&)> OnPositionUpdated;
+  std::function<void(float&)> OnDurationUpdated;
   
  private:
+
+  bool playing_;
+
+  void QueryPosition();
+  void QueryDuration();
+
+  // Cached copy of current track's position.
+  float position_;
+  // Cached copy of current tracks' duration.
+  float duration_;
+
+  GstElement* playbin_;
 
   static gboolean __OnBusMessage(GstBus* bus, GstMessage* msg, gpointer data);
   gboolean OnBusMessage(GstBus* bus, GstMessage* msg);
 
-  GstElement* playbin_;
-
-  bool playing_;
+  // Timer for a poller that does work such as queries playback progress while
+  // a tracking is playing.
+  Timer* track_poller_;
+  void TrackPoller();
 };
 
 #endif  // GST_PLAYER_H_

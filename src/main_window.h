@@ -26,7 +26,8 @@ class MainWindow : public QMainWindow {
 
   void Init(Player* player);
 
-  void PlaybackProgress(uint64_t pos, uint64_t len);
+  void OnPositionUpdated(float pos);
+  void OnDurationUpdated(float dur);
                                    
  private slots:
   void handleButtonPressed();
@@ -46,7 +47,8 @@ class MainWindow : public QMainWindow {
 
   QSlider* slider_;
   bool slider_engaged_;
-  
+  int slider_duration_s_;
+
   QTableView* table_view_;
   TableModel* table_model_;
 

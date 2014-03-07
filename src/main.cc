@@ -94,16 +94,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
   library.Init(dir);
   main_window.Init(&player);
 
-  gst_player.eosCallback = std::bind(&Library::EndOfStream, library);
-  gst_player.PlaybackProgressCallback =
-      [&] (int64_t one, int64_t two) { main_window.PlaybackProgress(one, two); };
+  // This is pretty fucked up... we'll do for now...
+  gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
+  gst_player.OnPositionUpdated = [&] (float a) { main_window.OnPositionUpdated(a); };
+  gst_player.OnDurationUpdated = [&] (float a) { main_window.OnDurationUpdated(a); };
 
   main_window.show();
 
   base::FilePath playlist;
   if (cl->HasSwitch("pls")) {
     playlist = cl->GetSwitchValuePath("pls");
-    // TODO(brbrooks) exists check
+    // TODO(brbrooks) file exists check
 
     PlaylistPLS pls(playlist);
     if (pls.tracks_.size() > 0) {

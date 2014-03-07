@@ -65,6 +65,9 @@ GstPlayer::GstPlayer() {
   gst_debug_set_default_threshold(GST_LEVEL_WARNING);
   gst_debug_remove_log_function(gst_debug_log_default);
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
+
+  track_poller_ = new Timer(0, 100, true,
+                            std::bind(&GstPlayer::TrackPoller, this));
 }
 
 GstPlayer::~GstPlayer() {
@@ -102,6 +105,7 @@ void GstPlayer::Play() {
 }
 void GstPlayer::Pause() {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
+  track_poller_->Stop();
 }
 
 void GstPlayer::Seek(float time) {
@@ -125,27 +129,43 @@ void GstPlayer::Seek(float time) {
 }
 
 float GstPlayer::GetPosition() const {
+  return position_;
+}
+float GstPlayer::GetDuration() const {
+  return duration_;
+}
+
+void GstPlayer::QueryPosition() {
   gint64 pos;
 
   if (!gst_element_query_position(playbin_, GST_FORMAT_TIME, &pos))
     LOG(ERROR) << "Query position failed.";
 
   if (pos != static_cast<gint64>(GST_CLOCK_TIME_NONE))
-    return static_cast<float>(pos) / static_cast<float>(GST_SECOND);
+    position_ = static_cast<float>(pos) / static_cast<float>(GST_SECOND);
+  else
+    position_ = 0.0f;
 
-  return 0.0f;
+  OnPositionUpdated(position_);
 }
 
-float GstPlayer::GetDuration() const {
+void GstPlayer::QueryDuration() {
   gint64 dur;
+  float duration;
 
   if (!gst_element_query_duration(playbin_, GST_FORMAT_TIME, &dur))
     LOG(ERROR) << "Query duration failed.";
 
-  if (dur != static_cast<gint64>(GST_CLOCK_TIME_NONE))
-    return static_cast<float>(dur) / static_cast<float>(GST_SECOND);
+  duration = static_cast<float>(dur) / static_cast<float>(GST_SECOND);
 
-  return 0.0f;
+  if (duration != duration_) {
+    if (dur != static_cast<gint64>(GST_CLOCK_TIME_NONE))
+      duration_ = duration;
+    else
+      duration_ = 0.0f;
+
+    OnDurationUpdated(duration_);
+  }
 }
 
 // static
@@ -162,7 +182,8 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
     case GST_MESSAGE_EOS:
       // TODO(brbrooks) Move this into own fn
       playing_ = false;
-      eosCallback();
+      track_poller_->Stop();
+      OnEndOfStream();
       LOG(INFO) << "End of stream.";
       break;
     case GST_MESSAGE_STATE_CHANGED:
@@ -183,12 +204,17 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
       // notified when the next title actually starts playing (which will
       // be some time after the URI for the next title has been set).
       
-      // Ignore for now.
+      track_poller_->Start();
       break;
     case GST_MESSAGE_DURATION_CHANGED:
-      // Can now get the duration with a query.
-
-      // Ignore for now.
+      // TODO(brbrooks) it seems like it takes at least 2-5 duration queries
+      // to get the real & constant duration for current track.  But, this
+      // message is only sent to the bus for the first change in duration,
+      // which doesn't reflect the real duration.  QueryDuration() in track
+      // poller, but only update if there is a difference.  Figure out why
+      // this message is only sent once, and why it takes a few queries to
+      // get the real duration.
+      QueryDuration();
       break;
     case GST_MESSAGE_ERROR:
       gst_message_parse_error(msg, &error.outPtr(), &debug.outPtr());
@@ -227,4 +253,9 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
   }
   
   return TRUE;
+}
+
+void GstPlayer::TrackPoller() {
+  QueryPosition();
+  QueryDuration();
 }

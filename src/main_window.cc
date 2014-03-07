@@ -71,18 +71,20 @@ void MainWindow::Init(Player* player) {
   resize(800, 400);
 }
 
-void MainWindow::PlaybackProgress(uint64_t pos, uint64_t len) {
+void MainWindow::OnPositionUpdated(float pos) {
   if (slider_engaged_)
     return;
-
-  // Normalize playback position
-  while (pos >= 1000000) { pos /= 1000; }
-  while (len >= 1000000) { len /= 1000; }
-  uint64_t r = (pos * 1000) / len;
   
-  if (r <= 1000) {
-    slider_->setValue(r);
-  }
+  LOG(INFO) << "position = " << pos;
+
+  // FIXME(brbrooks)
+  slider_->setValue(3);
+}
+
+void MainWindow::OnDurationUpdated(float dur) {
+  slider_duration_s_ = dur;
+
+  LOG(INFO) << "duration = " << dur;
 }
 
 void MainWindow::handleButtonPressed() {
