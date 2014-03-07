@@ -76,14 +76,13 @@ GstPlayer::~GstPlayer() {
   gst_deinit();
 }
 
-void GstPlayer::Load(std::string& uri) {
+void GstPlayer::Load(const std::string& uri) {
   // FIXME(brbrooks) instead of forcing a switch to READY, can we assert
   // !playing instead and force API caller to stop whatever's playing?
   gst_element_set_state(playbin_, GST_STATE_READY);
 
   // FIXME(brbrooks) can we do this before Load()?
-  GError* error;
-  std::string loc = gst_filename_to_uri(uri.c_str(), &error);
+  std::string loc = gst_filename_to_uri(uri.c_str(), NULL);
 
   g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
   LOG(INFO) << "load " << uri;

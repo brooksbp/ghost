@@ -20,9 +20,8 @@ void Player::Init(Library* library, GstPlayer* gst_player,
 void Player::Play(int index) {
   Track* track = library_->GetTrack(index);
   if (track) {
-#if 0 // FIXME(brbrooks)
-    gst_player_->PlayMp3File(track->file_path_);
-#endif
+    gst_player_->Load(track->file_path_.value());
+    gst_player_->Play();
     playing_ = true;
   }
 }

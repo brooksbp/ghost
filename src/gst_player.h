@@ -20,7 +20,7 @@ class GstPlayer {
   GstPlayer();
   ~GstPlayer();
 
-  void Load(std::string& uri);
+  void Load(const std::string& uri);
 
   void Play();
   void Pause();
