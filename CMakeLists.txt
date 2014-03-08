@@ -20,78 +20,91 @@ if (MSVC)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /Zi /O2 /Ob1 /D NDEBUG")
 endif()
 
-set(base_SRC_FILES
-  src/base/base_switches.cc
-  src/base/command_line.cc
-  src/base/file_util.cc
-  src/base/files/file_enumerator.cc
-  src/base/files/file_path.cc
-  src/base/files/file_path_constants.cc
-  src/base/logging.cc
-  src/base/strings/nullable_string16.cc
-  src/base/strings/string_util.cc
-  src/base/strings/string_util_constants.cc
-  src/base/strings/string_piece.cc
-  src/base/strings/string_number_conversions.cc
-  src/base/strings/string_split.cc
-  src/base/strings/stringprintf.cc
-  src/base/strings/utf_string_conversions.cc
-  src/base/strings/utf_string_conversion_utils.cc
-  src/base/third_party/icu/icu_utf.cc
-  src/base/vlog.cc
+################################################################################
+#
+# Chromium
+
+set(chromium_SOURCE_DIR third_party/chromium)
+
+set(chromium_SOURCE_FILES
+  ${chromium_SOURCE_DIR}/base/base_switches.cc
+  ${chromium_SOURCE_DIR}/base/command_line.cc
+  ${chromium_SOURCE_DIR}/base/file_util.cc
+  ${chromium_SOURCE_DIR}/base/files/file_enumerator.cc
+  ${chromium_SOURCE_DIR}/base/files/file_path.cc
+  ${chromium_SOURCE_DIR}/base/files/file_path_constants.cc
+  ${chromium_SOURCE_DIR}/base/logging.cc
+  ${chromium_SOURCE_DIR}/base/strings/nullable_string16.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_util.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_util_constants.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_piece.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_number_conversions.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_split.cc
+  ${chromium_SOURCE_DIR}/base/strings/stringprintf.cc
+  ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions.cc
+  ${chromium_SOURCE_DIR}/base/strings/utf_string_conversion_utils.cc
+  ${chromium_SOURCE_DIR}/base/third_party/icu/icu_utf.cc
+  ${chromium_SOURCE_DIR}/base/vlog.cc
 )
 if (WIN32)
-  list(APPEND base_SRC_FILES src/base/file_util_win.cc)
-  list(APPEND base_SRC_FILES src/base/files/file_enumerator_win.cc)
-  list(APPEND base_SRC_FILES src/base/synchronization/lock_impl_win.cc)
-  list(APPEND base_SRC_FILES src/base/win/windows_version.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/win/windows_version.cc)
 endif()
 if (UNIX)
-  list(APPEND base_SRC_FILES src/base/file_util_posix.cc)
-  list(APPEND base_SRC_FILES src/base/files/file_enumerator_posix.cc)
-  list(APPEND base_SRC_FILES src/base/safe_strerror_posix.cc)
-  list(APPEND base_SRC_FILES src/base/strings/string16.cc)
-  list(APPEND base_SRC_FILES src/base/synchronization/lock_impl_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/safe_strerror_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/strings/string16.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_posix.cc)
 endif()
 
-## Google Test
+set(chromium_UNITTEST
+  ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
+  ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_piece_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_number_conversions_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/string16_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/nullable_string16_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions_unittest.cc
+  ${chromium_SOURCE_DIR}/base/vlog_unittest.cc
+)
+if (UNIX)
+  list(APPEND chromium_UNITTEST ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc)
+endif()
+
+################################################################################
+#
+# Google Test
 
 set(gtest_SOURCE_DIR third_party/googletest)
 
 add_subdirectory(third_party/googletest)
+
 enable_testing(true)
-
-include_directories(${gtest_SOURCE_DIR}/include)
-
-set(base_UT_FILES
-  src/base/scoped_clear_errno_unittest.cc
-  src/base/command_line_unittest.cc
-  src/base/strings/string_piece_unittest.cc
-  src/base/strings/string_number_conversions_unittest.cc
-  src/base/strings/string16_unittest.cc
-  src/base/strings/nullable_string16_unittest.cc
-  src/base/strings/utf_string_conversions_unittest.cc
-  src/base/vlog_unittest.cc
-)
-if (UNIX)
-  list(APPEND base_UT_FILES src/base/scoped_clear_errno_unittest.cc)
-endif()
 
 add_executable(unit-tests
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
 
-  ${base_SRC_FILES}
-  ${base_UT_FILES}
+  ${chromium_SOURCE_FILES},
+  ${chromium_UNITTEST}
 )
 
 target_link_libraries(unit-tests gtest gtest_main)
 
 add_test(unit-tests unit-tests)
 
-## ghost
+################################################################################
+#
+# Ghost
+
+include_directories(${chromium_SOURCE_DIR})
+include_directories(${gtest_SOURCE_DIR}/include)
 
 include_directories(src/)
+
 include_directories(/usr/include/gstreamer-1.0)
 include_directories(/usr/include/glib-2.0)
 include_directories(/usr/lib/glib-2.0/include)
@@ -129,7 +142,7 @@ elseif (WIN32)
 endif()
 
 add_executable(ghost
-  ${base_SRC_FILES}
+  ${chromium_SOURCE_FILES}
   ${SRC_FILES}
   ${INCS}
 )
