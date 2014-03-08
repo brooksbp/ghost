@@ -133,13 +133,15 @@ void GstPlayer::Seek(float time) {
 
   GstClockTime clock_time = GST_TIMEVAL_TO_TIME(tv);
   gdouble rate = 1.0;
+  seeking_ = true;
   if (!gst_element_seek(playbin_, rate,
                         GST_FORMAT_TIME,
                         (GstSeekFlags) (GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE),
                         GST_SEEK_TYPE_SET, clock_time,
-                        GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE))
+                        GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE)) {
     LOG(ERROR) << "Seek failed.";
-  seeking_ = true;
+    seeking_ = false;
+  }
 }
 
 float GstPlayer::GetPosition() const {
@@ -274,6 +276,8 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
 }
 
 void GstPlayer::TrackPoller() {
-  QueryPosition();
-  QueryDuration();
+  if (!seeking_) {
+    QueryPosition();
+    QueryDuration();
+  }
 }
