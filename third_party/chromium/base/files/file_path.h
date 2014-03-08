@@ -12,7 +12,7 @@
 // #include "base/containers/hash_tables.h"
 #include "base/strings/string16.h"
 #include "base/strings/string_piece.h"  // For implicit conversions.
-#include "base/build_config.h"
+#include "build/build_config.h"
 #include "base/macros.h"
 
 // Windows-style drive letter support and pathname separator characters can be

@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "base/base_export.h"
-#include "base/build_config.h"
+#include "build/build_config.h"
 
 namespace base {
 class FilePath;

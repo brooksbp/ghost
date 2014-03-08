@@ -8,7 +8,7 @@
 #ifndef BASE_FILE_UTIL_H_
 #define BASE_FILE_UTIL_H_
 
-#include "base/build_config.h"
+#include "build/build_config.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
