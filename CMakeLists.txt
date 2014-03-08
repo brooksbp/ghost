@@ -5,6 +5,8 @@
 cmake_minimum_required(VERSION 2.8.8)
 project(ghost)
 
+# message("PROJECT_SOURCE_DIR=" ${PROJECT_SOURCE_DIR})
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -88,7 +90,7 @@ add_executable(unit-tests
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
 
-  ${chromium_SOURCE_FILES},
+  ${chromium_SOURCE_FILES}
   ${chromium_UNITTEST}
 )
 
@@ -119,7 +121,7 @@ if (WIN32)
   include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\lib\\gtk-2.0\\include\\")
 endif()
 
-# Add header files so that CMake will list them in MSVC.
+# Add header files so they are visible in MSVC.
 if (WIN32)
   file(GLOB_RECURSE INCS "src/*.h")
 endif()
