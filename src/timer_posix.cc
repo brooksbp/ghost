@@ -10,7 +10,8 @@ Timer::Timer(int sec, int msec, bool is_repeating, std::function<void()> callbac
     : sec_(sec),
       msec_(msec),
       is_repeating_(is_repeating),
-      callback_(callback) {
+      callback_(callback),
+      is_running_(false) {
 }
 
 Timer::~Timer() {
