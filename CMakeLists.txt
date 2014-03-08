@@ -62,6 +62,10 @@ if (UNIX)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_posix.cc)
 endif()
 
+add_library(chromium OBJECT ${chromium_SOURCE_FILES})
+add_library(chromium-static STATIC $<TARGET_OBJECTS:chromium>)
+#add_library(chromium-shared SHARED $<TARGET_OBJECTS:chromium>)
+
 set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
   ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
@@ -90,10 +94,10 @@ add_executable(unit-tests
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
 
-  ${chromium_SOURCE_FILES}
   ${chromium_UNITTEST}
 )
 
+target_link_libraries(unit-tests chromium-static)
 target_link_libraries(unit-tests gtest gtest_main)
 
 add_test(unit-tests unit-tests)
@@ -144,10 +148,11 @@ elseif (WIN32)
 endif()
 
 add_executable(ghost
-  ${chromium_SOURCE_FILES}
   ${SRC_FILES}
   ${INCS}
 )
+
+target_link_libraries(ghost chromium-static)
 
 if (UNIX)
   target_link_libraries(ghost rt)
