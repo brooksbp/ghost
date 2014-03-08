@@ -23,12 +23,9 @@ static void gst_debug_logcat(GstDebugCategory* category,
   GObject* object,
   GstDebugMessage* message,
   gpointer unused) {
-  GOwnPtr<gchar> tag;
 
   if (level > gst_debug_category_get_threshold(category))
     return;
-
-  tag.outPtr() = g_strdup_printf("GStreamer+%s", gst_debug_category_get_name(category));
 
   if (object) {
     GOwnPtr<gchar> obj;
@@ -43,16 +40,26 @@ static void gst_debug_logcat(GstDebugCategory* category,
       obj.outPtr() = g_strdup_printf("<%p>", object);
     }
 
-    LOG(INFO) << file << ":" << line << ":" << function
-              << " " << obj << " " << gst_debug_message_get(message);
+    LOG(INFO) << gst_debug_category_get_name(category) << " " << file << "("
+              << line << ") " << function << ": " << obj << " "
+              << gst_debug_message_get(message);
   } else {
-    LOG(INFO) << file << ":" << line << ":" << function
-              << " " << gst_debug_message_get(message);
+    LOG(INFO) << gst_debug_category_get_name(category) << " " << file << "("
+              << line << ") " << function << ": "
+              << gst_debug_message_get(message);
   }
 }
 
-GstPlayer::GstPlayer() {
-  gst_init(NULL, NULL);
+GstPlayer::GstPlayer() 
+    : playing_(false),
+      seeking_(false),
+      position_(0.0f),
+      duration_(0.0f) {
+  GOwnPtr<GError> error;  
+  if (!gst_init_check(NULL, NULL, &error.outPtr())) {
+    LOG(ERROR) << "Gstreamer init failed: " << error->message;
+  }
+  LOG(INFO) << "Gstreamer: " << gst_version_string();
 
   playbin_ = gst_element_factory_make("playbin", "playbin");
 
@@ -62,7 +69,7 @@ GstPlayer::GstPlayer() {
   gst_object_unref(bus_);
 
   gst_debug_set_active(TRUE);
-  gst_debug_set_default_threshold(GST_LEVEL_WARNING);
+  gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
   gst_debug_remove_log_function(gst_debug_log_default);
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
 
@@ -112,9 +119,12 @@ void GstPlayer::Pause() {
 }
 
 void GstPlayer::Seek(float time) {
-  if (time == GetPosition())
+  if (seeking_)
     return;
 
+  if (time == GetPosition())
+    return;
+  LOG(INFO) << "seek request";
   double s;
   float ms = modf(time, &s) * 1000000;
   GTimeVal tv;
@@ -129,6 +139,7 @@ void GstPlayer::Seek(float time) {
                         GST_SEEK_TYPE_SET, clock_time,
                         GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE))
     LOG(ERROR) << "Seek failed.";
+  seeking_ = true;
 }
 
 float GstPlayer::GetPosition() const {
@@ -218,6 +229,12 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
       // get the real duration.
       QueryDuration();
       break;
+    case GST_MESSAGE_ASYNC_DONE:
+      if (seeking_) {
+        LOG(INFO) << "done seeking";
+        seeking_ = false;
+      }
+      break;
     case GST_MESSAGE_ERROR:
       gst_message_parse_error(msg, &error.outPtr(), &debug.outPtr());
       LOG(ERROR) << "Error: " << error->code << " " << error->message;
@@ -239,7 +256,6 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
     case GST_MESSAGE_SEGMENT_DONE:
     case GST_MESSAGE_LATENCY:
     case GST_MESSAGE_ASYNC_START:
-    case GST_MESSAGE_ASYNC_DONE:
     case GST_MESSAGE_REQUEST_STATE:
     case GST_MESSAGE_STEP_START:
     case GST_MESSAGE_QOS:

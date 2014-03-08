@@ -40,6 +40,8 @@ class GstPlayer {
 
   bool playing_;
 
+  bool seeking_;
+
   void QueryPosition();
   void QueryDuration();
 
