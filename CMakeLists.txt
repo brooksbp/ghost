@@ -83,6 +83,7 @@ add_library(chromium-static STATIC $<TARGET_OBJECTS:chromium>)
 
 set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
+  ${chromium_SOURCE_DIR}/base/debug/leak_tracker_unittest.cc
   ${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/aligned_memory_unittest.cc
   ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
