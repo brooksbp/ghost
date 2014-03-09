@@ -1,3 +1,6 @@
 [submodule "third_party/testing/gtest"]
 	path = third_party/testing/gtest
 	url = https://chromium.googlesource.com/external/googletest
+[submodule "third_party/chromium/base"]
+	path = third_party/chromium/base
+	url = https://chromium.googlesource.com/chromium/src/base
