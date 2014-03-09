@@ -81,6 +81,7 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/strings/string16_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/nullable_string16_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions_unittest.cc
+  ${chromium_SOURCE_DIR}/base/template_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/platform_thread_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_id_name_maanger_unittest.cc
   ${chromium_SOURCE_DIR}/base/vlog_unittest.cc
