@@ -36,6 +36,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/files/file_path.cc
   ${chromium_SOURCE_DIR}/base/files/file_path_constants.cc
   ${chromium_SOURCE_DIR}/base/logging.cc
+  ${chromium_SOURCE_DIR}/base/memory/aligned_memory.cc
   ${chromium_SOURCE_DIR}/base/strings/nullable_string16.cc
   ${chromium_SOURCE_DIR}/base/strings/string_util.cc
   ${chromium_SOURCE_DIR}/base/strings/string_util_constants.cc
@@ -74,6 +75,7 @@ add_library(chromium-static STATIC $<TARGET_OBJECTS:chromium>)
 set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
   ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
+  ${chromium_SOURCE_DIR}/base/memory/aligned_memory_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_piece_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_number_conversions_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string16_unittest.cc
