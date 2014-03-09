@@ -4,7 +4,7 @@
 
 #include "playlist_pls.h"
 
-#include <gtest/gtest.h>
+#include "testing/gtest/include/gtest/gtest.h"
 
 TEST(PlaylistPLSTest, MainTest) {
   const char* s =

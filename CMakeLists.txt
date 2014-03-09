@@ -51,7 +51,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/synchronization/lock.cc
   ${chromium_SOURCE_DIR}/base/third_party/icu/icu_utf.cc
   ${chromium_SOURCE_DIR}/base/third_party/dynamic_annotations/dynamic_annotations.c
-  ${chromium_SOURCE_DIR}/base/threading/thread_id_manager.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_restrictions.cc
   ${chromium_SOURCE_DIR}/base/vlog.cc
 )
@@ -95,7 +95,7 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions_unittest.cc
   ${chromium_SOURCE_DIR}/base/template_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/platform_thread_unittest.cc
-  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_maanger_unittest.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager_unittest.cc
   ${chromium_SOURCE_DIR}/base/vlog_unittest.cc
 )
 if (UNIX)
@@ -106,9 +106,9 @@ endif()
 #
 # Google Test
 
-set(gtest_SOURCE_DIR third_party/googletest)
+set(gtest_SOURCE_DIR third_party/testing/gtest)
 
-add_subdirectory(third_party/googletest)
+add_subdirectory(third_party/testing/gtest)
 
 enable_testing(true)
 
@@ -128,8 +128,8 @@ add_test(unit-tests unit-tests)
 #
 # Ghost
 
+include_directories(third_party)
 include_directories(${chromium_SOURCE_DIR})
-include_directories(${gtest_SOURCE_DIR}/include)
 
 include_directories(src/)
 
