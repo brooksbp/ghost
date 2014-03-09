@@ -12,7 +12,7 @@
 #include "base/memory/scoped_ptr.h"
 #include "base/synchronization/waitable_event.h"
 #include "base/threading/thread_id_name_manager.h"
-#include "base/threading/thread_restrictios.h"
+#include "base/threading/thread_restrictions.h"
 #include "base/tracked_objects.h"
 
 #if defined(OS_MACOSX)

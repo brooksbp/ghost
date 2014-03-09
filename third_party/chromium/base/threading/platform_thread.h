@@ -11,7 +11,7 @@
 
 #include "base/base_export.h"
 #include "base/basictypes.h"
-// #include "base/time/time.h"
+#include "base/time/time.h"
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
@@ -106,10 +106,10 @@ public:
 
   // Yield the current thread so another thread can be scheduled.
   static void YieldCurrentThread();
-#if 0 // FIXME(brbrooks)
+
   // Sleeps for the specified duration.
   static void Sleep(base::TimeDelta duration);
-#endif
+
   // Sets the thread name visible to debuggers/tools. This has no effect
   // otherwise. This name pointer is not copied internally. Thus, it must stay
   // valid until the thread ends.

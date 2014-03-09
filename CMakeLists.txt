@@ -46,6 +46,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions.cc
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversion_utils.cc
   ${chromium_SOURCE_DIR}/base/third_party/icu/icu_utf.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_id_manager.cc
   ${chromium_SOURCE_DIR}/base/vlog.cc
 )
 if (WIN32)
@@ -60,6 +61,8 @@ if (UNIX)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/safe_strerror_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/strings/string16.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/platform_thread_linux.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/platform_thread_posix.cc)
 endif()
 
 add_library(chromium OBJECT ${chromium_SOURCE_FILES})
@@ -74,6 +77,8 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/strings/string16_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/nullable_string16_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions_unittest.cc
+  ${chromium_SOURCE_DIR}/base/threading/platform_thread_unittest.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_maanger_unittest.cc
   ${chromium_SOURCE_DIR}/base/vlog_unittest.cc
 )
 if (UNIX)
