@@ -48,6 +48,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/synchronization/lock.cc
   ${chromium_SOURCE_DIR}/base/third_party/icu/icu_utf.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_id_manager.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_restrictions.cc
   ${chromium_SOURCE_DIR}/base/vlog.cc
 )
 if (WIN32)
