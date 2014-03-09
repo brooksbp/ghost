@@ -31,6 +31,7 @@ set(chromium_SOURCE_DIR third_party/chromium)
 set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/base_switches.cc
   ${chromium_SOURCE_DIR}/base/command_line.cc
+  ${chromium_SOURCE_DIR}/base/debug/stack_trace.cc
   ${chromium_SOURCE_DIR}/base/file_util.cc
   ${chromium_SOURCE_DIR}/base/files/file_enumerator.cc
   ${chromium_SOURCE_DIR}/base/files/file_path.cc
@@ -53,6 +54,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/vlog.cc
 )
 if (WIN32)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/stack_trace_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_win.cc)
@@ -61,6 +63,7 @@ if (WIN32)
 endif()
 if (UNIX)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/atomicops_internals_x86_gcc.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/stack_trace_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/safe_strerror_posix.cc)
@@ -76,9 +79,10 @@ add_library(chromium-static STATIC $<TARGET_OBJECTS:chromium>)
 #add_library(chromium-shared SHARED $<TARGET_OBJECTS:chromium>)
 
 set(chromium_UNITTEST
-  ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
   ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
+  ${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/aligned_memory_unittest.cc
+  ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_piece_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_number_conversions_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string16_unittest.cc
