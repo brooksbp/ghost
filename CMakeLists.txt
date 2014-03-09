@@ -31,6 +31,7 @@ set(chromium_SOURCE_DIR third_party/chromium)
 set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/base_switches.cc
   ${chromium_SOURCE_DIR}/base/command_line.cc
+  ${chromium_SOURCE_DIR}/base/debug/debugger.cc
   ${chromium_SOURCE_DIR}/base/debug/stack_trace.cc
   ${chromium_SOURCE_DIR}/base/file_util.cc
   ${chromium_SOURCE_DIR}/base/files/file_enumerator.cc
@@ -54,6 +55,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/vlog.cc
 )
 if (WIN32)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/debugger_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/stack_trace_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_win.cc)
@@ -63,6 +65,7 @@ if (WIN32)
 endif()
 if (UNIX)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/atomicops_internals_x86_gcc.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/debugger_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/stack_trace_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_posix.cc)
