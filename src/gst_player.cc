@@ -200,7 +200,7 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
       // TODO(brbrooks) Move this into own fn
       playing_ = false;
       track_poller_->Stop();
-      OnEndOfStream();
+      //OnEndOfStream();
       LOG(INFO) << "End of stream.";
       break;
     case GST_MESSAGE_STATE_CHANGED:

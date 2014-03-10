@@ -28,10 +28,6 @@ class Library {
 
   void PrintTracks(void);
 
-  void Play(int index);
-  
-  void EndOfStream(void);
-  
  private:
   base::FilePath root_path_;
 

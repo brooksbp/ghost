@@ -57,9 +57,6 @@ int Library::GetNumTracks(void) {
   return tracks_.size();
 }
 
-void Library::EndOfStream(void) {
-}
-
 void Library::PrintTracks(void) {
   for (std::vector<Track*>::iterator it = tracks_.begin(); it != tracks_.end();
        ++it) {

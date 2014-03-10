@@ -222,6 +222,7 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/metrics/sample_vector_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/sparse_histogram_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/statistics_recorder_unittest.cc
+#LINK  ${chromium_SOURCE_DIR}/base/observer_list_unittest.cc
 #FATAL  ${chromium_SOURCE_DIR}/base/path_service_unittest.cc
   ${chromium_SOURCE_DIR}/base/pickle_unittest.cc
 #LINK  ${chromium_SOURCE_DIR}/base/platform_file_unittest.cc

@@ -56,6 +56,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
   CommandLine::Init(argc, argv);
   CommandLine* cl = CommandLine::ForCurrentProcess();
 
+  logging::SetLogItems(true, true, true, true);
   logging::LoggingSettings logging_settings;
   logging_settings.logging_dest = logging::LOG_TO_ALL;
   logging_settings.log_file = "ghost-debug.log";
@@ -94,8 +95,9 @@ int _tmain(int argc, _TCHAR* argv[]) {
   library.Init(dir);
   main_window.Init(&player);
 
-  // This is pretty fucked up... we'll do for now...
-  gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
+  // Should we really handle all of this on the GUI thread?
+  // Use ThreadSafeObserverList instead of this?
+  //gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
   gst_player.OnPositionUpdated = [&] (float a) { main_window.OnPositionUpdated(a); };
   gst_player.OnDurationUpdated = [&] (float a) { main_window.OnDurationUpdated(a); };
 
@@ -112,6 +114,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
       gst_player.Play();
     }
   }
+
+  LOG(INFO) << "initialized";
 
   return app->exec();
 }
