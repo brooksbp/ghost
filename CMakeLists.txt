@@ -29,16 +29,50 @@ endif()
 set(chromium_SOURCE_DIR third_party/chromium)
 
 set(chromium_SOURCE_FILES
+  ${chromium_SOURCE_DIR}/base/at_exit.cc
   ${chromium_SOURCE_DIR}/base/base_switches.cc
   ${chromium_SOURCE_DIR}/base/command_line.cc
+  ${chromium_SOURCE_DIR}/base/callback_helpers.cc
+  ${chromium_SOURCE_DIR}/base/callback_internal.cc
+  ${chromium_SOURCE_DIR}/base/debug/alias.cc
   ${chromium_SOURCE_DIR}/base/debug/debugger.cc
   ${chromium_SOURCE_DIR}/base/debug/stack_trace.cc
   ${chromium_SOURCE_DIR}/base/file_util.cc
+  ${chromium_SOURCE_DIR}/base/files/file.cc
   ${chromium_SOURCE_DIR}/base/files/file_enumerator.cc
   ${chromium_SOURCE_DIR}/base/files/file_path.cc
   ${chromium_SOURCE_DIR}/base/files/file_path_constants.cc
+  ${chromium_SOURCE_DIR}/base/files/file_util_proxy.cc
+  ${chromium_SOURCE_DIR}/base/json/json_file_value_serializer.cc
+  ${chromium_SOURCE_DIR}/base/json/json_parser.cc
+  ${chromium_SOURCE_DIR}/base/json/json_reader.cc
+  ${chromium_SOURCE_DIR}/base/json/json_string_value_serializer.cc
+  ${chromium_SOURCE_DIR}/base/json/json_writer.cc
+  ${chromium_SOURCE_DIR}/base/json/string_escape.cc
+  ${chromium_SOURCE_DIR}/base/lazy_instance.cc
+  ${chromium_SOURCE_DIR}/base/location.cc
   ${chromium_SOURCE_DIR}/base/logging.cc
   ${chromium_SOURCE_DIR}/base/memory/aligned_memory.cc
+  ${chromium_SOURCE_DIR}/base/memory/ref_counted.cc
+  ${chromium_SOURCE_DIR}/base/memory/ref_counted_memory.cc
+  ${chromium_SOURCE_DIR}/base/memory/singleton.cc
+  ${chromium_SOURCE_DIR}/base/memory/weak_ptr.cc
+  ${chromium_SOURCE_DIR}/base/metrics/bucket_ranges.cc
+  ${chromium_SOURCE_DIR}/base/metrics/field_trial.cc
+  ${chromium_SOURCE_DIR}/base/metrics/histogram_base.cc
+  ${chromium_SOURCE_DIR}/base/metrics/histogram.cc
+  ${chromium_SOURCE_DIR}/base/metrics/histogram_delta_serialization.cc
+  ${chromium_SOURCE_DIR}/base/metrics/histogram_samples.cc
+  ${chromium_SOURCE_DIR}/base/metrics/histogram_snapshot_manager.cc
+  ${chromium_SOURCE_DIR}/base/metrics/sample_map.cc
+  ${chromium_SOURCE_DIR}/base/metrics/sample_vector.cc
+  ${chromium_SOURCE_DIR}/base/metrics/sparse_histogram.cc
+  ${chromium_SOURCE_DIR}/base/metrics/statistics_recorder.cc
+  ${chromium_SOURCE_DIR}/base/metrics/stats_counters.cc
+  ${chromium_SOURCE_DIR}/base/pickle.cc
+  ${chromium_SOURCE_DIR}/base/platform_file.cc
+  ${chromium_SOURCE_DIR}/base/profiler/alternate_timer.cc
+  ${chromium_SOURCE_DIR}/base/profiler/tracked_time.cc
   ${chromium_SOURCE_DIR}/base/strings/nullable_string16.cc
   ${chromium_SOURCE_DIR}/base/strings/string_util.cc
   ${chromium_SOURCE_DIR}/base/strings/string_util_constants.cc
@@ -50,32 +84,63 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversion_utils.cc
   ${chromium_SOURCE_DIR}/base/synchronization/lock.cc
   ${chromium_SOURCE_DIR}/base/third_party/icu/icu_utf.cc
+  ${chromium_SOURCE_DIR}/base/third_party/dmg_fp/dtoa.cc
+  ${chromium_SOURCE_DIR}/base/third_party/dmg_fp/dtoa_wrapper.cc
+  ${chromium_SOURCE_DIR}/base/third_party/dmg_fp/g_fmt.cc
   ${chromium_SOURCE_DIR}/base/third_party/dynamic_annotations/dynamic_annotations.c
+  ${chromium_SOURCE_DIR}/base/third_party/nspr/prtime.cc
+  ${chromium_SOURCE_DIR}/base/time/clock.cc
+  ${chromium_SOURCE_DIR}/base/time/default_clock.cc
+  ${chromium_SOURCE_DIR}/base/time/default_tick_clock.cc
+  ${chromium_SOURCE_DIR}/base/time/tick_clock.cc
+  ${chromium_SOURCE_DIR}/base/time/time.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_local_storage.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_restrictions.cc
+  ${chromium_SOURCE_DIR}/base/tracked_objects.cc
+  ${chromium_SOURCE_DIR}/base/tracking_info.cc
   ${chromium_SOURCE_DIR}/base/vlog.cc
+  ${chromium_SOURCE_DIR}/base/values.cc
 )
 if (WIN32)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/debugger_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/stack_trace_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/platform_file_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/process/process_handle_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/strings/sys_string_conversions_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/condition_variable_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/waitable_event_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/thread_local_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/thread_local_storage_win.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/time/time_win.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/win/windows_version.cc)
 endif()
 if (UNIX)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/atomicops_internals_x86_gcc.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/debugger_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/debug/stack_trace_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_linux.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/file_util_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_enumerator_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/files/file_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/platform_file_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/process/process_handle_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/process/process_handle_linux.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/safe_strerror_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/strings/string16.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/strings/sys_string_conversions_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/condition_variable_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/lock_impl_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/synchronization/waitable_event_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/platform_thread_linux.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/platform_thread_posix.cc)
   list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/thread_local_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/threading/thread_local_storage_posix.cc)
+  list(APPEND chromium_SOURCE_FILES ${chromium_SOURCE_DIR}/base/time/time_posix.cc)
 endif()
 
 add_library(chromium OBJECT ${chromium_SOURCE_FILES})
@@ -85,7 +150,7 @@ add_library(chromium-static STATIC $<TARGET_OBJECTS:chromium>)
 set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
   ${chromium_SOURCE_DIR}/base/debug/leak_tracker_unittest.cc
-  ${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
+#  ${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/aligned_memory_unittest.cc
   ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_piece_unittest.cc
@@ -95,7 +160,7 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions_unittest.cc
   ${chromium_SOURCE_DIR}/base/template_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/platform_thread_unittest.cc
-  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager_unittest.cc
+#  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager_unittest.cc
   ${chromium_SOURCE_DIR}/base/vlog_unittest.cc
 )
 if (UNIX)
@@ -116,6 +181,8 @@ add_executable(unit-tests
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
 
+  third_party/testing/multiprocess_func_list.cc
+
   ${chromium_UNITTEST}
 )
 
@@ -130,6 +197,7 @@ add_test(unit-tests unit-tests)
 
 include_directories(third_party)
 include_directories(${chromium_SOURCE_DIR})
+include_directories(${gtest_SOURCE_DIR}/include)
 
 include_directories(src/)
 
