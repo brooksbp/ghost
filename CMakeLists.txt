@@ -270,21 +270,27 @@ set(gtest_SOURCE_DIR third_party/testing/gtest)
 
 add_subdirectory(third_party/testing/gtest)
 
+################################################################################
+#
+# Unit Tests
+
 enable_testing(true)
 
-add_executable(unit-tests
+add_executable(unit-tests-chromium
+  ${chromium_UNITTEST}
+  third_party/testing/multiprocess_func_list.cc
+)
+target_link_libraries(unit-tests-chromium chromium-static)
+target_link_libraries(unit-tests-chromium gtest gtest_main)
+add_test(TestChromium unit-tests-chromium)
+
+add_executable(unit-tests-ghost
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
-
-  third_party/testing/multiprocess_func_list.cc
-
-  ${chromium_UNITTEST}
 )
-
-target_link_libraries(unit-tests chromium-static)
-target_link_libraries(unit-tests gtest gtest_main)
-
-add_test(unit-tests unit-tests)
+target_link_libraries(unit-tests-ghost chromium-static)
+target_link_libraries(unit-tests-ghost gtest gtest_main)
+add_test(TestGhost unit-tests-ghost)
 
 ################################################################################
 #
