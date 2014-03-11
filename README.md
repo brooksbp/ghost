@@ -32,7 +32,7 @@ Windows:
 
 Ubuntu / Debian:
 
-    apt-get install cmake libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-ugly qt5-default
+    apt-get install cmake libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-ugly qt5-default libgtk2.0-dev libevent-dev
 
 Arch Linux:
 
