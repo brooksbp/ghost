@@ -4,3 +4,6 @@
 [submodule "third_party/chromium/base"]
 	path = third_party/chromium/base
 	url = https://chromium.googlesource.com/chromium/src/base
+[submodule "third_party/testing/gmock"]
+	path = third_party/testing/gmock
+	url = https://chromium.googlesource.com/external/gmock
