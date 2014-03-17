@@ -1,0 +1,25 @@
+From 275c8c8c58cc18716dafddce25b0cbd38c47b630 Mon Sep 17 00:00:00 2001
+From: Brian Brooks <brooks.brian@gmail.com>
+Date: Mon, 17 Mar 2014 00:23:59 -0400
+Subject: [PATCH] - Use system libevent in message_loop_libevent.cc
+
+---
+ message_loop/message_pump_libevent.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/message_loop/message_pump_libevent.cc b/message_loop/message_pump_libevent.cc
+index 26be687..ad55f7a 100644
+--- a/message_loop/message_pump_libevent.cc
++++ b/message_loop/message_pump_libevent.cc
+@@ -15,7 +15,7 @@
+ #include "base/observer_list.h"
+ #include "base/posix/eintr_wrapper.h"
+ #include "base/time/time.h"
+-#include "third_party/libevent/event.h"
++#include <event.h>
+ 
+ #if defined(OS_MACOSX)
+ #include "base/mac/scoped_nsautorelease_pool.h"
+-- 
+1.9.0
+
