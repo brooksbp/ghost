@@ -1,0 +1,8 @@
+#!/bin/bash
+
+git submodule init
+git submodule update
+
+patch -p1 --directory=third_party/chromium/base < use_sys_libevent.patch
+
+mkdir build

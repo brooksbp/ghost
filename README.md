@@ -13,10 +13,8 @@ Rev 1:
 
 ##### Build
 
-    git submodule init
-    git submodule update
-
-    mkdir build
+    ./init
+    
     cd build
 
 Posix:
