@@ -16,18 +16,19 @@
 #include "player.h"
 #include "base/basictypes.h"
 #include "base/logging.h"
+#include "base/memory/ref_counted.h"
 
 class TableModel;
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow, public base::RefCounted<MainWindow> {
   Q_OBJECT
  public:
   explicit MainWindow(QWidget* parent = 0);
 
   void Init(Player* player);
 
-  void OnPositionUpdated(float pos);
-  void OnDurationUpdated(float dur);
+  void OnPositionUpdated(float& pos);
+  void OnDurationUpdated(float& dur);
                                    
  private slots:
   void handleButtonPressed();

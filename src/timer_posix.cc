@@ -4,9 +4,7 @@
 
 #include "timer.h"
 
-#include <QtCore/QDebug>
-
-Timer::Timer(int sec, int msec, bool is_repeating, std::function<void()> callback)
+Timer::Timer(int sec, int msec, bool is_repeating, base::Callback<void()> callback)
     : sec_(sec),
       msec_(msec),
       is_repeating_(is_repeating),
@@ -54,6 +52,5 @@ void Timer::Stop() {
 }
 
 void Timer::handler(int sig, siginfo_t* si, void* uc) {
-  Timer* this_ = static_cast<Timer*>(si->si_value.sival_ptr);
-  this_->callback_();
+  static_cast<Timer*>(si->si_value.sival_ptr)->callback_.Run();
 }

@@ -10,10 +10,6 @@ project(ghost)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if (UNIX)
-  add_definitions("-std=c++11")
-  set(CMAKE_CXX_FLAGS "-O0 -ggdb -Wall")
-endif()
 if (MSVC)
   add_definitions(-DUNICODE -D_UNICODE)
   set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MTd /Zi /Ob0 /Od /RTC1")
@@ -32,6 +28,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/allocator/type_profiler.cc
   ${chromium_SOURCE_DIR}/base/allocator/type_profiler_control.cc
   ${chromium_SOURCE_DIR}/base/at_exit.cc
+  #${chromium_SOURCE_DIR}/base/base64.cc
   ${chromium_SOURCE_DIR}/base/base_paths.cc
   ${chromium_SOURCE_DIR}/base/base_switches.cc
   ${chromium_SOURCE_DIR}/base/big_endian.cc
@@ -250,9 +247,10 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/callback_helpers_unittest.cc
   ${chromium_SOURCE_DIR}/base/callback_list_unittest.cc
   ${chromium_SOURCE_DIR}/base/callback_unittest.cc
-  ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
+#  ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
   ${chromium_SOURCE_DIR}/base/debug/leak_tracker_unittest.cc
-#LINK ${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
+  #${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
+  ${chromium_SOURCE_DIR}/base/debug/trace_event_unittest.cc
   ${chromium_SOURCE_DIR}/base/environment_unittest.cc
 #FATAL  ${chromium_SOURCE_DIR}/base/file_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/files/file_path_unittest.cc
@@ -273,7 +271,7 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/memory/scoped_ptr_unittest.cc
 #COMP  ${chromium_SOURCE_DIR}/base/memory/singleton_unittest.cc
 #LINK  ${chromium_SOURCE_DIR}/base/memory/weak_ptr_unittest.cc
-  ${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_impl_unittest.cc
+#  ${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_impl_unittest.cc
   #${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_unittest.cc
   #${chromium_SOURCE_DIR}/base/message_loop/message_loop_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/histogram_base_unittest.cc
@@ -327,11 +325,20 @@ endif()
 
 ################################################################################
 #
+# Google Mock
+
+set(gmock_SOURCE_DIR third_party/testing/gmock)
+
+add_subdirectory(third_party/testing/gmock)
+
+################################################################################
+#
 # Google Test
 
 set(gtest_SOURCE_DIR third_party/testing/gtest)
 
-add_subdirectory(third_party/testing/gtest)
+# Don't build gtest, gmock handles it..?
+#add_subdirectory(third_party/testing/gtest)
 
 ################################################################################
 #
@@ -344,10 +351,45 @@ add_executable(unit-tests-chromium
   # -DUNIT_TEST
   ${chromium_SOURCE_FILES}
 
-  ${chromium_SOURCE_DIR}/base/test/run_all_unittests.cc
-  ${chromium_SOURCE_DIR}/base/test/test_suite.cc
-
   ${chromium_UNITTEST}
+
+  # ${chromium_SOURCE_DIR}/base/test/launcher/test_launcher.cc
+  # ${chromium_SOURCE_DIR}/base/test/launcher/test_result.cc
+  # ${chromium_SOURCE_DIR}/base/test/launcher/test_results_tracker.cc
+  # ${chromium_SOURCE_DIR}/base/test/launcher/unit_test_launcher.cc
+  # #${chromium_SOURCE_DIR}/base/test/gtest_xml_util.cc
+  # ${chromium_SOURCE_DIR}/base/test/mock_devices_changed_observer.cc
+  # ${chromium_SOURCE_DIR}/base/test/mock_time_provider.cc
+  # ${chromium_SOURCE_DIR}/base/test/multiprocess_test.cc
+  # ${chromium_SOURCE_DIR}/base/test/null_task_runner.cc
+  # ${chromium_SOURCE_DIR}/base/test/perf_log.cc
+  # ${chromium_SOURCE_DIR}/base/test/perf_test_suite.cc
+  # ${chromium_SOURCE_DIR}/base/test/perf_time_logger.cc
+  # #${chromium_SOURCE_DIR}/base/test/power_monitor_test_base.cc
+  # #${chromium_SOURCE_DIR}/base/test/run_all_perftests.cc
+  # ${chromium_SOURCE_DIR}/base/test/run_all_unittests.cc
+  # ${chromium_SOURCE_DIR}/base/test/scoped_locale.cc
+  # ${chromium_SOURCE_DIR}/base/test/scoped_path_override.cc
+  # ${chromium_SOURCE_DIR}/base/test/sequenced_task_runner_test_template.cc
+  # ${chromium_SOURCE_DIR}/base/test/sequenced_worker_pool_owner.cc
+  # ${chromium_SOURCE_DIR}/base/test/simple_test_clock.cc
+  # ${chromium_SOURCE_DIR}/base/test/simple_test_tick_clock.cc
+  # ${chromium_SOURCE_DIR}/base/test/statistics_delta_reader.cc
+  # ${chromium_SOURCE_DIR}/base/test/statistics_delta_reader_unittest.cc
+  # ${chromium_SOURCE_DIR}/base/test/task_runner_test_template.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_file_util.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_file_util_linux.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_file_util_posix.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_pending_task.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_simple_task_runner.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_suite.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_switches.cc
+  # ${chromium_SOURCE_DIR}/base/test/test_timeouts.cc
+  # ${chromium_SOURCE_DIR}/base/test/thread_test_helper.cc
+  # ${chromium_SOURCE_DIR}/base/test/trace_event_analyzer.cc
+  # ${chromium_SOURCE_DIR}/base/test/trace_event_analyzer_unittest.cc
+  # ${chromium_SOURCE_DIR}/base/test/values_test_util.cc
+
   third_party/testing/multiprocess_func_list.cc
 )
 # These flags are appended after CMAKE_CXX_FLAGS
@@ -356,13 +398,15 @@ set_target_properties(unit-tests-chromium PROPERTIES COMPILE_FLAGS -DUNIT_TEST)
 target_link_libraries(unit-tests-chromium X11)
 target_link_libraries(unit-tests-chromium event_core)
 target_link_libraries(unit-tests-chromium gtk-x11-2.0 gdk-x11-2.0 atk-1.0 gio-2.0 pangoft2-1.0 pangocairo-1.0 gdk_pixbuf-2.0 cairo pango-1.0 fontconfig gobject-2.0 glib-2.0 freetype)
-target_link_libraries(unit-tests-chromium gtest gtest_main)
+target_link_libraries(unit-tests-chromium gtest gmock gtest_main)
 add_test(TestChromium unit-tests-chromium)
+
 
 add_executable(unit-tests-ghost
   src/playlist_pls.cc
   src/playlist_pls_unittest.cc
 )
+
 target_link_libraries(unit-tests-ghost chromium-static)
 target_link_libraries(unit-tests-ghost gtest gtest_main)
 add_test(TestGhost unit-tests-ghost)
@@ -374,6 +418,7 @@ add_test(TestGhost unit-tests-ghost)
 include_directories(third_party)
 include_directories(${chromium_SOURCE_DIR})
 include_directories(${gtest_SOURCE_DIR}/include)
+include_directories(${gmock_SOURCE_DIR}/include)
 
 include_directories(src/)
 

@@ -5,6 +5,7 @@
 #include "gst_player.h"
 
 #include "g_own_ptr.h"
+#include "base/bind.h"
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "base/files/file_path.h"
@@ -75,7 +76,8 @@ GstPlayer::GstPlayer()
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
 
   track_poller_ = new Timer(0, 100, true,
-                            std::bind(&GstPlayer::TrackPoller, this));
+                            base::Bind(&GstPlayer::TrackPoller, this));
+  //std::bind(&GstPlayer::TrackPoller, this));
 }
 
 GstPlayer::~GstPlayer() {
@@ -163,7 +165,7 @@ void GstPlayer::QueryPosition() {
   else
     position_ = 0.0f;
 
-  OnPositionUpdated(position_);
+  OnPositionUpdated.Run(position_);
 }
 
 void GstPlayer::QueryDuration() {
@@ -181,7 +183,7 @@ void GstPlayer::QueryDuration() {
     else
       duration_ = 0.0f;
 
-    OnDurationUpdated(duration_);
+    OnDurationUpdated.Run(duration_);
   }
 }
 
@@ -200,7 +202,7 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
       // TODO(brbrooks) Move this into own fn
       playing_ = false;
       track_poller_->Stop();
-      //OnEndOfStream();
+      //OnEndOfStream.Run();
       LOG(INFO) << "End of stream.";
       break;
     case GST_MESSAGE_STATE_CHANGED:

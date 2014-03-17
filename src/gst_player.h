@@ -5,17 +5,17 @@
 #ifndef GST_PLAYER_H_
 #define GST_PLAYER_H_
 
-#include <functional>
-
 #include <gst/gst.h>
 #include <glib.h>
 #include <string>
 
 #include "timer.h"
 #include "base/basictypes.h"
+#include "base/callback.h"
 #include "base/files/file_path.h"
+#include "base/memory/ref_counted.h"
 
-class GstPlayer {
+class GstPlayer : public base::RefCounted<GstPlayer> {
  public:
   GstPlayer();
   ~GstPlayer();
@@ -32,9 +32,9 @@ class GstPlayer {
   // Get the current stream's duration in seconds.
   float GetDuration() const;
 
-  std::function<void()> OnEndOfStream;
-  std::function<void(float&)> OnPositionUpdated;
-  std::function<void(float&)> OnDurationUpdated;
+  base::Callback<void()> OnEndOfStream;
+  base::Callback<void(float&)> OnPositionUpdated;
+  base::Callback<void(float&)> OnDurationUpdated;
   
  private:
 

@@ -2,9 +2,12 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
+#include "base/bind.h"
+#include "base/callback.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/files/file_path.h"
+#include "base/memory/ref_counted.h"
 
 #include "track.h"
 #include "library.h"
@@ -14,8 +17,6 @@
 #include "playlist_pls.h"
 
 #include <QtWidgets/QApplication>
-
-#include <functional>
 
 #include <signal.h>
 #include <stdlib.h>
@@ -86,22 +87,22 @@ int _tmain(int argc, _TCHAR* argv[]) {
     dir = cl->GetSwitchValuePath("dir");
 
   Player player;
-  GstPlayer gst_player;
+  scoped_refptr<GstPlayer> gst_player = new GstPlayer();
   Library library;
-  app = new QApplication(argc, NULL);  
-  MainWindow main_window;
+  app = new QApplication(argc, NULL);
+  scoped_refptr<MainWindow> main_window = new MainWindow();
 
-  player.Init(&library, &gst_player, &main_window);
+  player.Init(&library, gst_player, main_window);
   library.Init(dir);
-  main_window.Init(&player);
+  main_window->Init(&player);
 
   // Should we really handle all of this on the GUI thread?
   // Use ThreadSafeObserverList instead of this?
   //gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
-  gst_player.OnPositionUpdated = [&] (float a) { main_window.OnPositionUpdated(a); };
-  gst_player.OnDurationUpdated = [&] (float a) { main_window.OnDurationUpdated(a); };
+  gst_player->OnPositionUpdated = base::Bind(&MainWindow::OnPositionUpdated, main_window);
+  gst_player->OnDurationUpdated = base::Bind(&MainWindow::OnDurationUpdated, main_window);
 
-  main_window.show();
+  main_window->show();
 
   base::FilePath playlist;
   if (cl->HasSwitch("pls")) {
@@ -110,8 +111,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
     PlaylistPLS pls(playlist);
     if (pls.tracks_.size() > 0) {
-      gst_player.Load(pls.tracks_[0].file_);
-      gst_player.Play();
+      gst_player->Load(pls.tracks_[0].file_);
+      gst_player->Play();
     }
   }
 

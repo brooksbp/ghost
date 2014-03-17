@@ -5,9 +5,8 @@
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include "base/callback.h"
 #include "build/build_config.h"
-
-#include <functional>
 
 #if defined(OS_POSIX)
 #ifndef _POSIX_C_SOURCE
@@ -19,7 +18,7 @@
 
 class Timer {  
  public:
-  Timer(int sec, int msec, bool is_repeating, std::function<void()> callback);
+  Timer(int sec, int msec, bool is_repeating, base::Callback<void()> callback);
   ~Timer();
 
   bool IsRunning() const { return is_running_; }
@@ -31,7 +30,7 @@ private:
   int sec_;
   int msec_;
   bool is_repeating_; 
-  std::function<void()> callback_;
+  base::Callback<void()> callback_;
 
   bool is_running_;
 

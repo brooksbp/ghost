@@ -9,12 +9,13 @@
 #include "base/basictypes.h"
 #include "base/file_util.h"
 #include "base/strings/string_util.h"
+#include "base/strings/string_number_conversions.h"
 
 void PlaylistPLS::Parse() {
   std::istringstream iss(contents_);
   std::string line;
 
-  uint8 nentries = 0;
+  int nentries = 0;
   int version = 0;
 
   std::string f_str = "File";
@@ -31,7 +32,7 @@ void PlaylistPLS::Parse() {
     std::string v = line.substr(delim + 1, line.length());
 
     if (LowerCaseEqualsASCII(k, "numberofentries")) {
-      nentries = std::stoi(v);
+      base::StringToInt(v, &nentries);
 
       // FIXME(brbrooks) once we know how many entries there are, pre-populate
       // the vector with empty entries so that we can index into them later.
@@ -42,25 +43,26 @@ void PlaylistPLS::Parse() {
         tracks_.push_back(empty_track);
       }
     } else if (LowerCaseEqualsASCII(k, "version")) {
-      version = std::stoi(v);
+      base::StringToInt(v, &version);
     } else {
       // Handle either File, Title, or Length.
       size_t f = k.find(f_str);
       size_t t = k.find(t_str);
       size_t l = k.find(l_str);
 
+      int n;
       if (f != std::string::npos) {
-        int n = std::stoi(k.substr(f_str.length(), k.length()));
+        base::StringToInt(k.substr(f_str.length(), k.length()), &n);
         if (n >= 1 && n <= nentries)
           tracks_[n - 1].file_ = v;
       } else if (t != std::string::npos) {
-        int n = std::stoi(k.substr(t_str.length(), k.length()));
+        base::StringToInt(k.substr(t_str.length(), k.length()), &n);
         if (n >= 1 && n <= nentries)
           tracks_[n - 1].title_ = v;
       } else if (l != std::string::npos) {
-        int n = std::stoi(k.substr(l_str.length(), k.length()));
+        base::StringToInt(k.substr(l_str.length(), k.length()), &n);
         if (n >= 1 && n <= nentries)
-          tracks_[n - 1].length_ = std::stoi(v);
+          base::StringToInt(v, &tracks_[n - 1].length_);
       }
     }
   }

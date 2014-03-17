@@ -71,7 +71,7 @@ void MainWindow::Init(Player* player) {
   resize(800, 400);
 }
 
-void MainWindow::OnPositionUpdated(float pos) {
+void MainWindow::OnPositionUpdated(float& pos) {
   if (slider_engaged_)
     return;
 
@@ -86,7 +86,7 @@ void MainWindow::OnPositionUpdated(float pos) {
   slider_->setValue(percent_complete * 10);
 }
 
-void MainWindow::OnDurationUpdated(float dur) {
+void MainWindow::OnDurationUpdated(float& dur) {
   track_duration_ = dur;
   LOG(INFO) << "duration = " << dur;
 }
