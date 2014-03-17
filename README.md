@@ -17,7 +17,7 @@ Rev 1:
     
     cd build
 
-Posix:
+Linux:
 
     cmake ..
     make
