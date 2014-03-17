@@ -37,6 +37,7 @@ QApplication* app;
 void sig_handler(int s) {
   LOG(INFO) << "Goodbye.";
   app->quit();
+  delete app;
 }
 #endif
 

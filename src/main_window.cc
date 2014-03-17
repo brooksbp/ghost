@@ -80,7 +80,6 @@ void MainWindow::OnPositionUpdated(float& pos) {
     return;
 
   track_position_ = pos;
-  LOG(INFO) << "position = " << pos;
 
   float percent_complete = (track_position_ / track_duration_) * 100;
   slider_->setValue(percent_complete * 10);

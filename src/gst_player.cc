@@ -70,14 +70,13 @@ GstPlayer::GstPlayer()
   gst_object_unref(bus_);
 
   gst_debug_set_active(TRUE);
-  gst_debug_set_default_threshold(GST_LEVEL_FIXME);
+  gst_debug_set_default_threshold(GST_LEVEL_WARNING);
   //gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
   gst_debug_remove_log_function(gst_debug_log_default);
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
 
   track_poller_ = new Timer(0, 100, true,
                             base::Bind(&GstPlayer::TrackPoller, this));
-  //std::bind(&GstPlayer::TrackPoller, this));
 }
 
 GstPlayer::~GstPlayer() {
