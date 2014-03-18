@@ -6,24 +6,40 @@
 
 #include <vector>
 
+#include "base/bind.h"
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
+#include "base/threading/thread.h"
 
+namespace {
 
+static base::Thread import_thread("Import thread");
+
+// TODO: should be a base::ScopedVector
 static std::vector<Track*> tracks_;
+
+}  // namespace
 
 Library::Library() {
 }
 
 Library::~Library() {
-  // TODO: should tracks_ be vector of scoped_ptr's?
 }
 
 void Library::Init(const base::FilePath& path) {
   root_path_ = path;
 
-  // Add all mp3 files found in root_path.
+  CHECK(import_thread.Start());
+
+  import_thread.message_loop_proxy()->PostTaskAndReply(
+      FROM_HERE,
+      base::Bind(&Library::Import, this),
+      base::Bind(&Library::NotifyImportDone, this));
+}
+
+void Library::Import(void) {
+  // Add music files found in root_path.
   base::FileEnumerator iter(root_path_, true, base::FileEnumerator::FILES);
   for (base::FilePath name = iter.Next(); !name.empty(); name = iter.Next()) {
     if (name.MatchesExtension(FILE_PATH_LITERAL(".mp3")) ||
@@ -32,6 +48,10 @@ void Library::Init(const base::FilePath& path) {
       tracks_.push_back(track);
     }
   }
+}
+
+void Library::NotifyImportDone(void) {
+  FOR_EACH_OBSERVER(LibraryObserver, observer_list_, OnFinishImport(this));
 }
 
 Track* Library::GetTrack(int index) {

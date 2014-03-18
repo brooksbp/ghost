@@ -2,12 +2,15 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
+#include "base/at_exit.h"
 #include "base/bind.h"
 #include "base/callback.h"
 #include "base/command_line.h"
 #include "base/logging.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "base/message_loop/message_loop.h"
+#include "base/run_loop.h"
 
 #include "track.h"
 #include "library.h"
@@ -41,11 +44,14 @@ void sig_handler(int s) {
 }
 #endif
 
+base::AtExitManager exit_manager;
+
 #if defined(OS_POSIX)
 int main(int argc, const char* argv[]) {
 #elif defined(OS_WIN)
 int _tmain(int argc, _TCHAR* argv[]) {
 #endif
+
 #if defined(OS_POSIX)
   struct sigaction sa;
   sa.sa_handler = sig_handler;
@@ -53,6 +59,9 @@ int _tmain(int argc, _TCHAR* argv[]) {
   sa.sa_flags = 0;
   sigaction(SIGINT, &sa, NULL);
 #endif
+
+  base::MessageLoop main_loop(base::MessageLoop::TYPE_UI);
+  base::RunLoop run_loop;
 
   // Initialize the commandline singleton from the environment.
   CommandLine::Init(argc, argv);
@@ -87,14 +96,15 @@ int _tmain(int argc, _TCHAR* argv[]) {
   if (cl->HasSwitch("dir"))
     dir = cl->GetSwitchValuePath("dir");
 
+
   Player player;
   scoped_refptr<GstPlayer> gst_player = new GstPlayer();
-  Library library;
+  scoped_refptr<Library> library = new Library();
   app = new QApplication(argc, NULL);
   scoped_refptr<MainWindow> main_window = new MainWindow();
 
-  player.Init(&library, gst_player, main_window);
-  library.Init(dir);
+  player.Init(library, gst_player, main_window);
+  library->Init(dir);
   main_window->Init(&player);
 
   // Should we really handle all of this on the GUI thread?
@@ -117,7 +127,5 @@ int _tmain(int argc, _TCHAR* argv[]) {
     }
   }
 
-  LOG(INFO) << "initialized";
-
-  return app->exec();
+  run_loop.Run();
 }

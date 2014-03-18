@@ -476,6 +476,8 @@ add_executable(ghost
 )
 
 target_link_libraries(ghost chromium-static)
+target_link_libraries(ghost event_core)
+target_link_libraries(ghost gtk-x11-2.0 gdk-x11-2.0 atk-1.0 gio-2.0 pangoft2-1.0 pangocairo-1.0 gdk_pixbuf-2.0 cairo pango-1.0 fontconfig gobject-2.0 glib-2.0 freetype)
 
 if (UNIX)
   target_link_libraries(ghost rt)

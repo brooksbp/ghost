@@ -6,10 +6,22 @@
 #define LIBRARY_H_
 
 #include "base/files/file_path.h"
+#include "base/memory/ref_counted.h"
+#include "base/observer_list.h"
 #include "track.h"
 
-class Library {
+class Library : public base::RefCountedThreadSafe<Library> {
  public:
+
+  class LibraryObserver {
+   public:
+    virtual void OnFinishImport(Library* library) = 0;
+  };
+
+  void AddObserver(LibraryObserver* obs) {
+    observer_list_.AddObserver(obs);
+  }
+
   Library();
   ~Library();
 
@@ -33,6 +45,11 @@ class Library {
 
   // Current index into |tracks|.
   int current_track_;
+
+  void Import(void);
+  void NotifyImportDone(void);
+
+  ObserverList<LibraryObserver> observer_list_;
 };
 
 #endif  // LIBRARY_H_
