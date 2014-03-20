@@ -173,3 +173,6 @@ void TableModel::emitDataChanged() {
   emit dataChanged(tl, br);
 }
 
+void MainWindow::OnFinishImport(Library* library) {
+  LOG(INFO) << "Main window got it";
+}

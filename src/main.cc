@@ -41,6 +41,7 @@ void sig_handler(int s) {
   LOG(INFO) << "Goodbye.";
   app->quit();
   delete app;
+  // TODO(brbrooks) run_loop->Quit()
 }
 #endif
 
@@ -105,6 +106,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   player.Init(library, gst_player, main_window);
   library->Init(dir);
+  //library->AddObserver(&main_window);
   main_window->Init(&player);
 
   // Should we really handle all of this on the GUI thread?

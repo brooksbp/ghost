@@ -247,33 +247,34 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/callback_helpers_unittest.cc
   ${chromium_SOURCE_DIR}/base/callback_list_unittest.cc
   ${chromium_SOURCE_DIR}/base/callback_unittest.cc
-#  ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
+  ${chromium_SOURCE_DIR}/base/command_line_unittest.cc
   ${chromium_SOURCE_DIR}/base/debug/leak_tracker_unittest.cc
   #${chromium_SOURCE_DIR}/base/debug/stack_trace_unittest.cc
   ${chromium_SOURCE_DIR}/base/debug/trace_event_unittest.cc
   ${chromium_SOURCE_DIR}/base/environment_unittest.cc
-#FATAL  ${chromium_SOURCE_DIR}/base/file_util_unittest.cc
+  #${chromium_SOURCE_DIR}/base/file_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/files/file_path_unittest.cc
-#LINK  ${chromium_SOURCE_DIR}/base/files/file_util_proxy_unittest.cc
+  #${chromium_SOURCE_DIR}/base/files/file_util_proxy_unittest.cc
   ${chromium_SOURCE_DIR}/base/files/scoped_temp_dir_unittest.cc
   ${chromium_SOURCE_DIR}/base/json/json_parser_unittest.cc
-#FATAL  ${chromium_SOURCE_DIR}/base/json/json_reader_unittest.cc
+  #${chromium_SOURCE_DIR}/base/json/json_reader_unittest.cc
   ${chromium_SOURCE_DIR}/base/json/json_value_converter_unittest.cc
-#FATAL  ${chromium_SOURCE_DIR}/base/json/json_value_serializer_unittest.cc
+  #${chromium_SOURCE_DIR}/base/json/json_value_serializer_unittest.cc
   ${chromium_SOURCE_DIR}/base/json/json_writer_unittest.cc
   ${chromium_SOURCE_DIR}/base/json/string_escape_unittest.cc
-#COMP  ${chromium_SOURCE_DIR}/base/lazy_instance_unittest.cc
-#GMOCK  ${chromium_SOURCE_DIR}/base/logging_unittest.cc
+  ${chromium_SOURCE_DIR}/base/lazy_instance_unittest.cc
+  ${chromium_SOURCE_DIR}/base/logging_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/aligned_memory_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/linked_ptr_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/ref_counted_memory_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/ref_counted_unittest.cc
   ${chromium_SOURCE_DIR}/base/memory/scoped_ptr_unittest.cc
-#COMP  ${chromium_SOURCE_DIR}/base/memory/singleton_unittest.cc
-#LINK  ${chromium_SOURCE_DIR}/base/memory/weak_ptr_unittest.cc
-#  ${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_impl_unittest.cc
-  #${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_unittest.cc
+  ${chromium_SOURCE_DIR}/base/memory/singleton_unittest.cc
+  ${chromium_SOURCE_DIR}/base/memory/weak_ptr_unittest.cc
+  ${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_impl_unittest.cc
+  ${chromium_SOURCE_DIR}/base/message_loop/message_loop_proxy_unittest.cc
   #${chromium_SOURCE_DIR}/base/message_loop/message_loop_unittest.cc
+  ${chromium_SOURCE_DIR}/base/message_loop/message_pump_glib_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/histogram_base_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/histogram_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/histogram_delta_serialization_unittest.cc
@@ -282,24 +283,24 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/metrics/sample_vector_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/sparse_histogram_unittest.cc
   ${chromium_SOURCE_DIR}/base/metrics/statistics_recorder_unittest.cc
-#LINK  ${chromium_SOURCE_DIR}/base/observer_list_unittest.cc
-#FATAL  ${chromium_SOURCE_DIR}/base/path_service_unittest.cc
+  ${chromium_SOURCE_DIR}/base/observer_list_unittest.cc
+  #${chromium_SOURCE_DIR}/base/path_service_unittest.cc
   ${chromium_SOURCE_DIR}/base/pickle_unittest.cc
-#LINK  ${chromium_SOURCE_DIR}/base/platform_file_unittest.cc
-#  ${chromium_SOURCE_DIR}/base/process/memory_unittest.cc
-#  ${chromium_SOURCE_DIR}/base/process/process_metrics_unittest.cc
-#  ${chromium_SOURCE_DIR}/base/process/process_util_unittest.cc
+  #${chromium_SOURCE_DIR}/base/platform_file_unittest.cc
+  #${chromium_SOURCE_DIR}/base/process/memory_unittest.cc
+  ${chromium_SOURCE_DIR}/base/process/process_metrics_unittest.cc
+  #${chromium_SOURCE_DIR}/base/process/process_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/profiler/tracked_time_unittest.cc
   ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/nullable_string16_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string16_unittest.cc
-#GMOCK  ${chromium_SOURCE_DIR}/base/strings/string_util_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_util_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_piece_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/string_number_conversions_unittest.cc
-#GMOCK  ${chromium_SOURCE_DIR}/base/strings/string_split_unittest.cc
+  ${chromium_SOURCE_DIR}/base/strings/string_split_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/stringprintf_unittest.cc
   ${chromium_SOURCE_DIR}/base/strings/utf_string_conversions_unittest.cc
-#LINK  ${chromium_SOURCE_DIR}/base/synchronization/condition_variable_unittest.cc
+  ${chromium_SOURCE_DIR}/base/synchronization/condition_variable_unittest.cc
   ${chromium_SOURCE_DIR}/base/synchronization/lock_unittest.cc
   ${chromium_SOURCE_DIR}/base/synchronization/waitable_event_unittest.cc
   ${chromium_SOURCE_DIR}/base/sys_info_unittest.cc
@@ -310,17 +311,17 @@ set(chromium_UNITTEST
   ${chromium_SOURCE_DIR}/base/threading/simple_thread_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_collision_warner_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_checker_unittest.cc
-#LINK ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager_unittest.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_id_name_manager_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_local_storage_unittest.cc
   ${chromium_SOURCE_DIR}/base/threading/thread_local_unittest.cc  
-#LINK  ${chromium_SOURCE_DIR}/base/threading/thread_unittest.cc
+  ${chromium_SOURCE_DIR}/base/threading/thread_unittest.cc
   ${chromium_SOURCE_DIR}/base/tracked_objects_unittest.cc
   ${chromium_SOURCE_DIR}/base/vlog_unittest.cc
   ${chromium_SOURCE_DIR}/base/values_unittest.cc
 )
 if (UNIX)
   list(APPEND chromium_UNITTEST ${chromium_SOURCE_DIR}/base/scoped_clear_errno_unittest.cc)
-#GMOCK  list(APPEND chromium_UNITTEST ${chromium_SOURCE_DIR}/base/nix/xdg_util_unittest.cc)
+  list(APPEND chromium_UNITTEST ${chromium_SOURCE_DIR}/base/nix/xdg_util_unittest.cc)
 endif()
 
 ################################################################################
@@ -352,6 +353,8 @@ add_executable(unit-tests-chromium
   ${chromium_SOURCE_FILES}
 
   ${chromium_UNITTEST}
+
+  
 
   # ${chromium_SOURCE_DIR}/base/test/launcher/test_launcher.cc
   # ${chromium_SOURCE_DIR}/base/test/launcher/test_result.cc
@@ -389,6 +392,8 @@ add_executable(unit-tests-chromium
   # ${chromium_SOURCE_DIR}/base/test/trace_event_analyzer.cc
   # ${chromium_SOURCE_DIR}/base/test/trace_event_analyzer_unittest.cc
   # ${chromium_SOURCE_DIR}/base/test/values_test_util.cc
+
+  src/run_all_unittests.cc
 
   third_party/testing/multiprocess_func_list.cc
 )

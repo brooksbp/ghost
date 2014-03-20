@@ -14,13 +14,18 @@
 #include <QtCore/QAbstractTableModel>
 
 #include "player.h"
+#include "library.h"
+
 #include "base/basictypes.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
 
 class TableModel;
 
-class MainWindow : public QMainWindow, public base::RefCounted<MainWindow> {
+class MainWindow
+    : public QMainWindow,
+      public base::RefCounted<MainWindow>,
+      public Library::LibraryObserver {
   Q_OBJECT
  public:
   explicit MainWindow(QWidget* parent = 0);
@@ -29,7 +34,10 @@ class MainWindow : public QMainWindow, public base::RefCounted<MainWindow> {
 
   void OnPositionUpdated(float& pos);
   void OnDurationUpdated(float& dur);
-                                   
+
+  // Library::LibraryObserver overrides:
+  virtual void OnFinishImport(Library* library) OVERRIDE;
+                         
  private slots:
   void handleButtonPressed();
 
