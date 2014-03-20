@@ -36,8 +36,9 @@ class MainWindow
   void OnDurationUpdated(float& dur);
 
   // Library::LibraryObserver overrides:
+  virtual void OnBeginImport(Library* library) OVERRIDE;
   virtual void OnFinishImport(Library* library) OVERRIDE;
-                         
+
  private slots:
   void handleButtonPressed();
 

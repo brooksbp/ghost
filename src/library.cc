@@ -32,6 +32,7 @@ void Library::Init(const base::FilePath& path) {
 
   CHECK(import_thread.Start());
 
+  FOR_EACH_OBSERVER(LibraryObserver, observer_list_, OnBeginImport(this));
   import_thread.message_loop_proxy()->PostTaskAndReply(
       FROM_HERE,
       base::Bind(&Library::Import, this),

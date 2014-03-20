@@ -105,9 +105,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
   scoped_refptr<MainWindow> main_window = new MainWindow();
 
   player.Init(library, gst_player, main_window);
-  library->Init(dir);
-  //library->AddObserver(&main_window);
+
   main_window->Init(&player);
+
+  library->AddObserver(main_window.get());
+  library->Init(dir);
 
   // Should we really handle all of this on the GUI thread?
   // Use ThreadSafeObserverList instead of this?

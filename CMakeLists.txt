@@ -354,46 +354,7 @@ add_executable(unit-tests-chromium
 
   ${chromium_UNITTEST}
 
-  
-
-  # ${chromium_SOURCE_DIR}/base/test/launcher/test_launcher.cc
-  # ${chromium_SOURCE_DIR}/base/test/launcher/test_result.cc
-  # ${chromium_SOURCE_DIR}/base/test/launcher/test_results_tracker.cc
-  # ${chromium_SOURCE_DIR}/base/test/launcher/unit_test_launcher.cc
-  # #${chromium_SOURCE_DIR}/base/test/gtest_xml_util.cc
-  # ${chromium_SOURCE_DIR}/base/test/mock_devices_changed_observer.cc
-  # ${chromium_SOURCE_DIR}/base/test/mock_time_provider.cc
-  # ${chromium_SOURCE_DIR}/base/test/multiprocess_test.cc
-  # ${chromium_SOURCE_DIR}/base/test/null_task_runner.cc
-  # ${chromium_SOURCE_DIR}/base/test/perf_log.cc
-  # ${chromium_SOURCE_DIR}/base/test/perf_test_suite.cc
-  # ${chromium_SOURCE_DIR}/base/test/perf_time_logger.cc
-  # #${chromium_SOURCE_DIR}/base/test/power_monitor_test_base.cc
-  # #${chromium_SOURCE_DIR}/base/test/run_all_perftests.cc
-  # ${chromium_SOURCE_DIR}/base/test/run_all_unittests.cc
-  # ${chromium_SOURCE_DIR}/base/test/scoped_locale.cc
-  # ${chromium_SOURCE_DIR}/base/test/scoped_path_override.cc
-  # ${chromium_SOURCE_DIR}/base/test/sequenced_task_runner_test_template.cc
-  # ${chromium_SOURCE_DIR}/base/test/sequenced_worker_pool_owner.cc
-  # ${chromium_SOURCE_DIR}/base/test/simple_test_clock.cc
-  # ${chromium_SOURCE_DIR}/base/test/simple_test_tick_clock.cc
-  # ${chromium_SOURCE_DIR}/base/test/statistics_delta_reader.cc
-  # ${chromium_SOURCE_DIR}/base/test/statistics_delta_reader_unittest.cc
-  # ${chromium_SOURCE_DIR}/base/test/task_runner_test_template.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_file_util.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_file_util_linux.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_file_util_posix.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_pending_task.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_simple_task_runner.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_suite.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_switches.cc
-  # ${chromium_SOURCE_DIR}/base/test/test_timeouts.cc
-  # ${chromium_SOURCE_DIR}/base/test/thread_test_helper.cc
-  # ${chromium_SOURCE_DIR}/base/test/trace_event_analyzer.cc
-  # ${chromium_SOURCE_DIR}/base/test/trace_event_analyzer_unittest.cc
-  # ${chromium_SOURCE_DIR}/base/test/values_test_util.cc
-
-  src/run_all_unittests.cc
+  src/test/run_all_unittests.cc
 
   third_party/testing/multiprocess_func_list.cc
 )

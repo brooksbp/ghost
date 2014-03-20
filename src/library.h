@@ -15,6 +15,7 @@ class Library : public base::RefCountedThreadSafe<Library> {
 
   class LibraryObserver {
    public:
+    virtual void OnBeginImport(Library* library) = 0;
     virtual void OnFinishImport(Library* library) = 0;
   };
 
