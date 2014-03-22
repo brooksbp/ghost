@@ -410,7 +410,6 @@ if (WIN32)
   target_link_libraries(unit-tests-chromium dbghelp.dll psapi.lib netapi32.dll)
   target_link_libraries(unit-tests-chromium ${GLIB_LIB} ${GOBJECT_LIB})
 endif()
-
 target_link_libraries(unit-tests-chromium gtest gmock gtest_main)
 add_test(TestChromium unit-tests-chromium)
 
@@ -421,6 +420,10 @@ add_executable(unit-tests-ghost
 )
 
 target_link_libraries(unit-tests-ghost chromium-static)
+if (WIN32)
+  target_link_libraries(unit-tests-ghost dbghelp.dll psapi.lib netapi32.dll)
+  target_link_libraries(unit-tests-ghost ${GLIB_LIB} ${GOBJECT_LIB})
+endif()
 target_link_libraries(unit-tests-ghost gtest gtest_main)
 add_test(TestGhost unit-tests-ghost)
 
