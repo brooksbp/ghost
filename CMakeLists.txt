@@ -455,13 +455,10 @@ include_directories(/usr/include/atk-1.0)
 
 
 if (WIN32)
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\include\\gdk-pixbuf-2.0\\")
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\include\\glib-2.0\\")
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\include\\gstreamer-0.10\\")
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\include\\gtk-2.0\\")
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\include\\libxml2\\")
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\lib\\glib-2.0\\include\\")
-  include_directories("C:\\gstreamer-sdk\\0.10\\x86_64\\lib\\gtk-2.0\\include\\")
+  include_directories("C:\\gstreamer\\1.0\\x86_64\\include")
+  include_directories("C:\\gstreamer\\1.0\\x86_64\\include\\glib-2.0")
+  include_directories("C:\\gstreamer\\1.0\\x86_64\\include\\gstreamer-1.0")
+  include_directories("C:\\gstreamer\\1.0\\x86_64\\lib\\glib-2.0\\include")
 endif()
 
 # Add header files so they are visible in MSVC.

@@ -65,13 +65,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
   base::RunLoop run_loop;
 
   // Initialize the commandline singleton from the environment.
+#if defined(OS_WIN)
+  CommandLine::Init(argc, (const char *const *) argv);
+#elif defined(OS_POSIX)
   CommandLine::Init(argc, argv);
+#endif
   CommandLine* cl = CommandLine::ForCurrentProcess();
 
   logging::SetLogItems(true, true, true, true);
   logging::LoggingSettings logging_settings;
   logging_settings.logging_dest = logging::LOG_TO_ALL;
-  logging_settings.log_file = "ghost-debug.log";
+  logging_settings.log_file = FILE_PATH_LITERAL("ghost-debug.log");
   logging_settings.lock_log = logging::LOCK_LOG_FILE;
   logging_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
   logging::InitLogging(logging_settings);
