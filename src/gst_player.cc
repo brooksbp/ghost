@@ -74,9 +74,6 @@ GstPlayer::GstPlayer()
   //gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
   gst_debug_remove_log_function(gst_debug_log_default);
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
-
-  track_poller_ = new Timer(0, 100, true,
-                            base::Bind(&GstPlayer::TrackPoller, this));
 }
 
 GstPlayer::~GstPlayer() {
@@ -92,8 +89,8 @@ GstPlayer::~GstPlayer() {
 void GstPlayer::Load(const std::string& uri) {
   // FIXME(brbrooks) instead of forcing a switch to READY, can we assert
   // !playing instead and force API caller to stop whatever's playing?
-  if (track_poller_->IsRunning())
-    track_poller_->Stop();
+  StopTrackPoller();
+
   gst_element_set_state(playbin_, GST_STATE_READY);
 
   // FIXME(brbrooks) ... must be better way to only normalize URI for
@@ -113,11 +110,11 @@ void GstPlayer::Load(const std::string& uri) {
 // single functions so that different entry points can trigger them.
 void GstPlayer::Play() {
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
-  track_poller_->Start();
+  StartTrackPoller();
 }
 void GstPlayer::Pause() {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
-  track_poller_->Stop();
+  StopTrackPoller();
 }
 
 void GstPlayer::Seek(float time) {
@@ -200,7 +197,7 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
     case GST_MESSAGE_EOS:
       // TODO(brbrooks) Move this into own fn
       playing_ = false;
-      track_poller_->Stop();
+      StopTrackPoller();
       //OnEndOfStream.Run();
       LOG(INFO) << "End of stream.";
       break;

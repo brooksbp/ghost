@@ -477,12 +477,6 @@ set(SRC_FILES
   src/player.cc
 )
 
-if (UNIX)
-  list(APPEND SRC_FILES src/timer_posix.cc)
-elseif (WIN32)
-  list(APPEND SRC_FILES src/timer_win.cc)
-endif()
-
 add_executable(ghost
   ${SRC_FILES}
   ${INCS}

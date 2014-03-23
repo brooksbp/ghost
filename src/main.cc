@@ -16,7 +16,6 @@
 #include "library.h"
 #include "gst_player.h"
 #include "main_window.h"
-#include "timer.h"
 #include "playlist_pls.h"
 
 #include <QtWidgets/QApplication>

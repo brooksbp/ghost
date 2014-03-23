@@ -9,11 +9,11 @@
 #include <glib.h>
 #include <string>
 
-#include "timer.h"
 #include "base/basictypes.h"
 #include "base/callback.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
+#include "base/timer/timer.h"
 
 class GstPlayer : public base::RefCounted<GstPlayer> {
  public:
@@ -57,8 +57,15 @@ class GstPlayer : public base::RefCounted<GstPlayer> {
 
   // Timer for a poller that does work such as queries playback progress while
   // a tracking is playing.
-  Timer* track_poller_;
+  base::RepeatingTimer<GstPlayer> track_poller_;
   void TrackPoller();
+  void StartTrackPoller() {
+    track_poller_.Start(FROM_HERE, base::TimeDelta::FromMilliseconds(200),
+                        this, &GstPlayer::TrackPoller);
+  }
+  void StopTrackPoller() {
+    track_poller_.Stop();
+  }
 };
 
 #endif  // GST_PLAYER_H_
