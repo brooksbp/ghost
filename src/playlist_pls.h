@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "base/files/file_path.h"
 #include "base/logging.h"
@@ -24,9 +25,18 @@ class PlaylistPLS {
           title_(title),
           length_(length) {
     }
+    Track() : length_(0) {
+      file_.clear();
+      title_.clear();
+    }
   };
+  void UpdateTrackFile(int id, std::string& value);
+  void UpdateTrackTitle(int id, std::string& value);
+  void UpdateTrackLength(int id, int value);
 
   std::vector<Track> tracks_;
+
+  std::map<int, Track> tracks2_;
 
   PlaylistPLS(base::FilePath& file);
   PlaylistPLS(std::string& input);
@@ -47,6 +57,12 @@ class PlaylistPLS {
   void NextNChars(int n);
   // Consumes whitespce characters.
   void EatWhitespace();
+
+  bool ExpectAndConsumeChar(char c);
+  bool ExpectAndConsumeInt(int *i);
+  bool ExpectAndConsumeString(std::string* str);
+
+  bool ConsumeLiteral(const char* literal);
 
   bool StringsAreEqual(const char* a, const char* b, size_t len);
 
