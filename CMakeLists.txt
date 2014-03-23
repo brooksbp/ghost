@@ -11,7 +11,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 if (MSVC)
-  add_definitions(-DUSE_AURA -DUNICODE -D_UNICODE -D_ATL_NO_OPENGL -D_SECURE_ATL -_WIN32_WINNT=0x0602 -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DNOMINMAX -DNTDDI_VERSION=0x06020000 -DPSAPI_VERSION=1 -DWIN32 -DWIN32_LEAN_AND_MEAN -DWINVER=0x0602)
+  add_definitions(-DUSE_AURA -DUNICODE -D_UNICODE -D_ATL_NO_OPENGL -D_SECURE_ATL -D_WIN32_WINNT=0x0602 -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DNOMINMAX -DNTDDI_VERSION=0x06020000 -DPSAPI_VERSION=1 -DWIN32 -DWIN32_LEAN_AND_MEAN -DWINVER=0x0602)
   set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MTd /Zi /Ob0 /Od /RTC1")
   set(CMAKE_CXX_FLAGS_MINSIZEREL     "/MT /O1 /Ob1 /D NDEBUG")
   set(CMAKE_CXX_FLAGS_RELEASE        "/MT /O2 /Ob2 /D NDEBUG")
@@ -492,15 +492,20 @@ if (UNIX)
 endif()
 
 if (WIN32)
+  target_link_libraries(ghost dbghelp.dll psapi.lib netapi32.dll)
   target_link_libraries(ghost ${GSTREAMER_LIB} ${GLIB_LIB} ${GOBJECT_LIB})
 endif()
 
 if (UNIX)
   target_link_libraries(ghost gstreamer-1.0)
   target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
+
+  target_link_libraries(ghost pthread)
 endif()
 
-target_link_libraries(ghost pthread)
+if (WIN32)
+  find_package(Threads)
+endif()
 
 if (WIN32)
   set(CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.2.1\\5.2.1\\msvc2012_64\\")

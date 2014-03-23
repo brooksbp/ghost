@@ -41,14 +41,17 @@ void Library::Init(const base::FilePath& path) {
 
 void Library::Import(void) {
   // Add music files found in root_path.
+  LOG(INFO) << root_path_.value();
   base::FileEnumerator iter(root_path_, true, base::FileEnumerator::FILES);
   for (base::FilePath name = iter.Next(); !name.empty(); name = iter.Next()) {
+    LOG(INFO) << name.value();
     if (name.MatchesExtension(FILE_PATH_LITERAL(".mp3")) ||
         name.MatchesExtension(FILE_PATH_LITERAL(".flac"))) {
       Track* track = new Track(name);
       tracks_.push_back(track);
     }
   }
+  LOG(INFO) << "Import got " << tracks_.size() << " tracks..";
 }
 
 void Library::NotifyImportDone(void) {

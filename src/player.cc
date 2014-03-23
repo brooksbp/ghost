@@ -4,6 +4,8 @@
 
 #include "player.h"
 
+#include "base/strings/utf_string_conversions.h"
+
 Player::Player() {
 }
 
@@ -20,7 +22,9 @@ void Player::Init(Library* library, GstPlayer* gst_player,
 void Player::Play(int index) {
   Track* track = library_->GetTrack(index);
   if (track) {
-#if !defined(OS_WIN)
+#if defined(OS_WIN)
+    gst_player_->Load(base::WideToUTF8(track->file_path_.value()));
+#elif defined(OS_POSIX)
     gst_player_->Load(track->file_path_.value());
 #endif
     gst_player_->Play();

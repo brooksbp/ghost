@@ -61,7 +61,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif
 
   base::MessageLoop main_loop(base::MessageLoop::TYPE_UI);
-  base::RunLoop run_loop;
 
   // Initialize the commandline singleton from the environment.
 #if defined(OS_WIN)
@@ -133,6 +132,15 @@ int _tmain(int argc, _TCHAR* argv[]) {
       gst_player->Play();
     }
   }
-
+  
+#if defined(OS_POSIX)
+  base::RunLoop run_loop;
   run_loop.Run();
+#elif defined(OS_WIN)
+  for (;;) {
+    base::RunLoop run_loop;
+    run_loop.RunUntilIdle();
+    app->processEvents();
+  }
+#endif
 }
