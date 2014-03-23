@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/files/file_path.h"
+#include "base/logging.h"
 
 // PLS file format.
 class PlaylistPLS {
@@ -28,15 +29,47 @@ class PlaylistPLS {
   std::vector<Track> tracks_;
 
   PlaylistPLS(base::FilePath& file);
-  PlaylistPLS(std::string& contents);
+  PlaylistPLS(std::string& input);
   ~PlaylistPLS();
 
  private:
 
   void Parse();
+
+  void Parse2();
+
+  // Quick check that the stream has capacity to consume |length| more bytes.
+  bool CanConsume(int length);
+  // The basic way to consume a single character in the stream. Consumes one
+  // byte of the input stream and returns a pointer to the rest of it.
+  const char* NextChar();
+  // Performs the equivalent of NextChar N times.
+  void NextNChars(int n);
+  // Consumes whitespce characters.
+  void EatWhitespace();
+
+  bool StringsAreEqual(const char* a, const char* b, size_t len);
+
+
   bool parsed_;
 
-  std::string contents_;
+  // Pointer to the start of the input data.
+  const char* start_pos_;
+  // Pointer to the current position in the input data. Equivalent to
+  // |start_pos_ + index_|.
+  const char* pos_;
+  // Pointer to the last character of the input data.
+  const char* end_pos_;
+
+  // The index in the input stream to which the parser is wound.
+  int index_;
+  
+  // The line number that the parser is currently at.
+  int line_number_;
+  
+  // The input data to be parsed.
+  std::string input_;
+
   base::FilePath file_;
 };
 
