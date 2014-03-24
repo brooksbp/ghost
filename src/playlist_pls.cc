@@ -13,13 +13,13 @@
 #include "base/strings/string_util.h"
 
 void PlaylistPLS::UpdateTrackFile(int id, std::string& value) {
-  tracks2_[id].file_ = value;
+  tracks_[id].file_ = value;
 }
 void PlaylistPLS::UpdateTrackTitle(int id, std::string& value) {
-  tracks2_[id].title_ = value;
+  tracks_[id].title_ = value;
 }
 void PlaylistPLS::UpdateTrackLength(int id, int value) {
-  tracks2_[id].length_ = value;
+  tracks_[id].length_ = value;
 }
 
 bool PlaylistPLS::CanConsume(int length) {
@@ -68,40 +68,7 @@ bool PlaylistPLS::ExpectAndConsumeChar(char c) {
   return false;
 }
 
-bool PlaylistPLS::ExpectAndConsumeInt(int *i) {
-  EatWhitespace();
-  const char* num_start = pos_;
-  const int start_index = index_;
-  int end_index = start_index;
-
-  if (CanConsume(1) && *pos_ == '-')
-    NextChar();
-
-  while (CanConsume(1) && IsAsciiDigit(*pos_)) {
-    NextChar();
-    ++end_index;
-  }
-
-  if (end_index == start_index) {
-    LOG(ERROR) << "Expected integer.";
-    return false;
-  }
-
-  base::StringPiece num_string(num_start, end_index - start_index);
-  
-  int num_int;
-  if (base::StringToInt(num_string, &num_int)) {
-    *i = num_int;
-    return true;
-  }
-  return false;
-}
-
-bool PlaylistPLS::ExpectAndConsumeString(std::string* str) {
-  return true;
-}
-
-bool PlaylistPLS::ConsumeLiteral(const char* literal) {
+bool PlaylistPLS::TryExpectAndConsumeLiteral(const char* literal) {
   EatWhitespace();
   int len = static_cast<int>(strlen(literal));
   if (CanConsume(len - 1) && StringsAreEqual(pos_, literal, len)) {
@@ -111,7 +78,61 @@ bool PlaylistPLS::ConsumeLiteral(const char* literal) {
   return false;
 }
 
+bool PlaylistPLS::ConsumeInt(int *out) {
+  EatWhitespace();
+  bool negate_value = false;
+
+  if (CanConsume(1) && *pos_ == '-') {
+    NextChar();
+    negate_value = true;
+  }
+
+  const char* num_start = pos_;
+  const int start_index = index_;
+  int end_index = start_index;
+
+  while (CanConsume(1) && IsAsciiDigit(*pos_)) {
+    NextChar();
+    ++end_index;
+  }
+
+  if (end_index == start_index)
+    return false;
+
+  base::StringPiece num_string(num_start, end_index - start_index);
+  
+  int num_int;
+  if (base::StringToInt(num_string, &num_int)) {
+    *out = (negate_value) ? -num_int : num_int;
+    return true;
+  }
+  return false;
+}
+
+bool PlaylistPLS::ConsumeString(std::string* out) {
+  EatWhitespace();
+  const char* str_start = pos_;
+  const int start_index = index_;
+  int end_index = start_index;
+
+  while (CanConsume(1) && *pos_ != '\r' && *pos_ != '\n') {
+    NextChar();
+    ++end_index;
+  }
+  
+  if (end_index == start_index)
+    return false;
+
+  // TODO(brbrooks) Strip trailing whitespace?
+
+  std::string str(str_start, end_index - start_index);
+
+  *out = str;
+  return true;
+}
+
 bool PlaylistPLS::StringsAreEqual(const char* a, const char* b, size_t len) {
+  // TODO(brbrooks) Case-insensitive compare?
   return strncmp(a, b, len) == 0;
 }
 
@@ -122,7 +143,7 @@ static const char* kPlaylistLiteral = "[playlist]";
 static const char* kNumEntriesLiteral = "numberofentries";
 static const char* kVersionLiteral = "Version";
 
-void PlaylistPLS::Parse2() {
+void PlaylistPLS::Parse() {
   start_pos_ = &input_[0];
   pos_ = start_pos_;
   end_pos_ = start_pos_ + input_.length();
@@ -136,118 +157,53 @@ void PlaylistPLS::Parse2() {
   int value_int;
 
   while (CanConsume(1)) {
-    if (ConsumeLiteral(kFileLiteral)) {
-      if (!ExpectAndConsumeInt(&id))
+    if (TryExpectAndConsumeLiteral(kFileLiteral)) {
+      if (!ConsumeInt(&id))
         break;
       if (!ExpectAndConsumeChar('='))
         break;
-      if (!ExpectAndConsumeString(&value_str))
+      if (!ConsumeString(&value_str))
         break;
       UpdateTrackFile(id, value_str);
-    } else if (ConsumeLiteral(kTitleLiteral)) {
-      if (!ExpectAndConsumeInt(&id))
+    } else if (TryExpectAndConsumeLiteral(kTitleLiteral)) {
+      if (!ConsumeInt(&id))
         break;
       if (!ExpectAndConsumeChar('='))
         break;
-      if (!ExpectAndConsumeString(&value_str))
+      if (!ConsumeString(&value_str))
         break;
       UpdateTrackTitle(id, value_str);
-    } else if (ConsumeLiteral(kLengthLiteral)) {
-      if (!ExpectAndConsumeInt(&id))
+    } else if (TryExpectAndConsumeLiteral(kLengthLiteral)) {
+      if (!ConsumeInt(&id))
         break;
       if (!ExpectAndConsumeChar('='))
         break;
-      if (!ExpectAndConsumeInt(&value_int))
+      if (!ConsumeInt(&value_int))
         break;
       UpdateTrackLength(id, value_int);
-    } else if (ConsumeLiteral(kPlaylistLiteral)) {
+    } else if (TryExpectAndConsumeLiteral(kPlaylistLiteral)) {
       // Do nothing..
-    } else if (ConsumeLiteral(kNumEntriesLiteral)) {
+    } else if (TryExpectAndConsumeLiteral(kNumEntriesLiteral)) {
       if (!ExpectAndConsumeChar('='))
         break;
-      if (!ExpectAndConsumeInt(&num_entries))
+      if (!ConsumeInt(&num_entries))
         break;
-    } else if (ConsumeLiteral(kVersionLiteral)) {
+    } else if (TryExpectAndConsumeLiteral(kVersionLiteral)) {
       if (!ExpectAndConsumeChar('='))
         break;
-      if (!ExpectAndConsumeInt(&version))
+      if (!ConsumeInt(&version))
         break;
     } else {
-      LOG(ERROR) << "Cannot parse.. bailing";
+      EatWhitespace();
+      if (CanConsume(1))
+        LOG(ERROR) << "Cannot parse.. bailing";
       break;
     }
   }
 }
 
-void PlaylistPLS::Parse() {
-  std::istringstream iss(input_);
-  std::string line;
-
-  int nentries = 0;
-  int version = 0;
-
-  std::string f_str = "File";
-  std::string t_str = "Title";
-  std::string l_str = "Length";
-
-  while (std::getline(iss, line)) {
-    // Parse a key=value.
-    size_t delim = line.find_first_of("=");
-    if (delim == std::string::npos)
-      continue;
-
-    std::string k = line.substr(0, delim);
-    std::string v = line.substr(delim + 1, line.length());
-
-    if (LowerCaseEqualsASCII(k, "numberofentries")) {
-      base::StringToInt(v, &nentries);
-
-      // FIXME(brbrooks) once we know how many entries there are, pre-populate
-      // the vector with empty entries so that we can index into them later.
-      // It might be better to use a hash table for unencumbered indexing and
-      // then convert it to a vector.
-      PlaylistPLS::Track empty_track("", "", 0);
-      for (int i = 0; i < nentries; ++i) {
-        tracks_.push_back(empty_track);
-      }
-    } else if (LowerCaseEqualsASCII(k, "version")) {
-      base::StringToInt(v, &version);
-    } else {
-      // Handle either File, Title, or Length.
-      size_t f = k.find(f_str);
-      size_t t = k.find(t_str);
-      size_t l = k.find(l_str);
-
-      int n;
-      if (f != std::string::npos) {
-        base::StringToInt(k.substr(f_str.length(), k.length()), &n);
-        if (n >= 1 && n <= nentries)
-          tracks_[n - 1].file_ = v;
-      } else if (t != std::string::npos) {
-        base::StringToInt(k.substr(t_str.length(), k.length()), &n);
-        if (n >= 1 && n <= nentries)
-          tracks_[n - 1].title_ = v;
-      } else if (l != std::string::npos) {
-        base::StringToInt(k.substr(l_str.length(), k.length()), &n);
-        if (n >= 1 && n <= nentries)
-          base::StringToInt(v, &tracks_[n - 1].length_);
-      }
-    }
-  }
-
-  if (version != 2) {
-    // unsupported version
-  }
-  if (nentries != tracks_.size()) {
-    // mismatch
-  }
-
-  parsed_ = true;
-}
-
 PlaylistPLS::PlaylistPLS(base::FilePath& file)
-    : parsed_(false),
-      start_pos_(NULL),
+    : start_pos_(NULL),
       pos_(NULL),
       end_pos_(NULL),
       index_(0),
@@ -262,8 +218,7 @@ PlaylistPLS::PlaylistPLS(base::FilePath& file)
 }
 
 PlaylistPLS::PlaylistPLS(std::string& input)
-    : parsed_(false),
-      start_pos_(NULL),
+    : start_pos_(NULL),
       pos_(NULL),
       end_pos_(NULL),
       index_(0),

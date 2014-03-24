@@ -6,7 +6,6 @@
 #define PLAYLIST_PLS_H_
 
 #include <string>
-#include <vector>
 #include <map>
 
 #include "base/files/file_path.h"
@@ -34,9 +33,7 @@ class PlaylistPLS {
   void UpdateTrackTitle(int id, std::string& value);
   void UpdateTrackLength(int id, int value);
 
-  std::vector<Track> tracks_;
-
-  std::map<int, Track> tracks2_;
+  std::map<int, Track> tracks_;
 
   PlaylistPLS(base::FilePath& file);
   PlaylistPLS(std::string& input);
@@ -45,8 +42,6 @@ class PlaylistPLS {
  private:
 
   void Parse();
-
-  void Parse2();
 
   // Quick check that the stream has capacity to consume |length| more bytes.
   bool CanConsume(int length);
@@ -58,16 +53,21 @@ class PlaylistPLS {
   // Consumes whitespce characters.
   void EatWhitespace();
 
+  // Returns true if successfully consumes char |c|, false otherwise.
   bool ExpectAndConsumeChar(char c);
-  bool ExpectAndConsumeInt(int *i);
-  bool ExpectAndConsumeString(std::string* str);
+  // Returns true if successfully consumes |literal|, false otherwise. This
+  // version does not log a message if unsuccessful.
+  bool TryExpectAndConsumeLiteral(const char* literal);
 
-  bool ConsumeLiteral(const char* literal);
+  // Returns true if successfully consumes an integer and copies it into *|i|,
+  // false otherwise.
+  bool ConsumeInt(int *out);
+  // Returns true if successfully consumes a string and copies it into *|str|,
+  // false otherwise.
+  bool ConsumeString(std::string* out);
 
+  // Case-sensitive compare.
   bool StringsAreEqual(const char* a, const char* b, size_t len);
-
-
-  bool parsed_;
 
   // Pointer to the start of the input data.
   const char* start_pos_;

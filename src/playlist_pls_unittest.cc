@@ -23,22 +23,24 @@ TEST(PlaylistPLSTest, MainTest) {
 
   EXPECT_EQ(playlist.tracks_.size(), 2);
 
-  for (size_t i = 0; i < playlist.tracks_.size(); ++i) {
-    std::string file   = playlist.tracks_[i].file_;
-    std::string title  = playlist.tracks_[i].title_;
-    int length         = playlist.tracks_[i].length_;
-    switch (i) {
-      case 0:
-        EXPECT_EQ(file,   "http://108.61.73.118:14008");
-        EXPECT_EQ(title,  "(#1 - 92/1000) 181.fm - Rock 181 (Active Rock)");
-        EXPECT_EQ(length, -1);
-        break;
+  typedef std::map<int, PlaylistPLS::Track>::iterator track_iter;
+
+  for (track_iter it = playlist.tracks_.begin(); it != playlist.tracks_.end();
+       ++it) {
+    PlaylistPLS::Track* track = &it->second;
+    switch (it->first) {
       case 1:
-        EXPECT_EQ(file,   "http://108.61.73.117:14008");
-        EXPECT_EQ(title,  "(#2 - 93/1000) 181.fm - Rock 181 (Active Rock)");
-        EXPECT_EQ(length, -1);
+        EXPECT_EQ(track->file_,   "http://108.61.73.118:14008");
+        EXPECT_EQ(track->title_,  "(#1 - 92/1000) 181.fm - Rock 181 (Active Rock)");
+        EXPECT_EQ(track->length_, -1);
+        break;
+      case 2:
+        EXPECT_EQ(track->file_,   "http://108.61.73.117:14008");
+        EXPECT_EQ(track->title_,  "(#2 - 93/1000) 181.fm - Rock 181 (Active Rock)");
+        EXPECT_EQ(track->length_, -1);
         break;
       default:
+        // TODO(brbrooks) assert failure here
         break;
     }
   }
