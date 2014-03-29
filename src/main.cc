@@ -40,7 +40,9 @@ void sig_handler(int s) {
   LOG(INFO) << "Goodbye.";
   app->quit();
   delete app;
-  // TODO(brbrooks) run_loop->Quit()
+  // TODO(brbrooks) still need to teardown properly..
+  base::RunLoop run_loop;
+  run_loop.Quit();
 }
 #endif
 
@@ -132,8 +134,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
       gst_player->Play();
     }
   }
-  
-#if defined(OS_POSIX)
+
+#if defined(OS_POSIX)  
   base::RunLoop run_loop;
   run_loop.Run();
 #elif defined(OS_WIN)

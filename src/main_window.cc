@@ -175,9 +175,7 @@ void TableModel::emitDataChanged() {
 
 void MainWindow::OnBeginImport(Library* library) {
   table_model_->beginReset();
-  LOG(INFO) << "beginResetModel()";
 }
 void MainWindow::OnFinishImport(Library* library) {
   table_model_->endReset();
-  LOG(INFO) << "endResetModel()";
 }
