@@ -1,5 +1,5 @@
 ___
-<center>WARNING: UNDER SERIOUS CONSTRUCTION</center>
+WARNING: UNDER CONSTRUCTION
 ___
 
 ### ghost
