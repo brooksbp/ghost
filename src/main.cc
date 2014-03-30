@@ -6,6 +6,7 @@
 #include "base/bind.h"
 #include "base/callback.h"
 #include "base/command_line.h"
+#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -14,11 +15,10 @@
 
 #include "track.h"
 #include "library.h"
+#include "player.h"
+#include "player_ui.h"
 #include "gst_player.h"
-#include "main_window.h"
 #include "playlist_pls.h"
-
-#include <QtWidgets/QApplication>
 
 #include <signal.h>
 #include <stdlib.h>
@@ -33,20 +33,104 @@
 #include <tchar.h>
 #endif
 
-QApplication* app;
+struct MainThreadGlobals {
+  MainThreadGlobals()
+      : player(new Player()),
+        gst_player(new GstPlayer()),
+        library(new Library()),
+        player_ui(new PlayerUi()) {
+  }
+
+  scoped_refptr<Player> player;
+  scoped_refptr<GstPlayer> gst_player;
+  scoped_refptr<Library> library;
+  scoped_refptr<PlayerUi> player_ui;
+};
+
+base::LazyInstance<MainThreadGlobals>::Leaky g_globals =
+    LAZY_INSTANCE_INITIALIZER;
+
+base::AtExitManager exit_manager;
+
+// All shutdown work should start from here. Once this function returns, the
+// main RunLoop::QuitClosure will be posted and the main function will return.
+//
+// This function should *NOT* be called directly, use InitiateShutdown()
+// instead.
+void DoShutdown(void) {
+  LOG(INFO) << "running DoShutdown";
+  g_globals.Get().player_ui = NULL;
+  g_globals.Get().gst_player = NULL;
+  g_globals.Get().library = NULL;
+  g_globals.Get().player = NULL;
+}
+
+base::Callback<void(void)> g_post_shutdown_tasks_cb;
+
+void PostShutdownTasks(const scoped_refptr<base::TaskRunner>& task_runner,
+                       base::Closure quit_closure) {
+  task_runner->PostTask(FROM_HERE, base::Bind(&DoShutdown));
+  task_runner->PostTask(FROM_HERE, quit_closure);
+  LOG(INFO) << "posted shutdown tasks";
+}
+
+static bool shutdown_once = false;
+
+void InitiateShutdown(void) {
+  if (!shutdown_once) {
+    shutdown_once = true;
+    g_post_shutdown_tasks_cb.Run();
+  }
+}
 
 #if defined(OS_POSIX)
 void sig_handler(int s) {
-  LOG(INFO) << "Goodbye.";
-  app->quit();
-  delete app;
-  // TODO(brbrooks) still need to teardown properly..
-  base::RunLoop run_loop;
-  run_loop.Quit();
+  InitiateShutdown();
 }
 #endif
 
-base::AtExitManager exit_manager;
+void MainInit(void) {
+  // ---------------------------------------------------------------------------
+  scoped_refptr<Player> player = g_globals.Get().player;
+  scoped_refptr<GstPlayer> gst_player = g_globals.Get().gst_player;
+  scoped_refptr<Library> library = g_globals.Get().library;
+  scoped_refptr<PlayerUi> player_ui = g_globals.Get().player_ui;
+  LOG(ERROR) << "here1";
+  //MainWindow* main_window = player_ui->GetMainWindow();
+  scoped_refptr<MainWindow> main_window = player_ui->GetMainWindow();
+  LOG(ERROR) << "here2";
+  player->Init(library, gst_player, main_window);
+  LOG(ERROR) << "here3";
+  main_window->Init(player);
+  LOG(ERROR) << "here4";
+  library->AddObserver(main_window);
+  LOG(ERROR) << "here5";
+  base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
+  library->Init(dir);
+  LOG(ERROR) << "here6";
+
+  // Should we really handle all of this on the GUI thread?
+  // Use ThreadSafeObserverList instead of this?
+  //gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
+  gst_player->OnPositionUpdated = base::Bind(&MainWindow::OnPositionUpdated, main_window);
+  gst_player->OnDurationUpdated = base::Bind(&MainWindow::OnDurationUpdated, main_window);
+LOG(ERROR) << "here7";
+  main_window->show();
+  // ---------------------------------------------------------------------------
+
+
+  // base::FilePath playlist;
+  // if (cl->HasSwitch("pls")) {
+  //   playlist = cl->GetSwitchValuePath("pls");
+  //   // TODO(brbrooks) file exists check
+
+  //   PlaylistPLS pls(playlist);
+  //   if (pls.tracks_.size() > 0) {
+  //     gst_player->Load(pls.tracks_[0].file_);
+  //     gst_player->Play();
+  //   }
+  // }
+}
 
 #if defined(OS_POSIX)
 int main(int argc, const char* argv[]) {
@@ -55,6 +139,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif
 
 #if defined(OS_POSIX)
+  XInitThreads();
+
   struct sigaction sa;
   sa.sa_handler = sig_handler;
   sigemptyset(&sa.sa_mask);
@@ -72,6 +158,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif
   CommandLine* cl = CommandLine::ForCurrentProcess();
 
+  // Initialize logging.
   logging::SetLogItems(true, true, true, true);
   logging::LoggingSettings logging_settings;
   logging_settings.logging_dest = logging::LOG_TO_ALL;
@@ -80,10 +167,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
   logging_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
   logging::InitLogging(logging_settings);
 
-#if defined(OS_POSIX)
-  XInitThreads();
-#endif
-
+  // Process command line switches.
   if (cl->HasSwitch("help")) {
     std::cout << "\t-help" << std::endl;
     std::cout << "\t--dir=/path/to/library/" << "\t\tmusic library path."
@@ -93,6 +177,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
+  // User Preferences.
 #if defined(OS_WIN)
   base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
 #else
@@ -101,48 +186,15 @@ int _tmain(int argc, _TCHAR* argv[]) {
   if (cl->HasSwitch("dir"))
     dir = cl->GetSwitchValuePath("dir");
 
+  MainInit();
 
-  Player player;
-  scoped_refptr<GstPlayer> gst_player = new GstPlayer();
-  scoped_refptr<Library> library = new Library();
-  app = new QApplication(argc, NULL);
-  scoped_refptr<MainWindow> main_window = new MainWindow();
-
-  player.Init(library, gst_player, main_window);
-
-  main_window->Init(&player);
-
-  library->AddObserver(main_window.get());
-  library->Init(dir);
-
-  // Should we really handle all of this on the GUI thread?
-  // Use ThreadSafeObserverList instead of this?
-  //gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
-  gst_player->OnPositionUpdated = base::Bind(&MainWindow::OnPositionUpdated, main_window);
-  gst_player->OnDurationUpdated = base::Bind(&MainWindow::OnDurationUpdated, main_window);
-
-  main_window->show();
-
-  base::FilePath playlist;
-  if (cl->HasSwitch("pls")) {
-    playlist = cl->GetSwitchValuePath("pls");
-    // TODO(brbrooks) file exists check
-
-    PlaylistPLS pls(playlist);
-    if (pls.tracks_.size() > 0) {
-      gst_player->Load(pls.tracks_[0].file_);
-      gst_player->Play();
-    }
-  }
-
-#if defined(OS_POSIX)  
   base::RunLoop run_loop;
+
+  g_post_shutdown_tasks_cb = base::Bind(
+      &PostShutdownTasks, main_loop.message_loop_proxy(), run_loop.QuitClosure());
+
   run_loop.Run();
-#elif defined(OS_WIN)
-  for (;;) {
-    base::RunLoop run_loop;
-    run_loop.RunUntilIdle();
-    app->processEvents();
-  }
-#endif
+
+  LOG(INFO) << "EndOfMain";
+  return 0;
 }

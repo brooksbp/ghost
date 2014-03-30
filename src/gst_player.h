@@ -15,7 +15,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/timer/timer.h"
 
-class GstPlayer : public base::RefCounted<GstPlayer> {
+class GstPlayer : public base::RefCountedThreadSafe<GstPlayer> {
  public:
   GstPlayer();
   ~GstPlayer();

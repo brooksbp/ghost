@@ -22,9 +22,11 @@ static std::vector<Track*> tracks_;
 }  // namespace
 
 Library::Library() {
+  LOG(INFO) << "Library()";
 }
 
 Library::~Library() {
+  LOG(INFO) << "~Library()";
 }
 
 void Library::Init(const base::FilePath& path) {

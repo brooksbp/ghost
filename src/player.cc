@@ -7,9 +7,11 @@
 #include "base/strings/utf_string_conversions.h"
 
 Player::Player() {
+  LOG(INFO) << "Player()";
 }
 
 Player::~Player() {
+  LOG(INFO) << "~Player()";
 }
 
 void Player::Init(Library* library, GstPlayer* gst_player,

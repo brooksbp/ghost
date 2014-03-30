@@ -475,12 +475,16 @@ set(SRC_FILES
   src/gst_player.cc
   src/main_window.cc
   src/player.cc
+  src/player_ui.cc
 )
 
 add_executable(ghost
   ${SRC_FILES}
   ${INCS}
 )
+
+# These flags are appended after CMAKE_CXX_FLAGS
+set_target_properties(ghost PROPERTIES COMPILE_FLAGS "-O0 -ggdb3")
 
 target_link_libraries(ghost chromium-static)
 
@@ -499,6 +503,8 @@ endif()
 if (UNIX)
   target_link_libraries(ghost gstreamer-1.0)
   target_link_libraries(ghost gobject-2.0 gmodule-2.0 gthread-2.0 glib-2.0)
+
+  target_link_libraries(ghost id3)
 
   target_link_libraries(ghost pthread)
 endif()

@@ -74,6 +74,7 @@ GstPlayer::GstPlayer()
   //gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
   gst_debug_remove_log_function(gst_debug_log_default);
   gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
+  LOG(INFO) << "GstPlayer()";
 }
 
 GstPlayer::~GstPlayer() {
@@ -84,6 +85,7 @@ GstPlayer::~GstPlayer() {
   }
 
   gst_deinit();
+  LOG(INFO) << "~GstPlayer()";
 }
 
 void GstPlayer::Load(const std::string& uri) {
@@ -161,7 +163,7 @@ void GstPlayer::QueryPosition() {
   else
     position_ = 0.0f;
 
-  OnPositionUpdated.Run(position_);
+  //OnPositionUpdated.Run(position_);
 }
 
 void GstPlayer::QueryDuration() {
@@ -179,7 +181,7 @@ void GstPlayer::QueryDuration() {
     else
       duration_ = 0.0f;
 
-    OnDurationUpdated.Run(duration_);
+    //OnDurationUpdated.Run(duration_);
   }
 }
 

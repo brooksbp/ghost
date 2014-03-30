@@ -31,6 +31,7 @@ class MainWindow
   explicit MainWindow(QWidget* parent = 0);
 
   void Init(Player* player);
+  void Shutdown();
 
   void OnPositionUpdated(float& pos);
   void OnDurationUpdated(float& dur);
@@ -38,6 +39,9 @@ class MainWindow
   // Library::LibraryObserver overrides:
   virtual void OnBeginImport(Library* library) OVERRIDE;
   virtual void OnFinishImport(Library* library) OVERRIDE;
+
+ protected:
+  void closeEvent(QCloseEvent* event);
 
  private slots:
   void handleButtonPressed();

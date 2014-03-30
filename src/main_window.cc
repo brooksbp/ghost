@@ -5,9 +5,28 @@
 #include "main_window.h"
 
 #include <QtCore/QCoreApplication>
+#include <QtGui/QCloseEvent>
 #include <QtWidgets/QHeaderView>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+  LOG(INFO) << "MainWindow()";
+}
+
+void MainWindow::Shutdown() {
+  // FIXME(brbrooks) use scoped ptrs
+  // delete table_model_;
+  // delete table_view_;
+  // delete slider_;
+  // delete play_button_;
+  // delete hbox_;
+  // delete central_;
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+  event->ignore();
+
+  extern void InitiateShutdown(void);
+  InitiateShutdown();
 }
 
 void MainWindow::Init(Player* player) {
@@ -52,7 +71,8 @@ void MainWindow::Init(Player* player) {
 
   // Tracks table --------------------------------------------------------------
   table_view_ = new QTableView();
-  table_model_ = new TableModel(0, player_);
+  table_model_ = new TableModel(this, player_);
+  //LOG(INFO) << "zzz";
 
   table_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
   table_view_->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -69,6 +89,7 @@ void MainWindow::Init(Player* player) {
 
   //----------------------------------------------------------------------------
   resize(800, 400);
+  LOG(INFO) << "MainWindow::Init()";
 }
 
 void MainWindow::OnPositionUpdated(float& pos) {
@@ -168,8 +189,9 @@ QVariant TableModel::data(const QModelIndex& index, int role) const {
 }
 
 void TableModel::emitDataChanged() {
+  int num_tracks = player_->GetLibrary()->GetNumTracks();
   QModelIndex tl = createIndex(0, 0);
-  QModelIndex br = createIndex(player_->GetLibrary()->GetNumTracks() - 1, 0);
+  QModelIndex br = createIndex((num_tracks > 0) ? num_tracks - 1 : 0, 0);
   emit dataChanged(tl, br);
 }
 

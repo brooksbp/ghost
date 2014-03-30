@@ -8,9 +8,11 @@
 #include "library.h"
 #include "gst_player.h"
 
+#include "base/memory/ref_counted.h"
+
 class MainWindow;
 
-class Player {
+class Player : public base::RefCountedThreadSafe<Player> {
  public:
   Player();
   ~Player();
