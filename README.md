@@ -1,6 +1,6 @@
 ---
 
-<span style="color:red;">WARNING: UNDER SERIOUS CONSTRUCTION</span>
+WARNING: UNDER SERIOUS CONSTRUCTION
 
 ---
 
