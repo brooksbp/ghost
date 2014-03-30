@@ -12,6 +12,9 @@ PlayerUi::PlayerUi() {
 
   main_window = new MainWindow();
 
+  main_window->Init();
+  main_window->show();
+
   LOG(INFO) << "PlayerUi()";
 }
 
@@ -25,8 +28,4 @@ PlayerUi::~PlayerUi() {
 
   //delete app;
   LOG(INFO) << "~PlayerUi()";
-}
-
-scoped_refptr<MainWindow> PlayerUi::GetMainWindow() {
-  return main_window;
 }

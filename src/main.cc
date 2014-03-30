@@ -84,22 +84,16 @@ void sig_handler(int s) {
 #endif
 
 void MainInit(void) {
-  Library::CreateInstance(); // #1
-  GstPlayer::CreateInstance(); // #2
+  Library::CreateInstance();
+  GstPlayer::CreateInstance();
   scoped_refptr<PlayerUi> player_ui = g_globals.Get().player_ui;
 
-
-  //MainWindow* main_window = player_ui->GetMainWindow();
-  scoped_refptr<MainWindow> main_window = player_ui->GetMainWindow();
-
-  main_window->Init();
-
+  // Import from dir
   base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
   Library::GetInstance()->Init(dir);
 
-  main_window->show();
-
-
+  // Play a playlist if passed in from command line..?
+  //
   // base::FilePath playlist;
   // if (cl->HasSwitch("pls")) {
   //   playlist = cl->GetSwitchValuePath("pls");

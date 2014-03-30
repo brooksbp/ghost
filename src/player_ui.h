@@ -17,9 +17,6 @@ class PlayerUi : public base::RefCountedThreadSafe<PlayerUi> {
   PlayerUi();
   ~PlayerUi();
 
-  // FIXME(brbrooks) we are just leaking here...
-  scoped_refptr<MainWindow> GetMainWindow();
-
  private:
   QApplication* app;
   scoped_refptr<MainWindow> main_window;
