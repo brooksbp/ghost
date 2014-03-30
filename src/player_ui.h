@@ -19,7 +19,7 @@ class PlayerUi : public base::RefCountedThreadSafe<PlayerUi> {
 
  private:
   QApplication* app;
-  scoped_refptr<MainWindow> main_window;
+  MainWindow* main_window;
 };
 
 #endif  // PLAYER_UI_H_

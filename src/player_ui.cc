@@ -23,9 +23,8 @@ PlayerUi::~PlayerUi() {
   app->closeAllWindows();
 
   main_window->Shutdown();
-  // FIXME(brbrooks) dont leak mainwindow
-  //main_window = NULL;
 
+  //delete main_window;
   //delete app;
   LOG(INFO) << "~PlayerUi()";
 }

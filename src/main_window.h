@@ -18,13 +18,11 @@
 
 #include "base/basictypes.h"
 #include "base/logging.h"
-#include "base/memory/ref_counted.h"
 
 class TableModel;
 
 class MainWindow
     : public QMainWindow,
-      public base::RefCounted<MainWindow>,
       public Library::LibraryObserver,
       public GstPlayer::GstPlayerObserver {
   Q_OBJECT
