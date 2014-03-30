@@ -12,6 +12,12 @@
 
 class Library : public base::RefCountedThreadSafe<Library> {
  public:
+  Library();
+  ~Library();
+
+  static void CreateInstance();
+  static Library* GetInstance();
+  static void DeleteInstance();
 
   class LibraryObserver {
    public:
@@ -19,38 +25,32 @@ class Library : public base::RefCountedThreadSafe<Library> {
     virtual void OnFinishImport(Library* library) = 0;
   };
 
-  void AddObserver(LibraryObserver* obs) {
-    observer_list_.AddObserver(obs);
-  }
+  void AddObserver(LibraryObserver* observer);
+  void RemoveObserver(LibraryObserver* observer);
 
-  Library();
-  ~Library();
-
+  // TODO(brbrooks) rename to something like ImportFromFilePath
   void Init(const base::FilePath& path);
 
-  // Returns the Track located at |index|.
   Track* GetTrack(int index);
-
-  // Returns the Track located at |index| and sets current_track_.
   Track* GetTrackForPlaying(int index);
-
-  // Returns the Track located at current_track_;
   Track* GetCurrentTrack();
-
   int GetNumTracks(void);
 
   void PrintTracks(void);
 
  private:
-  base::FilePath root_path_;
-
-  // Current index into |tracks|.
-  int current_track_;
-
   void Import(void);
   void NotifyImportDone(void);
 
-  ObserverList<LibraryObserver> observer_list_;
+  ObserverList<LibraryObserver> observers_;
+
+  static Library* instance_;
+
+  int current_track_;
+
+  base::FilePath root_path_;
+
+  DISALLOW_COPY_AND_ASSIGN(Library);
 };
 
 #endif  // LIBRARY_H_

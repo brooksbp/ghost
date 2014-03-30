@@ -9,10 +9,12 @@
 #include <QtWidgets/QHeaderView>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+  Library::GetInstance()->AddObserver(this);
   LOG(INFO) << "MainWindow()";
 }
 
 void MainWindow::Shutdown() {
+  Library::GetInstance()->RemoveObserver(this);
   // FIXME(brbrooks) use scoped ptrs
   // delete table_model_;
   // delete table_view_;
@@ -167,7 +169,7 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 int TableModel::rowCount(const QModelIndex&) const {
-  return player_->GetLibrary()->GetNumTracks();
+  return Library::GetInstance()->GetNumTracks();
 }
 
 int TableModel::columnCount(const QModelIndex&) const {
@@ -176,7 +178,7 @@ int TableModel::columnCount(const QModelIndex&) const {
 
 QVariant TableModel::data(const QModelIndex& index, int role) const {
   if (role == Qt::DisplayRole) {
-    Track* track = player_->GetLibrary()->GetTrack(index.row());
+    Track* track = Library::GetInstance()->GetTrack(index.row());
     if (track) {
 #if defined(OS_WIN)
       return QString::fromWCharArray(track->file_path_.value().c_str());
@@ -189,7 +191,7 @@ QVariant TableModel::data(const QModelIndex& index, int role) const {
 }
 
 void TableModel::emitDataChanged() {
-  int num_tracks = player_->GetLibrary()->GetNumTracks();
+  int num_tracks = Library::GetInstance()->GetNumTracks();
   QModelIndex tl = createIndex(0, 0);
   QModelIndex br = createIndex((num_tracks > 0) ? num_tracks - 1 : 0, 0);
   emit dataChanged(tl, br);

@@ -12,29 +12,59 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread.h"
 
-namespace {
-
-static base::Thread import_thread("Import thread");
-
-// TODO: should be a base::ScopedVector
-static std::vector<Track*> tracks_;
-
-}  // namespace
+// static
+Library* Library::instance_ = NULL;
 
 Library::Library() {
   LOG(INFO) << "Library()";
 }
 
 Library::~Library() {
+  // TODO(brbrooks) delete tracks_
   LOG(INFO) << "~Library()";
 }
+
+// static
+void Library::CreateInstance() {
+  if (!instance_) {
+    instance_ = new Library;
+  }
+}
+
+// static
+Library* Library::GetInstance() {
+  DCHECK(instance_) << "Library::CreateInstance must be called before getting "
+      "the instance of Library.";
+  return instance_;
+}
+
+// static
+void Library::DeleteInstance() {
+  delete instance_;
+  instance_ = NULL;
+}
+
+void Library::AddObserver(LibraryObserver* observer) {
+    observers_.AddObserver(observer);
+}
+void Library::RemoveObserver(LibraryObserver* observer) {
+    observers_.RemoveObserver(observer);
+}
+
+namespace {
+
+static base::Thread import_thread("Import thread");
+
+static std::vector<Track*> tracks_;
+
+}  // namespace
 
 void Library::Init(const base::FilePath& path) {
   root_path_ = path;
 
   CHECK(import_thread.Start());
 
-  FOR_EACH_OBSERVER(LibraryObserver, observer_list_, OnBeginImport(this));
+  FOR_EACH_OBSERVER(LibraryObserver, observers_, OnBeginImport(this));
   import_thread.message_loop_proxy()->PostTaskAndReply(
       FROM_HERE,
       base::Bind(&Library::Import, this),
@@ -57,7 +87,7 @@ void Library::Import(void) {
 }
 
 void Library::NotifyImportDone(void) {
-  FOR_EACH_OBSERVER(LibraryObserver, observer_list_, OnFinishImport(this));
+  FOR_EACH_OBSERVER(LibraryObserver, observers_, OnFinishImport(this));
 }
 
 Track* Library::GetTrack(int index) {

@@ -37,13 +37,11 @@ struct MainThreadGlobals {
   MainThreadGlobals()
       : player(new Player()),
         gst_player(new GstPlayer()),
-        library(new Library()),
         player_ui(new PlayerUi()) {
   }
 
   scoped_refptr<Player> player;
   scoped_refptr<GstPlayer> gst_player;
-  scoped_refptr<Library> library;
   scoped_refptr<PlayerUi> player_ui;
 };
 
@@ -61,7 +59,10 @@ void DoShutdown(void) {
   LOG(INFO) << "running DoShutdown";
   g_globals.Get().player_ui = NULL;
   g_globals.Get().gst_player = NULL;
-  g_globals.Get().library = NULL;
+
+  // Notify observers first?
+  Library::GetInstance()->DeleteInstance();
+
   g_globals.Get().player = NULL;
 }
 
@@ -90,33 +91,28 @@ void sig_handler(int s) {
 #endif
 
 void MainInit(void) {
-  // ---------------------------------------------------------------------------
+  Library::CreateInstance(); // #1
+
   scoped_refptr<Player> player = g_globals.Get().player;
+
   scoped_refptr<GstPlayer> gst_player = g_globals.Get().gst_player;
-  scoped_refptr<Library> library = g_globals.Get().library;
   scoped_refptr<PlayerUi> player_ui = g_globals.Get().player_ui;
-  LOG(ERROR) << "here1";
+
   //MainWindow* main_window = player_ui->GetMainWindow();
   scoped_refptr<MainWindow> main_window = player_ui->GetMainWindow();
-  LOG(ERROR) << "here2";
-  player->Init(library, gst_player, main_window);
-  LOG(ERROR) << "here3";
-  main_window->Init(player);
-  LOG(ERROR) << "here4";
-  library->AddObserver(main_window);
-  LOG(ERROR) << "here5";
-  base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
-  library->Init(dir);
-  LOG(ERROR) << "here6";
 
-  // Should we really handle all of this on the GUI thread?
-  // Use ThreadSafeObserverList instead of this?
-  //gst_player.OnEndOfStream = std::bind(&Library::EndOfStream, library);
+  player->Init(gst_player, main_window);
+
+  main_window->Init(player);
+
+  base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
+  Library::GetInstance()->Init(dir);
+
+
   gst_player->OnPositionUpdated = base::Bind(&MainWindow::OnPositionUpdated, main_window);
   gst_player->OnDurationUpdated = base::Bind(&MainWindow::OnDurationUpdated, main_window);
-LOG(ERROR) << "here7";
+
   main_window->show();
-  // ---------------------------------------------------------------------------
 
 
   // base::FilePath playlist;

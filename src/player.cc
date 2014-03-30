@@ -14,15 +14,13 @@ Player::~Player() {
   LOG(INFO) << "~Player()";
 }
 
-void Player::Init(Library* library, GstPlayer* gst_player,
-                  MainWindow* main_window) {
-  library_ = library;
+void Player::Init(GstPlayer* gst_player, MainWindow* main_window) {
   gst_player_ = gst_player;
   main_window_ = main_window;
 }
 
 void Player::Play(int index) {
-  Track* track = library_->GetTrack(index);
+  Track* track = Library::GetInstance()->GetTrack(index);
   if (track) {
 #if defined(OS_WIN)
     gst_player_->Load(base::WideToUTF8(track->file_path_.value()));

@@ -17,8 +17,7 @@ class Player : public base::RefCountedThreadSafe<Player> {
   Player();
   ~Player();
 
-  void Init(Library* library, GstPlayer* gst_player,
-            MainWindow* main_window);
+  void Init(GstPlayer* gst_player, MainWindow* main_window);
 
   // Play the Track located at |index| in the library.
   void Play(int index);
@@ -34,12 +33,9 @@ class Player : public base::RefCountedThreadSafe<Player> {
   // Returns true if a file or stream is currently playing.
   bool IsPlaying() const { return playing_; }
 
-  Library* GetLibrary() const { return library_; }
-
  private:
   bool playing_;
 
-  Library* library_;
   GstPlayer* gst_player_;
   MainWindow* main_window_;
 };
