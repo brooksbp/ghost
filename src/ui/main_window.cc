@@ -2,7 +2,7 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
-#include "main_window.h"
+#include "ui/main_window.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtGui/QCloseEvent>

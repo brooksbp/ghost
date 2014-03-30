@@ -2,12 +2,12 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
-#include "player_ui.h"
+#include "ui/ui.h"
 
 static int dummy_argc = 1;
 static char* dummy_argv = const_cast<char*>("ghost");
 
-PlayerUi::PlayerUi() {
+Ui::Ui() {
   app = new QApplication(dummy_argc, &dummy_argv);
 
   main_window = new MainWindow();
@@ -15,10 +15,10 @@ PlayerUi::PlayerUi() {
   main_window->Init();
   main_window->show();
 
-  LOG(INFO) << "PlayerUi()";
+  LOG(INFO) << "Ui()";
 }
 
-PlayerUi::~PlayerUi() {
+Ui::~Ui() {
   LOG(INFO) << "~PlayerUi()";
   app->closeAllWindows();
 
@@ -26,5 +26,4 @@ PlayerUi::~PlayerUi() {
 
   //delete main_window;
   //delete app;
-  LOG(INFO) << "~PlayerUi()";
 }

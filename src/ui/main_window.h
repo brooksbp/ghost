@@ -2,8 +2,8 @@
 // Use of this source code is governed by a ALv2 license that can be
 // found in the LICENSE file.
 
-#ifndef MAIN_WINDOW_H_
-#define MAIN_WINDOW_H_
+#ifndef UI_MAIN_WINDOW_H_
+#define UI_MAIN_WINDOW_H_
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
@@ -91,4 +91,4 @@ class TableModel : public QAbstractTableModel {
   void emitDataChanged();
 };
 
-#endif  // MAIN_WINDOW_H_
+#endif  // UI_MAIN_WINDOW_H_

@@ -473,9 +473,10 @@ set(SRC_FILES
   src/playlist_pls.cc
   src/library.cc
   src/gst_player.cc
-  src/main_window.cc
-  src/player_ui.cc
   src/main.cc
+
+  src/ui/main_window.cc
+  src/ui/ui.cc
 )
 
 add_executable(ghost

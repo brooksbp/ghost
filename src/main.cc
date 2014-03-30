@@ -13,11 +13,11 @@
 #include "base/message_loop/message_loop.h"
 #include "base/run_loop.h"
 
-#include "track.h"
-#include "library.h"
-#include "player_ui.h"
 #include "gst_player.h"
+#include "library.h"
 #include "playlist_pls.h"
+#include "track.h"
+#include "ui/ui.h"
 
 #include <signal.h>
 #include <stdlib.h>
@@ -34,10 +34,10 @@
 
 struct MainThreadGlobals {
   MainThreadGlobals()
-      : player_ui(new PlayerUi()) {
+      : ui(new Ui()) {
   }
 
-  scoped_refptr<PlayerUi> player_ui;
+  scoped_refptr<Ui> ui;
 };
 
 base::LazyInstance<MainThreadGlobals>::Leaky g_globals =
@@ -52,7 +52,7 @@ base::AtExitManager exit_manager;
 // instead.
 void DoShutdown(void) {
   LOG(INFO) << "running DoShutdown";
-  g_globals.Get().player_ui = NULL;
+  g_globals.Get().ui = NULL;
 
   // Add OnWillShutdown() to observers?
   GstPlayer::GetInstance()->DeleteInstance();
@@ -86,7 +86,7 @@ void sig_handler(int s) {
 void MainInit(void) {
   Library::CreateInstance();
   GstPlayer::CreateInstance();
-  scoped_refptr<PlayerUi> player_ui = g_globals.Get().player_ui;
+  scoped_refptr<Ui> ui = g_globals.Get().ui;
 
   // Import from dir
   base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
