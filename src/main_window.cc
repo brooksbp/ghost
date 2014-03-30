@@ -10,11 +10,13 @@
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   Library::GetInstance()->AddObserver(this);
+  GstPlayer::GetInstance()->AddObserver(this);
   LOG(INFO) << "MainWindow()";
 }
 
 void MainWindow::Shutdown() {
   Library::GetInstance()->RemoveObserver(this);
+  GstPlayer::GetInstance()->RemoveObserver(this);
   // FIXME(brbrooks) use scoped ptrs
   // delete table_model_;
   // delete table_view_;
@@ -94,23 +96,27 @@ void MainWindow::Init(Player* player) {
   LOG(INFO) << "MainWindow::Init()";
 }
 
-void MainWindow::OnPositionUpdated(float& pos) {
+void MainWindow::OnEndOfStream() {
+
+}
+
+void MainWindow::OnPositionUpdated(float position) {
   if (slider_engaged_)
     return;
 
   // Most likely don't have an accurate duration yet..
-  if (pos < 0.5f)
+  if (position < 0.5f)
     return;
 
-  track_position_ = pos;
+  track_position_ = position;
 
   float percent_complete = (track_position_ / track_duration_) * 100;
   slider_->setValue(percent_complete * 10);
 }
 
-void MainWindow::OnDurationUpdated(float& dur) {
-  track_duration_ = dur;
-  LOG(INFO) << "duration = " << dur;
+void MainWindow::OnDurationUpdated(float duration) {
+  track_duration_ = duration;
+  LOG(INFO) << "duration = " << duration;
 }
 
 void MainWindow::handleButtonPressed() {

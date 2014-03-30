@@ -36,12 +36,10 @@
 struct MainThreadGlobals {
   MainThreadGlobals()
       : player(new Player()),
-        gst_player(new GstPlayer()),
         player_ui(new PlayerUi()) {
   }
 
   scoped_refptr<Player> player;
-  scoped_refptr<GstPlayer> gst_player;
   scoped_refptr<PlayerUi> player_ui;
 };
 
@@ -58,9 +56,9 @@ base::AtExitManager exit_manager;
 void DoShutdown(void) {
   LOG(INFO) << "running DoShutdown";
   g_globals.Get().player_ui = NULL;
-  g_globals.Get().gst_player = NULL;
 
-  // Notify observers first?
+  // Add OnWillShutdown() to observers?
+  GstPlayer::GetInstance()->DeleteInstance();
   Library::GetInstance()->DeleteInstance();
 
   g_globals.Get().player = NULL;
@@ -92,25 +90,21 @@ void sig_handler(int s) {
 
 void MainInit(void) {
   Library::CreateInstance(); // #1
+  GstPlayer::CreateInstance(); // #2
 
   scoped_refptr<Player> player = g_globals.Get().player;
 
-  scoped_refptr<GstPlayer> gst_player = g_globals.Get().gst_player;
   scoped_refptr<PlayerUi> player_ui = g_globals.Get().player_ui;
 
   //MainWindow* main_window = player_ui->GetMainWindow();
   scoped_refptr<MainWindow> main_window = player_ui->GetMainWindow();
 
-  player->Init(gst_player, main_window);
+  player->Init(main_window);
 
   main_window->Init(player);
 
   base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
   Library::GetInstance()->Init(dir);
-
-
-  gst_player->OnPositionUpdated = base::Bind(&MainWindow::OnPositionUpdated, main_window);
-  gst_player->OnDurationUpdated = base::Bind(&MainWindow::OnDurationUpdated, main_window);
 
   main_window->show();
 

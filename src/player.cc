@@ -14,8 +14,7 @@ Player::~Player() {
   LOG(INFO) << "~Player()";
 }
 
-void Player::Init(GstPlayer* gst_player, MainWindow* main_window) {
-  gst_player_ = gst_player;
+void Player::Init(MainWindow* main_window) {
   main_window_ = main_window;
 }
 
@@ -23,29 +22,29 @@ void Player::Play(int index) {
   Track* track = Library::GetInstance()->GetTrack(index);
   if (track) {
 #if defined(OS_WIN)
-    gst_player_->Load(base::WideToUTF8(track->file_path_.value()));
+    GstPlayer::GetInstance()->Load(base::WideToUTF8(track->file_path_.value()));
 #elif defined(OS_POSIX)
-    gst_player_->Load(track->file_path_.value());
+    GstPlayer::GetInstance()->Load(track->file_path_.value());
 #endif
-    gst_player_->Play();
+    GstPlayer::GetInstance()->Play();
     playing_ = true;
   }
 }
 
 void Player::Pause() {
   if (playing_) {
-    gst_player_->Pause();
+    GstPlayer::GetInstance()->Pause();
     playing_ = false;
   }
 }
 
 void Player::Resume() {
   if (!playing_) {
-    gst_player_->Play();
+    GstPlayer::GetInstance()->Play();
     playing_ = true;
   }
 }
 
 void Player::Seek(float time) {
-  gst_player_->Seek(time);
+  GstPlayer::GetInstance()->Seek(time);
 }

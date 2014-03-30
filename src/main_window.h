@@ -25,7 +25,8 @@ class TableModel;
 class MainWindow
     : public QMainWindow,
       public base::RefCounted<MainWindow>,
-      public Library::LibraryObserver {
+      public Library::LibraryObserver,
+      public GstPlayer::GstPlayerObserver {
   Q_OBJECT
  public:
   explicit MainWindow(QWidget* parent = 0);
@@ -39,6 +40,11 @@ class MainWindow
   // Library::LibraryObserver overrides:
   virtual void OnBeginImport(Library* library) OVERRIDE;
   virtual void OnFinishImport(Library* library) OVERRIDE;
+
+  // GstPlayer::GstPlayerObserver overrides:
+  virtual void OnEndOfStream() OVERRIDE;
+  virtual void OnPositionUpdated(float position) OVERRIDE;
+  virtual void OnDurationUpdated(float duration) OVERRIDE;
 
  protected:
   void closeEvent(QCloseEvent* event);

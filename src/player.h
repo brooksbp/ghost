@@ -17,7 +17,7 @@ class Player : public base::RefCountedThreadSafe<Player> {
   Player();
   ~Player();
 
-  void Init(GstPlayer* gst_player, MainWindow* main_window);
+  void Init(MainWindow* main_window);
 
   // Play the Track located at |index| in the library.
   void Play(int index);
@@ -36,7 +36,6 @@ class Player : public base::RefCountedThreadSafe<Player> {
  private:
   bool playing_;
 
-  GstPlayer* gst_player_;
   MainWindow* main_window_;
 };
 

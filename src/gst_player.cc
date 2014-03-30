@@ -15,16 +15,89 @@
 #include <iostream>
 #include <cmath>
 
+// static
+GstPlayer* GstPlayer::instance_ = NULL;
 
-static void gst_debug_logcat(GstDebugCategory* category,
-  GstDebugLevel level,
-  const gchar* file,
-  const gchar* function,
-  gint line,
-  GObject* object,
-  GstDebugMessage* message,
-  gpointer unused) {
+GstPlayer::GstPlayer() 
+    : playing_(false),
+      seeking_(false),
+      position_(0.0f),
+      duration_(0.0f) {
+  GOwnPtr<GError> error;  
+  if (!gst_init_check(NULL, NULL, &error.outPtr())) {
+    LOG(ERROR) << "Gstreamer init failed: " << error->message;
+  }
+  LOG(INFO) << "Gstreamer: " << gst_version_string();
 
+  playbin_ = gst_element_factory_make("playbin", "playbin");
+
+  GstBus* bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
+  gst_bus_add_signal_watch(bus_);
+  g_signal_connect(bus_, "message", G_CALLBACK(__OnBusMessage), this);
+  gst_object_unref(bus_);
+
+  gst_debug_set_active(TRUE);
+  gst_debug_set_default_threshold(GST_LEVEL_WARNING);
+  //gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
+
+  gst_debug_remove_log_function(gst_debug_log_default);
+  gst_debug_add_log_function(__OnLogMessage, this, NULL);
+
+  LOG(INFO) << "GstPlayer()";
+}
+
+GstPlayer::~GstPlayer() {
+  if (playbin_) {
+    gst_element_set_state(playbin_, GST_STATE_NULL);
+    gst_object_unref(GST_OBJECT(playbin_));
+    playbin_ = 0;
+  }
+
+  gst_deinit();
+  LOG(INFO) << "~GstPlayer()";
+}
+
+// static
+void GstPlayer::CreateInstance() {
+  if (!instance_) {
+    instance_ = new GstPlayer;
+  }
+}
+
+// static
+GstPlayer* GstPlayer::GetInstance() {
+  DCHECK(instance_) << "GstPlayer::CreateInstance must be called before getting "
+      "the instance of GstPlayer.";
+  return instance_;
+}
+
+// static
+void GstPlayer::DeleteInstance() {
+  delete instance_;
+  instance_ = NULL;
+}
+
+void GstPlayer::AddObserver(GstPlayerObserver* observer) {
+    observers_.AddObserver(observer);
+}
+void GstPlayer::RemoveObserver(GstPlayerObserver* observer) {
+    observers_.RemoveObserver(observer);
+}
+
+
+// static
+void GstPlayer::__OnLogMessage(
+    GstDebugCategory* category, GstDebugLevel level,
+    const gchar* file, const gchar* function, gint line,
+    GObject* object, GstDebugMessage* message, gpointer user_data) {
+  return static_cast<GstPlayer*>(user_data)->OnLogMessage(
+      category, level, file, function, line, object, message);
+}
+
+void GstPlayer::OnLogMessage(
+    GstDebugCategory* category, GstDebugLevel level,
+    const gchar* file, const gchar* function, gint line,
+    GObject* object, GstDebugMessage* message) {
   if (level > gst_debug_category_get_threshold(category))
     return;
 
@@ -49,43 +122,6 @@ static void gst_debug_logcat(GstDebugCategory* category,
               << line << ") " << function << ": "
               << gst_debug_message_get(message);
   }
-}
-
-GstPlayer::GstPlayer() 
-    : playing_(false),
-      seeking_(false),
-      position_(0.0f),
-      duration_(0.0f) {
-  GOwnPtr<GError> error;  
-  if (!gst_init_check(NULL, NULL, &error.outPtr())) {
-    LOG(ERROR) << "Gstreamer init failed: " << error->message;
-  }
-  LOG(INFO) << "Gstreamer: " << gst_version_string();
-
-  playbin_ = gst_element_factory_make("playbin", "playbin");
-
-  GstBus* bus_ = gst_pipeline_get_bus(GST_PIPELINE(playbin_));
-  gst_bus_add_signal_watch(bus_);
-  g_signal_connect(bus_, "message", G_CALLBACK(__OnBusMessage), this);
-  gst_object_unref(bus_);
-
-  gst_debug_set_active(TRUE);
-  gst_debug_set_default_threshold(GST_LEVEL_WARNING);
-  //gst_debug_set_default_threshold(GST_LEVEL_DEBUG);
-  gst_debug_remove_log_function(gst_debug_log_default);
-  gst_debug_add_log_function((GstLogFunction)gst_debug_logcat, NULL, NULL);
-  LOG(INFO) << "GstPlayer()";
-}
-
-GstPlayer::~GstPlayer() {
-  if (playbin_) {
-    gst_element_set_state(playbin_, GST_STATE_NULL);
-    gst_object_unref(GST_OBJECT(playbin_));
-    playbin_ = 0;
-  }
-
-  gst_deinit();
-  LOG(INFO) << "~GstPlayer()";
 }
 
 void GstPlayer::Load(const std::string& uri) {
@@ -163,7 +199,7 @@ void GstPlayer::QueryPosition() {
   else
     position_ = 0.0f;
 
-  //OnPositionUpdated.Run(position_);
+  NotifyPositionUpdated(position_);
 }
 
 void GstPlayer::QueryDuration() {
@@ -181,7 +217,7 @@ void GstPlayer::QueryDuration() {
     else
       duration_ = 0.0f;
 
-    //OnDurationUpdated.Run(duration_);
+    NotifyDurationUpdated(duration_);
   }
 }
 
@@ -200,7 +236,7 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
       // TODO(brbrooks) Move this into own fn
       playing_ = false;
       StopTrackPoller();
-      //OnEndOfStream.Run();
+      NotifyEndOfStream();
       LOG(INFO) << "End of stream.";
       break;
     case GST_MESSAGE_STATE_CHANGED:
@@ -276,9 +312,26 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
   return TRUE;
 }
 
-void GstPlayer::TrackPoller() {
+void GstPlayer::TrackPollerWork() {
   if (!seeking_) {
     QueryPosition();
     QueryDuration();
   }
+}
+void GstPlayer::StartTrackPoller() {
+  track_poller_.Start(FROM_HERE, base::TimeDelta::FromMilliseconds(200),
+                      this, &GstPlayer::TrackPollerWork);
+}
+void GstPlayer::StopTrackPoller() {
+  track_poller_.Stop();
+}
+
+void GstPlayer::NotifyEndOfStream() {
+  FOR_EACH_OBSERVER(GstPlayerObserver, observers_, OnEndOfStream());
+}
+void GstPlayer::NotifyPositionUpdated(float position) {
+  FOR_EACH_OBSERVER(GstPlayerObserver, observers_, OnPositionUpdated(position));
+}
+void GstPlayer::NotifyDurationUpdated(float duration) {
+  FOR_EACH_OBSERVER(GstPlayerObserver, observers_, OnDurationUpdated(duration));
 }
