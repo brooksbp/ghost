@@ -1,3 +1,7 @@
+---
+<center><span style="color:red;"><b>WARNING: UNDER SERIOUS CONSTRUCTION</b></span></center>
+---
+
 ### ghost
 
 The best audio player.
@@ -15,7 +19,8 @@ The best audio player.
 
 Install dependencies:
 
-    apt-get install cmake libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-ugly qt5-default libgtk2.0-dev libevent-dev
+    apt-get install cmake libgstreamer1.0-dev gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-ugly qt5-default libgtk2.0-dev libevent-dev
 
     pacman -S cmake gstreamer gst-plugins-base gst-plugins-ugly qt5-base glib libmad
 
