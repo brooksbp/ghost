@@ -17,13 +17,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 void MainWindow::Shutdown() {
   Library::GetInstance()->RemoveObserver(this);
   GstPlayer::GetInstance()->RemoveObserver(this);
-  // FIXME(brbrooks) use scoped ptrs
-  // delete table_model_;
-  // delete table_view_;
-  // delete slider_;
-  // delete play_button_;
-  // delete hbox_;
-  // delete central_;
+
+  delete table_model_;
+  delete table_view_;
+  delete slider_;
+  delete play_button_;
+  delete hbox_;
+  delete central_;
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
@@ -95,14 +95,15 @@ void MainWindow::Init() {
 }
 
 void MainWindow::OnEndOfStream() {
-
+  play_button_->setText("--");
+  slider_->setValue(0);
 }
 
 void MainWindow::OnPositionUpdated(float position) {
   if (slider_engaged_)
     return;
 
-  // Most likely don't have an accurate duration yet..
+  // Ignore the first .5s worth of updates due to jitter.
   if (position < 0.5f)
     return;
 
@@ -129,7 +130,6 @@ void MainWindow::handleButtonPressed() {
 
 void MainWindow::handleSliderPressed() {
   slider_engaged_ = true;
-  LOG(INFO) << "slider engaged";
 }
 void MainWindow::handleSliderMoved(int value) {
   float val = ((float) value) / 10;
@@ -138,7 +138,6 @@ void MainWindow::handleSliderMoved(int value) {
 }
 void MainWindow::handleSliderReleased() {
   slider_engaged_ = false;
-  LOG(INFO) << "slider disengaged";
 }
 
 
