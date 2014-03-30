@@ -13,22 +13,37 @@
 #include "base/threading/thread.h"
 
 // static
-Library* Library::instance_ = NULL;
+scoped_refptr<Library> Library::instance_ = NULL;
+
+namespace {
+
+base::Thread* import_thread = NULL;
+
+static std::vector<Track*> tracks_;
+
+}  // namespace
 
 Library::Library() {
   LOG(INFO) << "Library()";
+
+  if (!import_thread)
+    import_thread = new base::Thread("import thread");
 }
 
 Library::~Library() {
-  // TODO(brbrooks) delete tracks_
   LOG(INFO) << "~Library()";
+
+  if (import_thread->IsRunning())
+    import_thread->Stop();
+  delete import_thread;
+
+  // TODO(brbrooks) delete tracks_  
 }
 
 // static
 void Library::CreateInstance() {
-  if (!instance_) {
+  if (!instance_)
     instance_ = new Library;
-  }
 }
 
 // static
@@ -40,7 +55,7 @@ Library* Library::GetInstance() {
 
 // static
 void Library::DeleteInstance() {
-  delete instance_;
+  LOG(INFO) << "Library::DeleteInstance()";
   instance_ = NULL;
 }
 
@@ -51,21 +66,13 @@ void Library::RemoveObserver(LibraryObserver* observer) {
     observers_.RemoveObserver(observer);
 }
 
-namespace {
-
-static base::Thread import_thread("Import thread");
-
-static std::vector<Track*> tracks_;
-
-}  // namespace
-
 void Library::Init(const base::FilePath& path) {
   root_path_ = path;
 
-  CHECK(import_thread.Start());
+  CHECK(import_thread->Start());
 
   FOR_EACH_OBSERVER(LibraryObserver, observers_, OnBeginImport(this));
-  import_thread.message_loop_proxy()->PostTaskAndReply(
+  import_thread->message_loop_proxy()->PostTaskAndReply(
       FROM_HERE,
       base::Bind(&Library::Import, this),
       base::Bind(&Library::NotifyImportDone, this));

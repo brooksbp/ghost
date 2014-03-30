@@ -44,7 +44,7 @@ class Library : public base::RefCountedThreadSafe<Library> {
 
   ObserverList<LibraryObserver> observers_;
 
-  static Library* instance_;
+  static scoped_refptr<Library> instance_;
 
   int current_track_;
 

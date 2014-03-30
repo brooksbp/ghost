@@ -41,9 +41,9 @@ base::AtExitManager exit_manager;
 void DoShutdown(void) {
   LOG(INFO) << "running DoShutdown";
   // TODO(brbrooks) Add OnWillShutdown() to observers?
+  Ui::GetInstance()->DeleteInstance();
   GstPlayer::GetInstance()->DeleteInstance();
   Library::GetInstance()->DeleteInstance();
-  Ui::GetInstance()->DeleteInstance();
 }
 
 base::Callback<void(void)> g_post_shutdown_tasks_cb;
