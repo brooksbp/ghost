@@ -12,11 +12,10 @@
 #include "base/basictypes.h"
 #include "base/callback.h"
 #include "base/files/file_path.h"
-#include "base/memory/ref_counted.h"
 #include "base/observer_list.h"
 #include "base/timer/timer.h"
 
-class GstPlayer : public base::RefCountedThreadSafe<GstPlayer> {
+class GstPlayer {
  public:
   GstPlayer();
   ~GstPlayer();
