@@ -34,12 +34,11 @@ class GstPlayer {
   void AddObserver(GstPlayerObserver* observer);
   void RemoveObserver(GstPlayerObserver* observer);
 
+  // Get ready to play uri. If something is currently playing, stop it.
   void Load(const std::string& uri);
-
   void Play();
   void Pause();
   bool IsPlaying() const { return playing_; }
-
   void Seek(float time);
 
   // Get the current playback position in seconds.
@@ -54,6 +53,10 @@ class GstPlayer {
   void NotifyEndOfStream();
   void NotifyPositionUpdated(float position);
   void NotifyDurationUpdated(float duration);
+
+  void _Play();
+  void _Pause();
+  void _Stop();
 
   bool playing_;
   bool seeking_;

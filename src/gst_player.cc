@@ -125,14 +125,15 @@ void GstPlayer::OnLogMessage(
 }
 
 void GstPlayer::Load(const std::string& uri) {
-  // FIXME(brbrooks) instead of forcing a switch to READY, can we assert
-  // !playing instead and force API caller to stop whatever's playing?
-  StopTrackPoller();
+  if (playing_)
+    _Stop();
+  else {
+    // FIXME(brbrooks) keep track of both pause and playing state instead
+    // of doing this here.
+    gst_element_set_state(playbin_, GST_STATE_READY);
+  }
 
-  gst_element_set_state(playbin_, GST_STATE_READY);
-
-  // FIXME(brbrooks) ... must be better way to only normalize URI for
-  // files and not streams.
+  // FIXME(brbrooks) fix this
   if (!StartsWithASCII(uri, "http://", false)) {
     std::string loc = gst_filename_to_uri(uri.c_str(), NULL);
     g_object_set(G_OBJECT(playbin_), "uri", loc.c_str(), NULL);
@@ -144,17 +145,30 @@ void GstPlayer::Load(const std::string& uri) {
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
 }
 
-// TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
-// single functions so that different entry points can trigger them.
-void GstPlayer::Play() {
+void GstPlayer::_Play() {
+  // FIXME(brbrooks) DCHECK(loaded_); so that we can't play/pause an invalid uri
   DCHECK(!playing_);
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
   playing_ = true;
   StartTrackPoller();
 }
-void GstPlayer::Pause() {
+void GstPlayer::Play() {
+  if (!playing_)
+    _Play();
+}
+void GstPlayer::_Pause() {
   DCHECK(playing_);
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
+  playing_ = false;
+  StopTrackPoller();
+}
+void GstPlayer::Pause() {
+  if (playing_)
+    _Pause();
+}
+void GstPlayer::_Stop() {
+  DCHECK(playing_);
+  gst_element_set_state(playbin_, GST_STATE_READY);
   playing_ = false;
   StopTrackPoller();
 }
@@ -237,11 +251,8 @@ gboolean GstPlayer::OnBusMessage(GstBus* bus, GstMessage* msg) {
   
   switch (GST_MESSAGE_TYPE(msg)) {
     case GST_MESSAGE_EOS:
-      // TODO(brbrooks) Move this into own fn
-      playing_ = false;
-      StopTrackPoller();
+      _Stop();
       NotifyEndOfStream();
-      LOG(INFO) << "End of stream.";
       break;
     case GST_MESSAGE_STATE_CHANGED:
       if (GST_MESSAGE_SRC(msg) == reinterpret_cast<GstObject*>(playbin_)) {
