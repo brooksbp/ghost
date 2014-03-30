@@ -1,5 +1,7 @@
 ---
-<center><span style="color:red;"><b>WARNING: UNDER SERIOUS CONSTRUCTION</b></span></center>
+
+<span style="color:red;">WARNING: UNDER SERIOUS CONSTRUCTION</span>
+
 ---
 
 ### ghost
