@@ -2,7 +2,7 @@
 
 The best audio player.
 
-![ss](https://github.com/brooksbp/ghost/doc/2014-03-30_ss.png)
+![ss](https://raw.githubusercontent.com/brooksbp/ghost/master/doc/2014-03-30_ss.png)
 
 ##### For Users
 
