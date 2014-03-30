@@ -4,6 +4,9 @@
 
 #include "ui/ui.h"
 
+// static
+Ui* Ui::instance_ = NULL;
+
 static int dummy_argc = 1;
 static char* dummy_argv = const_cast<char*>("ghost");
 
@@ -26,4 +29,24 @@ Ui::~Ui() {
 
   //delete main_window;
   //delete app;
+}
+
+// static
+void Ui::CreateInstance() {
+  if (!instance_) {
+    instance_ = new Ui;
+  }
+}
+
+// static
+Ui* Ui::GetInstance() {
+  DCHECK(instance_) << "Ui::CreateInstance must be called before getting "
+      "the instance of Ui.";
+  return instance_;
+}
+
+// static
+void Ui::DeleteInstance() {
+  delete instance_;
+  instance_ = NULL;
 }

@@ -6,7 +6,6 @@
 #include "base/bind.h"
 #include "base/callback.h"
 #include "base/command_line.h"
-#include "base/lazy_instance.h"
 #include "base/logging.h"
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
@@ -32,17 +31,6 @@
 #include <tchar.h>
 #endif
 
-struct MainThreadGlobals {
-  MainThreadGlobals()
-      : ui(new Ui()) {
-  }
-
-  scoped_refptr<Ui> ui;
-};
-
-base::LazyInstance<MainThreadGlobals>::Leaky g_globals =
-    LAZY_INSTANCE_INITIALIZER;
-
 base::AtExitManager exit_manager;
 
 // All shutdown work should start from here. Once this function returns, the
@@ -52,11 +40,10 @@ base::AtExitManager exit_manager;
 // instead.
 void DoShutdown(void) {
   LOG(INFO) << "running DoShutdown";
-  g_globals.Get().ui = NULL;
-
-  // Add OnWillShutdown() to observers?
+  // TODO(brbrooks) Add OnWillShutdown() to observers?
   GstPlayer::GetInstance()->DeleteInstance();
   Library::GetInstance()->DeleteInstance();
+  Ui::GetInstance()->DeleteInstance();
 }
 
 base::Callback<void(void)> g_post_shutdown_tasks_cb;
@@ -82,30 +69,6 @@ void sig_handler(int s) {
   InitiateShutdown();
 }
 #endif
-
-void MainInit(void) {
-  Library::CreateInstance();
-  GstPlayer::CreateInstance();
-  scoped_refptr<Ui> ui = g_globals.Get().ui;
-
-  // Import from dir
-  base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
-  Library::GetInstance()->Init(dir);
-
-  // Play a playlist if passed in from command line..?
-  //
-  // base::FilePath playlist;
-  // if (cl->HasSwitch("pls")) {
-  //   playlist = cl->GetSwitchValuePath("pls");
-  //   // TODO(brbrooks) file exists check
-
-  //   PlaylistPLS pls(playlist);
-  //   if (pls.tracks_.size() > 0) {
-  //     gst_player->Load(pls.tracks_[0].file_);
-  //     gst_player->Play();
-  //   }
-  // }
-}
 
 #if defined(OS_POSIX)
 int main(int argc, const char* argv[]) {
@@ -152,7 +115,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
-  // User Preferences.
+  Library::CreateInstance();
+  GstPlayer::CreateInstance();
+  Ui::CreateInstance();
+
+  // User Preferences / Import from |dir|.
 #if defined(OS_WIN)
   base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
 #else
@@ -160,8 +127,20 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif
   if (cl->HasSwitch("dir"))
     dir = cl->GetSwitchValuePath("dir");
+  Library::GetInstance()->Init(dir);
 
-  MainInit();
+  // Play a playlist if passed in from command line..?
+  // base::FilePath playlist;
+  // if (cl->HasSwitch("pls")) {
+  //   playlist = cl->GetSwitchValuePath("pls");
+  //   // TODO(brbrooks) file exists check
+
+  //   PlaylistPLS pls(playlist);
+  //   if (pls.tracks_.size() > 0) {
+  //     gst_player->Load(pls.tracks_[0].file_);
+  //     gst_player->Play();
+  //   }
+  // }
 
   base::RunLoop run_loop;
 

@@ -8,18 +8,25 @@
 #include "ui/main_window.h"
 
 #include "base/logging.h"
-#include "base/memory/ref_counted.h"
 
 #include <QtWidgets/QApplication>
 
-class Ui : public base::RefCountedThreadSafe<Ui> {
+class Ui {
  public:
   Ui();
   ~Ui();
 
+  static void CreateInstance();
+  static Ui* GetInstance();
+  static void DeleteInstance();
+
  private:
   QApplication* app;
   MainWindow* main_window;
+
+  static Ui* instance_;
+  
+  DISALLOW_COPY_AND_ASSIGN(Ui);
 };
 
 #endif  // UI_UI_H_
