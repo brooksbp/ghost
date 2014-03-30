@@ -467,14 +467,15 @@ if (WIN32)
 endif()
 
 set(SRC_FILES
-  src/main.cc
+  third_party/g_own_ptr.cc
+
   src/track.cc
-  src/library.cc
   src/playlist_pls.cc
-  src/g_own_ptr.cc
+  src/library.cc
   src/gst_player.cc
   src/main_window.cc
   src/player_ui.cc
+  src/main.cc
 )
 
 add_executable(ghost
