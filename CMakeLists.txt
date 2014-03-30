@@ -474,7 +474,6 @@ set(SRC_FILES
   src/g_own_ptr.cc
   src/gst_player.cc
   src/main_window.cc
-  src/player.cc
   src/player_ui.cc
 )
 

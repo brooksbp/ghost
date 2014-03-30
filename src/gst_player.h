@@ -38,6 +38,7 @@ class GstPlayer {
 
   void Play();
   void Pause();
+  bool IsPlaying() const { return playing_; }
 
   void Seek(float time);
 

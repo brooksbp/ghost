@@ -33,9 +33,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
   InitiateShutdown();
 }
 
-void MainWindow::Init(Player* player) {
-  player_ = player;
-
+void MainWindow::Init() {
   // +-------------------------------------------+
   // |:central_layout_                           |
   // |+-----------------------------------------+|
@@ -75,7 +73,7 @@ void MainWindow::Init(Player* player) {
 
   // Tracks table --------------------------------------------------------------
   table_view_ = new QTableView();
-  table_model_ = new TableModel(this, player_);
+  table_model_ = new TableModel(this);
   //LOG(INFO) << "zzz";
 
   table_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -120,11 +118,11 @@ void MainWindow::OnDurationUpdated(float duration) {
 }
 
 void MainWindow::handleButtonPressed() {
-  if (player_->IsPlaying()) {
-    player_->Pause();
+  if (GstPlayer::GetInstance()->IsPlaying()) {
+    GstPlayer::GetInstance()->Pause();
     play_button_->setText("play");
   } else {
-    player_->Resume();
+    GstPlayer::GetInstance()->Play();
     play_button_->setText("pause");
   }
 }
@@ -136,7 +134,7 @@ void MainWindow::handleSliderPressed() {
 void MainWindow::handleSliderMoved(int value) {
   float val = ((float) value) / 10;
   float time = (val * track_duration_) / 100;
-  player_->Seek(time);
+  GstPlayer::GetInstance()->Seek(time);
 }
 void MainWindow::handleSliderReleased() {
   slider_engaged_ = false;
@@ -145,15 +143,23 @@ void MainWindow::handleSliderReleased() {
 
 
 void MainWindow::handleDoubleClick(const QModelIndex& index) {
-  player_->Play(index.row());
+  Track* track = Library::GetInstance()->GetTrack(index.row());
+  if (!track)
+    return;
+
+#if defined(OS_WIN)
+  GstPlayer::GetInstance()->Load(base::WideToUTF8(track->file_path_.value()));
+#elif defined(OS_POSIX)
+  GstPlayer::GetInstance()->Load(track->file_path_.value());
+#endif
+  GstPlayer::GetInstance()->Play();
   
   play_button_->setText("pause");
 }
 
 
-TableModel::TableModel(QObject* parent, Player* player)
-    : QAbstractTableModel(parent),
-      player_(player) {
+TableModel::TableModel(QObject* parent)
+    : QAbstractTableModel(parent) {
 }
 
 QVariant TableModel::headerData(int section, Qt::Orientation orientation,

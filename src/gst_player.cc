@@ -147,11 +147,15 @@ void GstPlayer::Load(const std::string& uri) {
 // TODO(brbrooks) playing/pause/resume/etc logic needs to be abstracted into
 // single functions so that different entry points can trigger them.
 void GstPlayer::Play() {
+  DCHECK(!playing_);
   gst_element_set_state(playbin_, GST_STATE_PLAYING);
+  playing_ = true;
   StartTrackPoller();
 }
 void GstPlayer::Pause() {
+  DCHECK(playing_);
   gst_element_set_state(playbin_, GST_STATE_PAUSED);
+  playing_ = false;
   StopTrackPoller();
 }
 

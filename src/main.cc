@@ -15,7 +15,6 @@
 
 #include "track.h"
 #include "library.h"
-#include "player.h"
 #include "player_ui.h"
 #include "gst_player.h"
 #include "playlist_pls.h"
@@ -35,11 +34,9 @@
 
 struct MainThreadGlobals {
   MainThreadGlobals()
-      : player(new Player()),
-        player_ui(new PlayerUi()) {
+      : player_ui(new PlayerUi()) {
   }
 
-  scoped_refptr<Player> player;
   scoped_refptr<PlayerUi> player_ui;
 };
 
@@ -60,8 +57,6 @@ void DoShutdown(void) {
   // Add OnWillShutdown() to observers?
   GstPlayer::GetInstance()->DeleteInstance();
   Library::GetInstance()->DeleteInstance();
-
-  g_globals.Get().player = NULL;
 }
 
 base::Callback<void(void)> g_post_shutdown_tasks_cb;
@@ -91,17 +86,13 @@ void sig_handler(int s) {
 void MainInit(void) {
   Library::CreateInstance(); // #1
   GstPlayer::CreateInstance(); // #2
-
-  scoped_refptr<Player> player = g_globals.Get().player;
-
   scoped_refptr<PlayerUi> player_ui = g_globals.Get().player_ui;
+
 
   //MainWindow* main_window = player_ui->GetMainWindow();
   scoped_refptr<MainWindow> main_window = player_ui->GetMainWindow();
 
-  player->Init(main_window);
-
-  main_window->Init(player);
+  main_window->Init();
 
   base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
   Library::GetInstance()->Init(dir);
