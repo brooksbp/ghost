@@ -138,9 +138,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   scoped_ptr<PrefService> prefs = pref_factory.Create(pref_registry.get());
 
+  prefs->SetBoolean("do.you.want.more", false);
   prefs->CommitPendingWrite();
-
-  // FIXME(brbrooks) getting sleepy... revisit here.. prefs file just moves to prefs.bad
 
 
   Library::CreateInstance();
