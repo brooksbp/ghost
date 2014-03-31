@@ -59,6 +59,8 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/files/file_path.cc
   ${chromium_SOURCE_DIR}/base/files/file_path_constants.cc
   ${chromium_SOURCE_DIR}/base/files/file_util_proxy.cc
+  ${chromium_SOURCE_DIR}/base/files/important_file_writer.cc
+  ${chromium_SOURCE_DIR}/base/files/scoped_platform_file_closer.cc
   ${chromium_SOURCE_DIR}/base/files/scoped_temp_dir.cc
   ${chromium_SOURCE_DIR}/base/json/json_file_value_serializer.cc
   ${chromium_SOURCE_DIR}/base/json/json_parser.cc
@@ -98,6 +100,21 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/pending_task.cc
   ${chromium_SOURCE_DIR}/base/pickle.cc
   ${chromium_SOURCE_DIR}/base/platform_file.cc
+  ${chromium_SOURCE_DIR}/base/prefs/default_pref_store.cc
+  ${chromium_SOURCE_DIR}/base/prefs/json_pref_store.cc
+  ${chromium_SOURCE_DIR}/base/prefs/overlay_user_pref_store.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_change_registrar.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_member.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_notifier_impl.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_registry.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_registry_simple.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_service.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_service_factory.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_store.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_value_map.cc
+  ${chromium_SOURCE_DIR}/base/prefs/pref_value_store.cc
+  ${chromium_SOURCE_DIR}/base/prefs/scoped_user_pref_update.cc
+  ${chromium_SOURCE_DIR}/base/prefs/value_map_pref_store.cc
   ${chromium_SOURCE_DIR}/base/process/kill.cc
   ${chromium_SOURCE_DIR}/base/process/launch.cc
   ${chromium_SOURCE_DIR}/base/process/process_iterator.cc
@@ -151,6 +168,7 @@ set(chromium_SOURCE_FILES
   ${chromium_SOURCE_DIR}/base/tracked_objects.cc
   ${chromium_SOURCE_DIR}/base/tracking_info.cc
   ${chromium_SOURCE_DIR}/base/vlog.cc
+  ${chromium_SOURCE_DIR}/base/value_conversions.cc
   ${chromium_SOURCE_DIR}/base/values.cc
 )
 if (WIN32)
