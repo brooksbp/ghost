@@ -73,26 +73,35 @@ void InitiateShutdown(void) {
 void sig_handler(int s) {
   InitiateShutdown();
 }
+void setup_sig_handler() {
+  struct sigaction sa;
+  sa.sa_handler = sig_handler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGINT, &sa, NULL);
+}
 #endif
+
+void initialize_logging() {
+  logging::SetLogItems(true, true, true, true);
+
+  logging::LoggingSettings logging_settings;
+  logging_settings.logging_dest = logging::LOG_TO_ALL;
+  logging_settings.log_file = FILE_PATH_LITERAL("ghost.log");
+  logging_settings.lock_log = logging::LOCK_LOG_FILE;
+  logging_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
+
+  logging::InitLogging(logging_settings);
+}
 
 #if defined(OS_POSIX)
 int main(int argc, const char* argv[]) {
 #elif defined(OS_WIN)
 int _tmain(int argc, _TCHAR* argv[]) {
 #endif
-
 #if defined(OS_POSIX)
   XInitThreads();
-
-  struct sigaction sa;
-  sa.sa_handler = sig_handler;
-  sigemptyset(&sa.sa_mask);
-  sa.sa_flags = 0;
-  sigaction(SIGINT, &sa, NULL);
 #endif
-
-  base::MessageLoop main_loop(base::MessageLoop::TYPE_UI);
-  BlockingPool::CreateInstance();
 
   // Initialize the commandline singleton from the environment.
 #if defined(OS_WIN)
@@ -100,18 +109,18 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #elif defined(OS_POSIX)
   CommandLine::Init(argc, argv);
 #endif
-  CommandLine* cl = CommandLine::ForCurrentProcess();
 
-  // Initialize logging.
-  logging::SetLogItems(true, true, true, true);
-  logging::LoggingSettings logging_settings;
-  logging_settings.logging_dest = logging::LOG_TO_ALL;
-  logging_settings.log_file = FILE_PATH_LITERAL("ghost-debug.log");
-  logging_settings.lock_log = logging::LOCK_LOG_FILE;
-  logging_settings.delete_old = logging::DELETE_OLD_LOG_FILE;
-  logging::InitLogging(logging_settings);
+#if defined(OS_POSIX)
+  setup_sig_handler();
+#endif
+
+  base::MessageLoop main_loop(base::MessageLoop::TYPE_UI);
+  BlockingPool::CreateInstance();
+
+  initialize_logging();
 
   // Process command line switches.
+  CommandLine* cl = CommandLine::ForCurrentProcess();
   if (cl->HasSwitch("help")) {
     std::cout << "\t-help" << std::endl;
     std::cout << "\t--dir=/path/to/library/" << "\t\tmusic library path."
@@ -121,23 +130,22 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
-  // Preferences
+  // 1. Register all preferences before next step.
   scoped_refptr<PrefRegistrySimple> pref_registry = new PrefRegistrySimple;
 
   pref_registry->RegisterBooleanPref("do.you.want.more", true);
 
-  base::PrefServiceFactory pref_factory;
-  
   base::FilePath prefs_file(FILE_PATH_LITERAL("prefs"));
 
+  // 2. Create PrefService.
   scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner =
       JsonPrefStore::GetTaskRunnerForFile(prefs_file,
                                           BlockingPool::GetBlockingPool());
-
+  base::PrefServiceFactory pref_factory;
   pref_factory.SetUserPrefsFile(prefs_file, sequenced_task_runner.get());
-
   scoped_ptr<PrefService> prefs = pref_factory.Create(pref_registry.get());
 
+  // 3. Use prefs!
   prefs->SetBoolean("do.you.want.more", false);
   prefs->CommitPendingWrite();
 

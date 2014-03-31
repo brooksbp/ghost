@@ -488,6 +488,7 @@ set(SRC_FILES
   third_party/g_own_ptr.cc
 
   src/blocking_pool.cc
+  src/command_line_switches.cc
   src/gst_player.cc
   src/library.cc
   src/main.cc
