@@ -487,12 +487,12 @@ endif()
 set(SRC_FILES
   third_party/g_own_ptr.cc
 
-  src/track.cc
-  src/playlist_pls.cc
-  src/library.cc
+  src/blocking_pool.cc
   src/gst_player.cc
+  src/library.cc
   src/main.cc
-
+  src/playlist_pls.cc
+  src/track.cc
   src/ui/main_window.cc
   src/ui/ui.cc
 )

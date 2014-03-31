@@ -10,8 +10,10 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/message_loop/message_loop.h"
+#include "base/prefs/pref_registry_simple.h"
 #include "base/run_loop.h"
 
+#include "blocking_pool.h"
 #include "gst_player.h"
 #include "library.h"
 #include "playlist_pls.h"
@@ -87,6 +89,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif
 
   base::MessageLoop main_loop(base::MessageLoop::TYPE_UI);
+  BlockingPool::CreateInstance();
 
   // Initialize the commandline singleton from the environment.
 #if defined(OS_WIN)
@@ -115,11 +118,16 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
+  // Preferences
+  scoped_refptr<PrefRegistrySimple> pref_registry = new PrefRegistrySimple;
+  pref_registry->RegisterBooleanPref("do.you.want.more", true);
+  // TODO(brbrooks) need blocking pool for json
+
   Library::CreateInstance();
   GstPlayer::CreateInstance();
   Ui::CreateInstance();
 
-  // User Preferences / Import from |dir|.
+  // Import from |dir|.
 #if defined(OS_WIN)
   base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
 #else
@@ -149,6 +157,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   run_loop.Run();
 
-  LOG(INFO) << "EndOfMain";
+  LOG(INFO) << "Shutting down blocking pool";
+  BlockingPool::GetInstance()->DeleteInstance();
+
   return 0;
 }
