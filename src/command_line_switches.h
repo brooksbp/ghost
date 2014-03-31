@@ -12,6 +12,8 @@ extern const char kHelpShort[];
 extern const char kLibraryDir[];
 extern const char kUserDataDir[];
 
+void Usage();
+
 }  // namespace switches
 
 #endif  // COMMAND_LINE_SWITCHES_H_

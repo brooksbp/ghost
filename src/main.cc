@@ -17,6 +17,7 @@
 #include "base/run_loop.h"
 
 #include "blocking_pool.h"
+#include "command_line_switches.h"
 #include "gst_player.h"
 #include "library.h"
 #include "playlist_pls.h"
@@ -26,7 +27,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <iostream>
 
 #if defined(OS_POSIX)
 #include <X11/Xlib.h>
@@ -119,14 +119,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   initialize_logging();
 
-  // Process command line switches.
+  // Process *early* command line switches.
   CommandLine* cl = CommandLine::ForCurrentProcess();
-  if (cl->HasSwitch("help")) {
-    std::cout << "\t-help" << std::endl;
-    std::cout << "\t--dir=/path/to/library/" << "\t\tmusic library path."
-              << std::endl;
-    std::cout << "\t--pls=/path/to/playlist.pls" << "\tplay/stream playlist."
-              << std::endl;
+  if (cl->HasSwitch(switches::kHelp) || cl->HasSwitch(switches::kHelpShort)) {
+    switches::Usage();
     return 0;
   }
 
