@@ -1,0 +1,47 @@
+Singletons
+==========
+Use singleton-ish pattern in classes with {Create,Get,Delete}Instance methods
+and a static, global instance.
+
+Should eventually favor clear dependencies/relationships of data instead of
+using singletons/globals, but since this is still in infancy and evolving
+its just easier to use them until the larger picture starts to take form.
+
+Third-party Dependencies
+========================
+
+* chromium/src/base/
+    - PRO: Because it's awesome. Don't reinvent the wheel. Huge educational
+      resource.
+    - CON: Large binary size.
+    - CON: Possible radical change in structure; stuff could come and go.
+
+* Gstreamer
+    - PRO: Quickest, hands-off way to do "play this file", "play this url".
+    - PRO: "cross-platform".
+    - CON: Dependency on glib main loop.
+    - CON: Lots of other dependencies / "plugins" with varying stability.
+
+* Qt
+    - PRO: Quickest, hands-off way to get a GUI.
+    - PRO: "cross-platform".
+    - CON: Non-native look-and-feel.
+
+The combination of these 3 has provided some challenge regarding main loop
+and threading. It has been decided by benevolent dictator that we must use
+chromium/src/base style message-passing and other goodness. So:
+
+(1) On Linux, use glib message pump which also services the glib-based
+Qt and Gstreamer. On Windows, I think, need to merge win message pump and 
+glib loop, but I really have no fucking idea. I think that it may be possible
+to overcome this by switching to "cross-platform" chromium-based UI framework
+and replacing Gstreamer with ffmpeg and our own threading. I really have no
+fucking idea.
+(2) I have a bad feeling about Qt mostly brought about by running valgrind /
+hellgrind.
+(3) I have a bad feeling about Gstreamer mostly brought about by intercepting
+the default debug log message handler and observing various under-runs, errors,
+warings, etc.
+
+* Gtest/Gmock
+    - PRO: Because it's awesome.
