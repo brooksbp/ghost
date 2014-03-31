@@ -10,7 +10,10 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/message_loop/message_loop.h"
+#include "base/prefs/json_pref_store.h"
 #include "base/prefs/pref_registry_simple.h"
+#include "base/prefs/pref_service.h"
+#include "base/prefs/pref_service_factory.h"
 #include "base/run_loop.h"
 
 #include "blocking_pool.h"
@@ -120,8 +123,25 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   // Preferences
   scoped_refptr<PrefRegistrySimple> pref_registry = new PrefRegistrySimple;
+
   pref_registry->RegisterBooleanPref("do.you.want.more", true);
-  // TODO(brbrooks) need blocking pool for json
+
+  base::PrefServiceFactory pref_factory;
+  
+  base::FilePath prefs_file(FILE_PATH_LITERAL("prefs"));
+
+  scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner =
+      JsonPrefStore::GetTaskRunnerForFile(prefs_file,
+                                          BlockingPool::GetBlockingPool());
+
+  pref_factory.SetUserPrefsFile(prefs_file, sequenced_task_runner.get());
+
+  scoped_ptr<PrefService> prefs = pref_factory.Create(pref_registry.get());
+
+  prefs->CommitPendingWrite();
+
+  // FIXME(brbrooks) getting sleepy... revisit here.. prefs file just moves to prefs.bad
+
 
   Library::CreateInstance();
   GstPlayer::CreateInstance();
