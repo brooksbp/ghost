@@ -1,3 +1,11 @@
+Threading
+=========
+
+There is one main thread / message loop.
+The Gstreamer bus allows Gstreamer-specific code to run on main thread.
+There is a thread pool (blocking pool).
+There is an import thread that could probably be converted to use thread pool.
+
 Singletons
 ==========
 Use singleton-ish pattern in classes with {Create,Get,Delete}Instance methods
