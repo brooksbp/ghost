@@ -8,7 +8,10 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/observer_list.h"
+
 #include "track.h"
+
+class PrefRegistrySimple;
 
 class Library : public base::RefCountedThreadSafe<Library> {
  public:
@@ -28,8 +31,7 @@ class Library : public base::RefCountedThreadSafe<Library> {
   void AddObserver(LibraryObserver* observer);
   void RemoveObserver(LibraryObserver* observer);
 
-  // TODO(brbrooks) rename to something like ImportFromFilePath
-  void Init(const base::FilePath& path);
+  void ImportFromLibraryDir();
 
   Track* GetTrack(int index);
   Track* GetTrackForPlaying(int index);
@@ -37,6 +39,8 @@ class Library : public base::RefCountedThreadSafe<Library> {
   int GetNumTracks(void);
 
   void PrintTracks(void);
+
+  static void RegisterPrefs(PrefRegistrySimple* registry);
 
  private:
   void Import(void);

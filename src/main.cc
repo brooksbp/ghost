@@ -42,7 +42,9 @@ base::AtExitManager exit_manager;
 // instead.
 void DoShutdown(void) {
   LOG(INFO) << "running DoShutdown";
-  // TODO(brbrooks) Add OnWillShutdown() to observers?
+
+  Prefs::DeleteInstance();  
+
   Ui::DeleteInstance();
   GstPlayer::DeleteInstance();
   Library::DeleteInstance();
@@ -123,35 +125,13 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
-
-  Prefs::CreateInstance();
-
-  LOG(INFO) << "dywm="
-            << Prefs::GetInstance()->prefs()->GetBoolean("do.you.want.more");
-  //LOG(INFO) << "dywm=" << prefs->GetBoolean("do.you.want.more");
-  // //prefs->SetBoolean("do.you.want.more", false);
-
-  // base::FilePath path(prefs->GetFilePath(prefs::kLibraryDir));
-  // LOG(INFO) << prefs::kLibraryDir << "=" << path.value();
-
-  // prefs->CommitPendingWrite();
-
-
-
-
   Library::CreateInstance();
   GstPlayer::CreateInstance();
   Ui::CreateInstance();
 
-  // Import from |dir|.
-#if defined(OS_WIN)
-  base::FilePath dir(FILE_PATH_LITERAL("../../test-data/"));
-#else
-  base::FilePath dir(FILE_PATH_LITERAL("../test-data/"));
-#endif
-  if (cl->HasSwitch("dir"))
-    dir = cl->GetSwitchValuePath("dir");
-  Library::GetInstance()->Init(dir);
+  Prefs::CreateInstance();
+
+  Library::GetInstance()->ImportFromLibraryDir();
 
   // Play a playlist if passed in from command line..?
   // base::FilePath playlist;
@@ -175,7 +155,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   LOG(INFO) << "Returning from main loop";
 
-  Prefs::DeleteInstance();  
   BlockingPool::DeleteInstance();
 
   return 0;

@@ -10,9 +10,8 @@
 
 #include "blocking_pool.h"
 #include "command_line_pref_store.h"
+#include "library.h"
 #include "pref_names.h"
-
-// XXX: include files that implement methods for registering prefs
 
 // static
 Prefs* Prefs::instance_ = NULL;
@@ -21,9 +20,7 @@ Prefs::Prefs() {
   // 1. Register all the prefs
   scoped_refptr<PrefRegistrySimple> registry = new PrefRegistrySimple;
 
-  // XXX: call the register methods here
-  registry->RegisterBooleanPref("do.you.want.more", true);
-  registry->RegisterFilePathPref(prefs::kLibraryDir, base::FilePath());
+  Library::RegisterPrefs(registry);
 
   // 2. Setup USER_DATA prefs file
   base::FilePath prefs_file(FILE_PATH_LITERAL("Preferences"));

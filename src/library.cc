@@ -9,8 +9,12 @@
 #include "base/bind.h"
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
+#include "base/prefs/pref_registry_simple.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread.h"
+
+#include "prefs.h"
+#include "pref_names.h"
 
 // static
 scoped_refptr<Library> Library::instance_ = NULL;
@@ -66,8 +70,11 @@ void Library::RemoveObserver(LibraryObserver* observer) {
     observers_.RemoveObserver(observer);
 }
 
-void Library::Init(const base::FilePath& path) {
-  root_path_ = path;
+void Library::ImportFromLibraryDir() {
+  base::FilePath dir(
+      Prefs::GetInstance()->prefs()->GetFilePath(prefs::kLibraryDir));
+  // TODO(brbrooks) validate |dir|.
+  root_path_ = dir;
 
   CHECK(import_thread->Start());
 
@@ -130,4 +137,10 @@ void Library::PrintTracks(void) {
     LOG(INFO) << track->file_path_.value();
 #endif
   }
+}
+
+// static
+void Library::RegisterPrefs(PrefRegistrySimple* registry) {
+  registry->RegisterFilePathPref(
+      prefs::kLibraryDir, base::FilePath("../test-data/"));
 }
