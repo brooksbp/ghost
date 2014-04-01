@@ -4,12 +4,15 @@
 
 #include "library.h"
 
+#include <set>
+#include <string>
 #include <vector>
 
 #include "base/bind.h"
 #include "base/files/file_enumerator.h"
 #include "base/logging.h"
 #include "base/prefs/pref_registry_simple.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/thread.h"
 
@@ -86,13 +89,17 @@ void Library::ImportFromLibraryDir() {
 }
 
 void Library::Import(void) {
-  // Add music files found in root_path.
+  std::set<std::string> extension_set;
+  extension_set.insert(".aac");
+  extension_set.insert(".flac");
+  extension_set.insert(".m4a");
+  extension_set.insert(".mp3");
+  extension_set.insert(".ogg");
+
   LOG(INFO) << root_path_.value();
   base::FileEnumerator iter(root_path_, true, base::FileEnumerator::FILES);
   for (base::FilePath name = iter.Next(); !name.empty(); name = iter.Next()) {
-    LOG(INFO) << name.value();
-    if (name.MatchesExtension(FILE_PATH_LITERAL(".mp3")) ||
-        name.MatchesExtension(FILE_PATH_LITERAL(".flac"))) {
+    if (extension_set.count(StringToLowerASCII(name.FinalExtension())) > 0) {
       Track* track = new Track(name);
       tracks_.push_back(track);
     }
