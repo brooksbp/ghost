@@ -10,10 +10,18 @@ The best audio player.
 
 ##### For Users
 
-    $ ./ghost -help
-    -help
-    --dir=/path/to/library/             music library path.
-    --pls=/path/to/playlist.pls         play/stream playlist.
+    $ ./ghost -h
+        -help, -h
+    
+        --library-dir=
+        Path to directiory that contains all your audio files.
+    
+        --user-data-dir=
+        Path to directiory that is used to store user data.
+    
+
+`pwd`/Preferences - preferences file in JSON format. Don't modify while app is running!
+`pwd`/ghost.log - log file.
 
 ##### For Developers
 
