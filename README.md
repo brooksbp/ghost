@@ -20,8 +20,9 @@ The best audio player.
         Path to directiory that is used to store user data.
     
 
-`pwd`/Preferences - preferences file in JSON format. Don't modify while app is running!
-`pwd`/ghost.log - log file.
+/Preferences - preferences file in JSON format. Don't modify while app is running!
+
+/ghost.log - log file.
 
 ##### For Developers
 
