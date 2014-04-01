@@ -488,11 +488,14 @@ set(SRC_FILES
   third_party/g_own_ptr.cc
 
   src/blocking_pool.cc
+  src/command_line_pref_store.cc
   src/command_line_switches.cc
   src/gst_player.cc
   src/library.cc
   src/main.cc
   src/playlist_pls.cc
+  src/pref_names.cc
+  src/prefs.cc
   src/track.cc
   src/ui/main_window.cc
   src/ui/ui.cc

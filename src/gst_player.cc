@@ -59,9 +59,8 @@ GstPlayer::~GstPlayer() {
 
 // static
 void GstPlayer::CreateInstance() {
-  if (!instance_) {
+  if (!instance_)
     instance_ = new GstPlayer;
-  }
 }
 
 // static

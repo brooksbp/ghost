@@ -10,10 +10,6 @@
 #include "base/files/file_path.h"
 #include "base/memory/ref_counted.h"
 #include "base/message_loop/message_loop.h"
-#include "base/prefs/json_pref_store.h"
-#include "base/prefs/pref_registry_simple.h"
-#include "base/prefs/pref_service.h"
-#include "base/prefs/pref_service_factory.h"
 #include "base/run_loop.h"
 
 #include "blocking_pool.h"
@@ -21,6 +17,7 @@
 #include "gst_player.h"
 #include "library.h"
 #include "playlist_pls.h"
+#include "prefs.h"
 #include "track.h"
 #include "ui/ui.h"
 
@@ -126,24 +123,20 @@ int _tmain(int argc, _TCHAR* argv[]) {
     return 0;
   }
 
-  // 1. Register all preferences before next step.
-  scoped_refptr<PrefRegistrySimple> pref_registry = new PrefRegistrySimple;
 
-  pref_registry->RegisterBooleanPref("do.you.want.more", true);
+  Prefs::CreateInstance();
 
-  base::FilePath prefs_file(FILE_PATH_LITERAL("prefs"));
+  LOG(INFO) << "dywm="
+            << Prefs::GetInstance()->prefs()->GetBoolean("do.you.want.more");
+  //LOG(INFO) << "dywm=" << prefs->GetBoolean("do.you.want.more");
+  // //prefs->SetBoolean("do.you.want.more", false);
 
-  // 2. Create PrefService.
-  scoped_refptr<base::SequencedTaskRunner> sequenced_task_runner =
-      JsonPrefStore::GetTaskRunnerForFile(prefs_file,
-                                          BlockingPool::GetBlockingPool());
-  base::PrefServiceFactory pref_factory;
-  pref_factory.SetUserPrefsFile(prefs_file, sequenced_task_runner.get());
-  scoped_ptr<PrefService> prefs = pref_factory.Create(pref_registry.get());
+  // base::FilePath path(prefs->GetFilePath(prefs::kLibraryDir));
+  // LOG(INFO) << prefs::kLibraryDir << "=" << path.value();
 
-  // 3. Use prefs!
-  prefs->SetBoolean("do.you.want.more", false);
-  prefs->CommitPendingWrite();
+  // prefs->CommitPendingWrite();
+
+
 
 
   Library::CreateInstance();
@@ -180,7 +173,9 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   run_loop.Run();
 
-  LOG(INFO) << "Shutting down blocking pool";
+  LOG(INFO) << "Returning from main loop";
+
+  Prefs::GetInstance()->DeleteInstance();  
   BlockingPool::GetInstance()->DeleteInstance();
 
   return 0;
