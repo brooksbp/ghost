@@ -13,11 +13,14 @@ The best audio player.
     $ ./ghost -h
         -help, -h
     
+        --playlist=
+            PLS file to play (typically for internet streaming) once application loads.
+    
         --library-dir=
-        Path to directiory that contains all your audio files.
+            Path to directiory that contains all your audio files.
     
         --user-data-dir=
-        Path to directiory that is used to store user data.
+            Path to directiory that is used to store user data.
     
 
 /Preferences - preferences file in JSON format. Don't modify while app is running!

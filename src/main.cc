@@ -133,18 +133,19 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
   Library::GetInstance()->ImportFromLibraryDir();
 
-  // Play a playlist if passed in from command line..?
-  // base::FilePath playlist;
-  // if (cl->HasSwitch("pls")) {
-  //   playlist = cl->GetSwitchValuePath("pls");
-  //   // TODO(brbrooks) file exists check
-
-  //   PlaylistPLS pls(playlist);
-  //   if (pls.tracks_.size() > 0) {
-  //     gst_player->Load(pls.tracks_[0].file_);
-  //     gst_player->Play();
-  //   }
-  // }
+  // If a playlist was passed in from the command line, play the first track.
+  if (cl->HasSwitch(switches::kPlaylist)) {
+    base::FilePath playlist(cl->GetSwitchValuePath(switches::kPlaylist));
+    // TODO(brbrooks) exist check
+    if (playlist.MatchesExtension(".pls")) {
+      PlaylistPLS pls(playlist);
+      if (pls.tracks_.size() > 0) {
+        std::string uri(pls.tracks_.begin()->second.file_);
+        GstPlayer::GetInstance()->Load(uri);
+        GstPlayer::GetInstance()->Play();
+      }
+    }
+  }
 
   base::RunLoop run_loop;
 

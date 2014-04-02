@@ -9,6 +9,7 @@ namespace switches {
 
 extern const char kHelp[];
 extern const char kHelpShort[];
+extern const char kPlaylist[];
 extern const char kLibraryDir[];
 extern const char kUserDataDir[];
 
