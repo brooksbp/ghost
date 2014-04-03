@@ -111,23 +111,22 @@ void Library::NotifyImportDone(void) {
   FOR_EACH_OBSERVER(LibraryObserver, observers_, OnFinishImport(this));
 }
 
-Track* Library::GetTrack(int index) {
-  if (index >= 0 && index < (int) tracks_.size()) {
-    return tracks_[index];
-  }
-  return NULL;
-}
-
 Track* Library::GetTrackForPlaying(int index) {
-  if (index >= 0 && index < (int) tracks_.size()) {
-    current_track_ = index;
-    return GetCurrentTrack();
-  }
-  return NULL;
+  DCHECK(index >= 0 && index < tracks_.size());
+  current_track_ = index;
+  return tracks_[current_track_];
 }
 
-Track* Library::GetCurrentTrack() {
+Track* Library::GetNextTrackForPlaying() {
+  current_track_ += 1;
+  if (current_track_ >= tracks_.size())
+    current_track_ = 0;
   return tracks_[current_track_];
+}
+
+Track* Library::GetTrack(int index) {
+  DCHECK(index >= 0 && index < tracks_.size());
+  return tracks_[index];
 }
 
 int Library::GetNumTracks(void) {

@@ -33,9 +33,10 @@ class Library : public base::RefCountedThreadSafe<Library> {
 
   void ImportFromLibraryDir();
 
-  Track* GetTrack(int index);
   Track* GetTrackForPlaying(int index);
-  Track* GetCurrentTrack();
+  Track* GetNextTrackForPlaying();
+
+  Track* GetTrack(int index);
   int GetNumTracks(void);
 
   void PrintTracks(void);

@@ -95,8 +95,9 @@ void MainWindow::Init() {
 }
 
 void MainWindow::OnEndOfStream() {
-  play_button_->setText("--");
-  slider_->setValue(0);
+  Track* track = Library::GetInstance()->GetNextTrackForPlaying();
+  if (track)
+    PlayTrack(track);
 }
 
 void MainWindow::OnPositionUpdated(float position) {
@@ -115,7 +116,6 @@ void MainWindow::OnPositionUpdated(float position) {
 
 void MainWindow::OnDurationUpdated(float duration) {
   track_duration_ = duration;
-  LOG(INFO) << "duration = " << duration;
 }
 
 void MainWindow::handleButtonPressed() {
@@ -140,11 +140,14 @@ void MainWindow::handleSliderReleased() {
   slider_engaged_ = false;
 }
 
-
 void MainWindow::handleDoubleClick(const QModelIndex& index) {
-  Track* track = Library::GetInstance()->GetTrack(index.row());
-  if (!track)
-    return;
+  Track* track = Library::GetInstance()->GetTrackForPlaying(index.row());
+  if (track)
+    PlayTrack(track);
+}
+
+void MainWindow::PlayTrack(Track* track) {
+  DCHECK(track);
 
 #if defined(OS_WIN)
   GstPlayer::GetInstance()->Load(base::WideToUTF8(track->file_path_.value()));
@@ -155,7 +158,6 @@ void MainWindow::handleDoubleClick(const QModelIndex& index) {
   
   play_button_->setText("pause");
 }
-
 
 TableModel::TableModel(QObject* parent)
     : QAbstractTableModel(parent) {

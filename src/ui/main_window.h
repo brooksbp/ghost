@@ -57,6 +57,7 @@ class MainWindow
   void handleDoubleClick(const QModelIndex& index);
   
  private:
+  void PlayTrack(Track* track);
   QWidget* central_;
   QGridLayout* central_layout_;
   QHBoxLayout* hbox_;
