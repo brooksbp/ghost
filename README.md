@@ -1,10 +1,4 @@
-___
-WARNING: UNDER CONSTRUCTION
-___
-
 ### ghost
-
-The best audio player.
 
 ![ss](https://raw.githubusercontent.com/brooksbp/ghost/master/doc/2014-03-30_ss.png)
 
